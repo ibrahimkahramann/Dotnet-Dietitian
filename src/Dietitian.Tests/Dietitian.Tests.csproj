@@ -18,4 +18,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Dietitian.Application\Dietitian.Application.csproj" />
+  </ItemGroup>
+
 </Project>
