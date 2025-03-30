@@ -1,0 +1,6 @@
+@Dietitian.Presentation_HostAddress = http://localhost:5277
+
+GET {{Dietitian.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
