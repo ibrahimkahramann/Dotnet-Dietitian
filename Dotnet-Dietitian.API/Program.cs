@@ -1,5 +1,7 @@
 using Dotnet_Dietitian.API.Extensions;
 using Microsoft.OpenApi.Models;
+using Dotnet_Dietitian.Persistence.Data;
+using Dotnet_Dietitian.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,9 +24,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dotnet-Dietitian API v1"));
 }
 
+//exception handler
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Seed the database
+if (app.Environment.IsDevelopment())
+{
+    await SeedData.SeedAsync(app.Services);
+}
 
 app.Run();
