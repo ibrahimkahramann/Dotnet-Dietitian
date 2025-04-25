@@ -3,10 +3,11 @@ using Dotnet_Dietitian.Application.Interfaces;
 using Dotnet_Dietitian.Application.Interfaces.AppUserInterfaces;
 using Dotnet_Dietitian.Application.Queries.AppUserQueries;
 using Dotnet_Dietitian.Domain.Entities;
+using MediatR;
 
 namespace Dotnet_Dietitian.Application.Handlers.AppUserHandlers;
 
-public class GetCheckAppUserQueryHandler
+public class GetCheckAppUserQueryHandler : IRequestHandler<GetCheckAppUserQuery, GetCheckAppUserQueryResult>
 {
     private readonly IRepository<AppUser> _appUserRepository;
     private readonly IRepository<AppRole> _appRoleRepository;
