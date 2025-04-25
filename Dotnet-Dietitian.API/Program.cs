@@ -2,7 +2,10 @@ using System.Text;
 using Dotnet_Dietitian.Application.Tools;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Dotnet_Dietitian.API.Extensions;
 using Microsoft.OpenApi.Models;
+using Dotnet_Dietitian.Persistence.Data;
+using Dotnet_Dietitian.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +25,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 // Add services to the container
 builder.Services.AddControllers();
 
-// Configure Swagger
+builder.Services.AddApplicationServices(builder.Configuration);
+
+// Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -31,18 +36,25 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dotnet-Dietitian API v1"));
 }
 
+//exception handler
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Uses controllers
 app.MapControllers();
+
+// Seed the database
+if (app.Environment.IsDevelopment())
+{
+    await SeedData.SeedAsync(app.Services);
+}
 
 app.Run();
