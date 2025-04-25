@@ -48,4 +48,9 @@ public class BaseRepository<T> : IRepository<T> where T : class
         _context.Set<T>().Remove(entity);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<T?> GetByFilterAsync(Expression<Func<T, bool>> filter)
+    {
+        return await _context.Set<T>().SingleOrDefaultAsync(filter);
+    }
 }
