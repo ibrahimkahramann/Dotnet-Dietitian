@@ -20,10 +20,12 @@ namespace Dotnet_Dietitian.API.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IDiyetisyenRepository, DiyetisyenRepository>();
             services.AddScoped<IHastaRepository, HastaRepository>();
+            services.AddScoped<IDiyetProgramiRepository, DiyetProgramiRepository>();
             
             // Services
             services.AddScoped<IDiyetisyenService, DiyetisyenService>();
             services.AddScoped<IHastaService, HastaService>();
+            services.AddScoped<IDiyetProgramiService, DiyetProgramiService>();
             
             return services;
         }
