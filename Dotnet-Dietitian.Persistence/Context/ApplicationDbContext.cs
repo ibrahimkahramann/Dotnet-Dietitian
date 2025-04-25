@@ -9,6 +9,8 @@ public class ApplicationDbContext : DbContext
     {
     }
     
+    public DbSet<AppUser> AppUsers { get; set; }
+    public DbSet<AppRole> AppRoles { get; set; }
     public DbSet<Diyetisyen> Diyetisyenler { get; set; }
     public DbSet<Hasta> Hastalar { get; set; }
     public DbSet<DiyetProgrami> DiyetProgramlari { get; set; }
