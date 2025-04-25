@@ -23,6 +23,7 @@ namespace Dotnet_Dietitian.API.Extensions
             
             // Services
             services.AddScoped<IDiyetisyenService, DiyetisyenService>();
+            services.AddScoped<IHastaService, HastaService>();
             
             return services;
         }
