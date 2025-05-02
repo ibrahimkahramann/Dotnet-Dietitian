@@ -1,9 +1,9 @@
-using System.Linq.Expressions;
 using Dotnet_Dietitian.Domain.Entities;
 
 namespace Dotnet_Dietitian.Application.Interfaces.AppUserInterfaces;
 
-public interface IAppUserRepository
+public interface IAppUserRepository : IRepository<AppUser>
 {
-     Task<List<AppUser>> GetByFilterAsync(Expression<Func<AppUser, bool>> filter);
+    Task<AppUser> GetByUsernameAsync(string username);
+    Task<AppUser> GetByUsernameAndPasswordAsync(string username, string password);
 }
