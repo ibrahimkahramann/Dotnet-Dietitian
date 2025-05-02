@@ -1,9 +1,11 @@
 using Dotnet_Dietitian.Application.Services;
 using Dotnet_Dietitian.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class DiyetisyenController : ControllerBase

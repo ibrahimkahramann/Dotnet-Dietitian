@@ -12,6 +12,18 @@ namespace Dotnet_Dietitian.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "AppRoles",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AppRoleName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppRoles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Diyetisyenler",
                 columns: table => new
                 {
@@ -33,6 +45,26 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Diyetisyenler", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AppRoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppUsers_AppRoles_AppRoleId",
+                        column: x => x.AppRoleId,
+                        principalTable: "AppRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -174,6 +206,11 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppUsers_AppRoleId",
+                table: "AppUsers",
+                column: "AppRoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Diyetisyenler_Email",
                 table: "Diyetisyenler",
                 column: "Email",
@@ -251,6 +288,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AppUsers");
+
+            migrationBuilder.DropTable(
                 name: "DiyetisyenUygunluklar");
 
             migrationBuilder.DropTable(
@@ -258,6 +298,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Randevular");
+
+            migrationBuilder.DropTable(
+                name: "AppRoles");
 
             migrationBuilder.DropTable(
                 name: "Hastalar");
