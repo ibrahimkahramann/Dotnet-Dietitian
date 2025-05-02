@@ -23,14 +23,14 @@ public class GetCheckAppUserQueryHandler : IRequestHandler<GetCheckAppUserQuery,
         
         if (values != null)
         {
-            var appRole = await _appRoleRepository.GetByFilterAsync(x => x.Id == values.AppRole.Id);
+            var appRole = await _appRoleRepository.GetByFilterAsync(x => x.Id == values.AppRoleId);
             
             return new GetCheckAppUserQueryResult
             {
                 IsExist = true,
                 Username = values.Username,
                 Id = values.Id,
-                Role = appRole.AppRoleName ?? "Bilinmeyen Rol"
+                Role = appRole?.AppRoleName ?? "Bilinmeyen Rol"
             };
         }
         

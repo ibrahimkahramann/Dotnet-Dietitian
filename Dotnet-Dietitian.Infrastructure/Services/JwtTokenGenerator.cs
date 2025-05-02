@@ -32,13 +32,14 @@ namespace Dotnet_Dietitian.Infrastructure.Services
             if (!string.IsNullOrEmpty(user.Username))
                 claims.Add(new Claim("Username", user.Username));
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            // Use JwtTokenDefaults instead of _configuration
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Application.Tools.JwtTokenDefaults.Key));
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expireDate = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"]));
+            var expireDate = DateTime.UtcNow.AddMinutes(Application.Tools.JwtTokenDefaults.Expire);
 
             JwtSecurityToken token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: Application.Tools.JwtTokenDefaults.ValidIssuer,
+                audience: Application.Tools.JwtTokenDefaults.ValidAudience,
                 claims: claims,
                 expires: expireDate,
                 signingCredentials: signingCredentials);
