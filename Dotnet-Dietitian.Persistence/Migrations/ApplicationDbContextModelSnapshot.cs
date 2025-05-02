@@ -22,6 +22,45 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.AppRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppRoleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppRoles");
+                });
+
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.AppUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppRoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppRoleId");
+
+                    b.ToTable("AppUsers");
+                });
+
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.DiyetProgrami", b =>
                 {
                     b.Property<Guid>("Id")
@@ -320,6 +359,17 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.ToTable("Randevular");
                 });
 
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.AppUser", b =>
+                {
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.AppRole", "AppRole")
+                        .WithMany("AppUsers")
+                        .HasForeignKey("AppRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppRole");
+                });
+
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.DiyetProgrami", b =>
                 {
                     b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "OlusturanDiyetisyen")
@@ -386,6 +436,11 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.Navigation("Diyetisyen");
 
                     b.Navigation("Hasta");
+                });
+
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.AppRole", b =>
+                {
+                    b.Navigation("AppUsers");
                 });
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.DiyetProgrami", b =>

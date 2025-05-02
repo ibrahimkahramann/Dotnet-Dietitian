@@ -18,20 +18,26 @@ namespace Dotnet_Dietitian.Persistence.Data
                 using var scope = serviceProvider.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-                // AppRole ekleyelim
+                // Önce roller oluşturulur ve veritabanına kaydedilir
                 if (!context.AppRoles.Any())
                 {
                     var roles = new List<AppRole>
                     {
-                        new AppRole { AppRoleId = 1, AppRoleName = "Admin" },
-                        new AppRole { AppRoleId = 2, AppRoleName = "Diyetisyen" },
-                        new AppRole { AppRoleId = 3, AppRoleName = "Hasta" }
+                        new AppRole { Id = Guid.NewGuid(), AppRoleName = "Admin" },
+                        new AppRole { Id = Guid.NewGuid(), AppRoleName = "Diyetisyen" },
+                        new AppRole { Id = Guid.NewGuid(), AppRoleName = "Hasta" }
                     };
                     
                     await context.AppRoles.AddRangeAsync(roles);
                     await context.SaveChangesAsync();
                 }
-                
+
+                // Roller veritabanından çekilir
+                var allRoles = await context.AppRoles.ToListAsync();
+                var adminRoleId = allRoles.First(r => r.AppRoleName == "Admin").Id;
+                var diyetisyenRoleId = allRoles.First(r => r.AppRoleName == "Diyetisyen").Id;
+                var hastaRoleId = allRoles.First(r => r.AppRoleName == "Hasta").Id;
+
                 // Diyetisyenler
                 List<Diyetisyen> diyetisyenler = new List<Diyetisyen>();
                 if (!context.Diyetisyenler.Any())
@@ -134,9 +140,9 @@ namespace Dotnet_Dietitian.Persistence.Data
                 {
                     var users = new List<AppUser>
                     {
-                        new AppUser { AppUserId = 1, Username = "admin", Password = "admin123", AppRoleId = 1 },
-                        new AppUser { AppUserId = 2, Username = "ahmetyilmaz", Password = "123456", AppRoleId = 2 },
-                        new AppUser { AppUserId = 3, Username = "aysedemir", Password = "123456", AppRoleId = 2 },
+                        new AppUser { Id = Guid.NewGuid(), Username = "admin", Password = "admin123", AppRoleId = adminRoleId },
+                        new AppUser { Id = Guid.NewGuid(), Username = "ahmetyilmaz", Password = "123456", AppRoleId = diyetisyenRoleId },
+                        new AppUser { Id = Guid.NewGuid(), Username = "aysedemir", Password = "123456", AppRoleId = diyetisyenRoleId },
                     };
                     
                     await context.AppUsers.AddRangeAsync(users);
@@ -356,10 +362,10 @@ namespace Dotnet_Dietitian.Persistence.Data
                     {
                         hastaUsers.Add(new AppUser
                         {
-                            AppUserId = 4 + i, 
+                            Id = Guid.NewGuid(),
                             Username = hastalar[i].Ad.ToLower() + hastalar[i].Soyad.ToLower(),
                             Password = "123456",
-                            AppRoleId = 3 // Hasta rolü
+                            AppRoleId = hastaRoleId // Hasta rolü
                         });
                     }
                     

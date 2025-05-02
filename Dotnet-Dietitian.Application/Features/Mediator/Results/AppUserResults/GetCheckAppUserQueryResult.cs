@@ -2,7 +2,7 @@ namespace Dotnet_Dietitian.Application.Features.Results.AppUserResults;
 
 public class GetCheckAppUserQueryResult
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     
     public string Username { get; set; }
     
