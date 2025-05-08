@@ -1,79 +1,54 @@
-using Dotnet_Dietitian.Application.Services;
-using Dotnet_Dietitian.Domain.Entities;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetProgramiCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetProgramiQueries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Dotnet_Dietitian.API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class DiyetProgramiController : ControllerBase
+namespace Dotnet_Dietitian.API.Controllers
 {
-    private readonly IDiyetProgramiService _diyetProgramiService;
-    
-    public DiyetProgramiController(IDiyetProgramiService diyetProgramiService)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class DiyetProgramiController : ControllerBase
     {
-        _diyetProgramiService = diyetProgramiService;
-    }
-    
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<DiyetProgrami>>> GetAllDiyetProgramlari()
-    {
-        var diyetProgramlari = await _diyetProgramiService.GetAllDiyetProgramlariAsync();
-        return Ok(diyetProgramlari);
-    }
-    
-    [HttpGet("{id}")]
-    public async Task<ActionResult<DiyetProgrami>> GetDiyetProgramiById(Guid id)
-    {
-        var diyetProgrami = await _diyetProgramiService.GetDiyetProgramiByIdAsync(id);
-        if (diyetProgrami == null)
+        private readonly IMediator _mediator;
+
+        public DiyetProgramiController(IMediator mediator)
         {
-            return NotFound();
+            _mediator = mediator;
         }
-        return Ok(diyetProgrami);
-    }
-    
-    [HttpPost]
-    public async Task<ActionResult<DiyetProgrami>> CreateDiyetProgrami(DiyetProgrami diyetProgrami)
-    {
-        var createdDiyetProgrami = await _diyetProgramiService.CreateDiyetProgramiAsync(diyetProgrami);
-        return CreatedAtAction(nameof(GetDiyetProgramiById), new { id = createdDiyetProgrami.Id }, createdDiyetProgrami);
-    }
-    
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateDiyetProgrami(Guid id, DiyetProgrami diyetProgrami)
-    {
-        if (id != diyetProgrami.Id)
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            return BadRequest();
+            var values = await _mediator.Send(new GetDiyetProgramiQuery());
+            return Ok(values);
         }
-        
-        await _diyetProgramiService.UpdateDiyetProgramiAsync(diyetProgrami);
-        return NoContent();
-    }
-    
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteDiyetProgrami(Guid id)
-    {
-        await _diyetProgramiService.DeleteDiyetProgramiAsync(id);
-        return NoContent();
-    }
-    
-    [HttpGet("byDiyetisyen/{diyetisyenId}")]
-    public async Task<ActionResult<IEnumerable<DiyetProgrami>>> GetDiyetProgramiByDiyetisyenId(Guid diyetisyenId)
-    {
-        var diyetProgramlari = await _diyetProgramiService.GetDiyetProgramiByDiyetisyenIdAsync(diyetisyenId);
-        return Ok(diyetProgramlari);
-    }
-    
-    [HttpGet("{id}/withHastalar")]
-    public async Task<ActionResult<DiyetProgrami>> GetDiyetProgramiWithHastalar(Guid id)
-    {
-        var diyetProgrami = await _diyetProgramiService.GetDiyetProgramiWithHastalarAsync(id);
-        if (diyetProgrami == null)
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-            return NotFound();
+            var value = await _mediator.Send(new GetDiyetProgramiByIdQuery(id));
+            return Ok(value);
         }
-        return Ok(diyetProgrami);
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateDiyetProgramiCommand command)
+        {
+            await _mediator.Send(command);
+            return Ok("Diyet programı başarıyla oluşturuldu");
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(UpdateDiyetProgramiCommand command)
+        {
+            await _mediator.Send(command);
+            return Ok("Diyet programı başarıyla güncellendi");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _mediator.Send(new RemoveDiyetProgramiCommand(id));
+            return Ok("Diyet programı başarıyla silindi");
+        }
     }
 }
