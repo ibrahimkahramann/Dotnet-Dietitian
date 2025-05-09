@@ -4,7 +4,7 @@ namespace Dotnet_Dietitian.Application.Interfaces
 {
     public interface IDiyetisyenUygunlukRepository : IRepository<DiyetisyenUygunluk>
     {
-        Task<IReadOnlyList<DiyetisyenUygunluk>> GetMuayitSlotlarByDiyetisyenIdAsync(Guid diyetisyenId);
+        Task<IReadOnlyList<DiyetisyenUygunluk>> GetMusaitSlotlarByDiyetisyenIdAsync(Guid diyetisyenId);
         Task<IReadOnlyList<DiyetisyenUygunluk>> GetUygunlukByTarihAraligindaAsync(DateTime baslangic, DateTime bitis);
     }
 }

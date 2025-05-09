@@ -5,22 +5,22 @@ using MediatR;
 
 namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.DiyetisyenUygunlukHandlers
 {
-    public class UpdateMuayitDurumCommandHandler : IRequestHandler<UpdateMuayitDurumCommand, Unit>
+    public class UpdateMusaitDurumCommandHandler : IRequestHandler<UpdateMusaitDurumCommand, Unit>
     {
         private readonly IRepository<DiyetisyenUygunluk> _repository;
 
-        public UpdateMuayitDurumCommandHandler(IRepository<DiyetisyenUygunluk> repository)
+        public UpdateMusaitDurumCommandHandler(IRepository<DiyetisyenUygunluk> repository)
         {
             _repository = repository;
         }
 
-        public async Task<Unit> Handle(UpdateMuayitDurumCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateMusaitDurumCommand request, CancellationToken cancellationToken)
         {
             var uygunluk = await _repository.GetByIdAsync(request.Id);
             if (uygunluk == null)
                 throw new Exception($"ID:{request.Id} olan diyetisyen uygunluğu bulunamadı");
 
-            uygunluk.Muayit = request.Muayit;
+            uygunluk.Musait = request.Musait; // Muayit -> Musait
 
             await _repository.UpdateAsync(uygunluk);
             return Unit.Value;

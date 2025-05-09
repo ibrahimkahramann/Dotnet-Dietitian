@@ -34,11 +34,16 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.DiyetisyenUygunluk
                 DiyetisyenId = request.DiyetisyenId,
                 BaslangicZamani = request.BaslangicZamani,
                 BitisZamani = request.BitisZamani,
-                Muayit = request.Muayit,
+                Musait = request.Musait,
                 TekrarlanirMi = request.TekrarlanirMi,
                 TekrarlanmaSikligi = request.TekrarlanmaSikligi,
                 Notlar = request.Notlar,
-                OlusturulmaTarihi = request.OlusturulmaTarihi
+                OlusturulmaTarihi = request.OlusturulmaTarihi,
+                // Eski property'ler için de değer ata
+                Gun = request.BaslangicZamani.Date, 
+                BaslangicSaati = request.BaslangicZamani.TimeOfDay,
+                BitisSaati = request.BitisZamani.TimeOfDay,
+                TekrarTipi = request.TekrarlanmaSikligi
             });
 
             return Unit.Value;

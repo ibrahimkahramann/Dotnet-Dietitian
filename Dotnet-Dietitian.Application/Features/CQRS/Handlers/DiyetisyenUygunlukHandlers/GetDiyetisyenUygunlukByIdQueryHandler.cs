@@ -38,7 +38,7 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.DiyetisyenUygunluk
                 DiyetisyenTelefon = diyetisyen.Telefon,
                 BaslangicZamani = uygunluk.BaslangicZamani,
                 BitisZamani = uygunluk.BitisZamani,
-                Muayit = uygunluk.Muayit,
+                Musait = uygunluk.Musait,
                 TekrarlanirMi = uygunluk.TekrarlanirMi,
                 TekrarlanmaSikligi = uygunluk.TekrarlanmaSikligi,
                 Notlar = uygunluk.Notlar,

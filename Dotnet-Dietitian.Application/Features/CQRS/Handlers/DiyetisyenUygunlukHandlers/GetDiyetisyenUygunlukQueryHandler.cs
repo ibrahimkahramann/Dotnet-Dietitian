@@ -35,7 +35,7 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.DiyetisyenUygunluk
                     DiyetisyenAdSoyad = diyetisyen != null ? $"{diyetisyen.Ad} {diyetisyen.Soyad}" : "Bilinmiyor",
                     BaslangicZamani = uygunluk.BaslangicZamani,
                     BitisZamani = uygunluk.BitisZamani,
-                    Muayit = uygunluk.Muayit,
+                    Musait = uygunluk.Musait,
                     TekrarlanirMi = uygunluk.TekrarlanirMi,
                     TekrarlanmaSikligi = uygunluk.TekrarlanmaSikligi
                 };

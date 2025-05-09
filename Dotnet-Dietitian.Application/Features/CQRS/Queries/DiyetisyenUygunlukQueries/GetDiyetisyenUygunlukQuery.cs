@@ -5,5 +5,6 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetisyenUygunlukQ
 {
     public class GetDiyetisyenUygunlukQuery : IRequest<List<GetDiyetisyenUygunlukQueryResult>>
     {
+        // Parametre gerektirmiyor
     }
 }

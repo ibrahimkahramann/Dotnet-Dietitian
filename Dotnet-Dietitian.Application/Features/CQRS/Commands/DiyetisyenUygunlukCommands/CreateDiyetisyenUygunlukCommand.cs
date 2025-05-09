@@ -7,7 +7,7 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetisyenUygunluk
         public Guid DiyetisyenId { get; set; }
         public DateTime BaslangicZamani { get; set; }
         public DateTime BitisZamani { get; set; }
-        public bool Muayit { get; set; } = true;
+        public bool Musait { get; set; } = true;
         public bool TekrarlanirMi { get; set; } = false;
         public string? TekrarlanmaSikligi { get; set; }
         public string? Notlar { get; set; }

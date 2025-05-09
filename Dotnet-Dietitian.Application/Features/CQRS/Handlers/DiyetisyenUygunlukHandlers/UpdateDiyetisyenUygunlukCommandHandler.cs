@@ -27,10 +27,16 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.DiyetisyenUygunluk
             uygunluk.DiyetisyenId = request.DiyetisyenId;
             uygunluk.BaslangicZamani = request.BaslangicZamani;
             uygunluk.BitisZamani = request.BitisZamani;
-            uygunluk.Muayit = request.Muayit;
+            uygunluk.Musait = request.Musait;
             uygunluk.TekrarlanirMi = request.TekrarlanirMi;
             uygunluk.TekrarlanmaSikligi = request.TekrarlanmaSikligi;
             uygunluk.Notlar = request.Notlar;
+            
+            // Eski property'leri de güncelle
+            uygunluk.Gun = request.BaslangicZamani.Date;
+            uygunluk.BaslangicSaati = request.BaslangicZamani.TimeOfDay;
+            uygunluk.BitisSaati = request.BitisZamani.TimeOfDay;
+            uygunluk.TekrarTipi = request.TekrarlanmaSikligi;
 
             await _repository.UpdateAsync(uygunluk);
             return Unit.Value;

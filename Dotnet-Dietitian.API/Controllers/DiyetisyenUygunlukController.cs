@@ -65,10 +65,10 @@ namespace Dotnet_Dietitian.API.Controllers
             return Ok("Diyetisyen uygunluk bilgisi başarıyla silindi");
         }
 
-        [HttpPut("updateMuayitDurum/{id}")]
-        public async Task<IActionResult> UpdateMuayitDurum(Guid id, [FromQuery] bool muayit)
+        [HttpPut("updateMusaitDurum/{id}")]
+        public async Task<IActionResult> UpdateMusaitDurum(Guid id, [FromQuery] bool musait)
         {
-            await _mediator.Send(new UpdateMuayitDurumCommand(id, muayit));
+            await _mediator.Send(new UpdateMusaitDurumCommand(id, musait));
             return Ok("Diyetisyen uygunluk müsait durumu güncellendi");
         }
     }
