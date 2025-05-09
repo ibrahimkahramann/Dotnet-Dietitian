@@ -11,7 +11,7 @@ namespace Dotnet_Dietitian.Persistence.Repositories
         {
         }
         
-        public async Task<IReadOnlyList<DiyetisyenUygunluk>> GetMuayitSlotlarByDiyetisyenIdAsync(Guid diyetisyenId)
+        public async Task<IReadOnlyList<DiyetisyenUygunluk>> GetMusaitSlotlarByDiyetisyenIdAsync(Guid diyetisyenId)
         {
             return await _context.DiyetisyenUygunluklar
                 .Where(du => du.DiyetisyenId == diyetisyenId && du.Musait)
