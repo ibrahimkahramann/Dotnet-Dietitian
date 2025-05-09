@@ -31,6 +31,8 @@ namespace Dotnet_Dietitian.API.Extensions
             services.AddScoped<IHastaRepository, HastaRepository>();
             services.AddScoped<IDiyetProgramiRepository, DiyetProgramiRepository>();
             services.AddScoped<IAppUserRepository, AppUserRepository>();
+            services.AddScoped<IRandevuRepository, RandevuRepository>();
+            services.AddScoped<IDiyetisyenUygunlukRepository, DiyetisyenUygunlukRepository>();
             
             // Services
             services.AddScoped<IDiyetisyenService, DiyetisyenService>();

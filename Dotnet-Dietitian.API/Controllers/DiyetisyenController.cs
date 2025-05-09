@@ -1,82 +1,62 @@
-using Dotnet_Dietitian.Application.Services;
-using Dotnet_Dietitian.Domain.Entities;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetisyenCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetisyenQueries;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class DiyetisyenController : ControllerBase
     {
-        private readonly IDiyetisyenService _diyetisyenService;
-        
-        public DiyetisyenController(IDiyetisyenService diyetisyenService)
+        private readonly IMediator _mediator;
+
+        public DiyetisyenController(IMediator mediator)
         {
-            _diyetisyenService = diyetisyenService;
+            _mediator = mediator;
         }
-        
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Diyetisyen>>> GetAllDiyetisyenler()
+        public async Task<IActionResult> GetAll()
         {
-            var diyetisyenler = await _diyetisyenService.GetAllDiyetisyenlerAsync();
-            return Ok(diyetisyenler);
+            var values = await _mediator.Send(new GetDiyetisyenQuery());
+            return Ok(values);
         }
-        
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<Diyetisyen>> GetDiyetisyenById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var diyetisyen = await _diyetisyenService.GetDiyetisyenByIdAsync(id);
-            if (diyetisyen == null)
-            {
-                return NotFound();
-            }
-            return Ok(diyetisyen);
+            var value = await _mediator.Send(new GetDiyetisyenByIdQuery(id));
+            return Ok(value);
         }
-        
-        [HttpPost]
-        public async Task<ActionResult<Diyetisyen>> CreateDiyetisyen(Diyetisyen diyetisyen)
-        {
-            var createdDiyetisyen = await _diyetisyenService.CreateDiyetisyenAsync(diyetisyen);
-            return CreatedAtAction(nameof(GetDiyetisyenById), new { id = createdDiyetisyen.Id }, createdDiyetisyen);
-        }
-        
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDiyetisyen(Guid id, Diyetisyen diyetisyen)
-        {
-            if (id != diyetisyen.Id)
-            {
-                return BadRequest();
-            }
-            
-            await _diyetisyenService.UpdateDiyetisyenAsync(diyetisyen);
-            return NoContent();
-        }
-        
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDiyetisyen(Guid id)
-        {
-            await _diyetisyenService.DeleteDiyetisyenAsync(id);
-            return NoContent();
-        }
-        
+
         [HttpGet("bySehir/{sehir}")]
-        public async Task<ActionResult<IEnumerable<Diyetisyen>>> GetDiyetisyenlerBySehir(string sehir)
+        public async Task<IActionResult> GetBySehir(string sehir)
         {
-            var diyetisyenler = await _diyetisyenService.GetDiyetisyenlerBySehirAsync(sehir);
-            return Ok(diyetisyenler);
+            var values = await _mediator.Send(new GetDiyetisyenBySehirQuery(sehir));
+            return Ok(values);
         }
-        
-        [HttpGet("{id}/withHastalar")]
-        public async Task<ActionResult<Diyetisyen>> GetDiyetisyenWithHastalar(Guid id)
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateDiyetisyenCommand command)
         {
-            var diyetisyen = await _diyetisyenService.GetDiyetisyenWithHastalarAsync(id);
-            if (diyetisyen == null)
-            {
-                return NotFound();
-            }
-            return Ok(diyetisyen);
+            await _mediator.Send(command);
+            return Ok("Diyetisyen başarıyla oluşturuldu");
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(UpdateDiyetisyenCommand command)
+        {
+            await _mediator.Send(command);
+            return Ok("Diyetisyen başarıyla güncellendi");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _mediator.Send(new RemoveDiyetisyenCommand(id));
+            return Ok("Diyetisyen başarıyla silindi");
         }
     }
 }
