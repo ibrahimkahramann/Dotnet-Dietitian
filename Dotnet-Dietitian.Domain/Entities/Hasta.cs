@@ -1,5 +1,7 @@
 namespace Dotnet_Dietitian.Domain.Entities;
 
+
+
 public class Hasta : BaseEntity
 {
     public string TcKimlikNumarasi { get; set; }
@@ -13,10 +15,11 @@ public class Hasta : BaseEntity
     public Guid? DiyetisyenId { get; set; }
     public Guid? DiyetProgramiId { get; set; }
     public int? GunlukKaloriIhtiyaci { get; set; }
-    
+
     // Navigation properties
     public virtual Diyetisyen? Diyetisyen { get; set; }
     public virtual DiyetProgrami? DiyetProgrami { get; set; }
     public virtual ICollection<OdemeBilgisi> Odemeler { get; set; }
     public virtual ICollection<Randevu> Randevular { get; set; }
+    public virtual ICollection<Abonelik> Abonelikler { get; set; } // Yeni eklenen iliþki
 }
