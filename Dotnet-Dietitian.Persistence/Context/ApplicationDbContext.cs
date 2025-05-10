@@ -8,7 +8,7 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
-
+    
     public DbSet<AppUser> AppUsers { get; set; }
     public DbSet<AppRole> AppRoles { get; set; }
     public DbSet<Diyetisyen> Diyetisyenler { get; set; }
@@ -17,10 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<OdemeBilgisi> OdemeBilgileri { get; set; }
     public DbSet<Randevu> Randevular { get; set; }
     public DbSet<DiyetisyenUygunluk> DiyetisyenUygunluklar { get; set; }
-    // Yeni eklenen DbSet'ler
-    public DbSet<AbonelikPaket> AbonelikPaketleri { get; set; }
-    public DbSet<Abonelik> Abonelikler { get; set; }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Diyetisyen yapılandırması
@@ -34,12 +31,12 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Telefon).HasMaxLength(20);
             entity.Property(e => e.Puan).HasDefaultValue(0);
             entity.Property(e => e.ToplamYorumSayisi).HasDefaultValue(0);
-
+            
             entity.HasIndex(e => e.TcKimlikNumarasi).IsUnique();
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.Telefon).IsUnique();
         });
-
+        
         // Hasta yapılandırması
         modelBuilder.Entity<Hasta>(entity =>
         {
@@ -49,55 +46,48 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Soyad).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Email).HasMaxLength(100).IsRequired();
             entity.Property(e => e.Telefon).HasMaxLength(20);
-
+            
             entity.HasIndex(e => e.TcKimlikNumarasi).IsUnique();
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.Telefon).IsUnique();
-
+            
             entity.HasOne(h => h.Diyetisyen)
                     .WithMany(d => d.Hastalar)
                     .HasForeignKey(h => h.DiyetisyenId)
                     .OnDelete(DeleteBehavior.SetNull);
-
+                    
             entity.HasOne(h => h.DiyetProgrami)
                     .WithMany(dp => dp.Hastalar)
                     .HasForeignKey(h => h.DiyetProgramiId)
                     .OnDelete(DeleteBehavior.SetNull);
         });
-
+        
         // DiyetProgrami yapılandırması
         modelBuilder.Entity<DiyetProgrami>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Ad).HasMaxLength(100).IsRequired();
-
+            
             entity.HasOne(dp => dp.OlusturanDiyetisyen)
                     .WithMany(d => d.OlusturulanProgramlar)
                     .HasForeignKey(dp => dp.OlusturanDiyetisyenId)
                     .OnDelete(DeleteBehavior.SetNull);
         });
-
-        // OdemeBilgisi yapılandırması (Güncellendi)
+        
+        // OdemeBilgisi yapılandırması
         modelBuilder.Entity<OdemeBilgisi>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Tutar).HasPrecision(10, 2).IsRequired();
             entity.Property(e => e.Tarih).IsRequired();
             entity.Property(e => e.OdemeTuru).HasMaxLength(50);
-            entity.Property(e => e.Aciklama).HasMaxLength(50).HasDefaultValue("Tamamlandı");
-
+            
             entity.HasOne(o => o.Hasta)
                     .WithMany(h => h.Odemeler)
                     .HasForeignKey(o => o.HastaId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-            // Yeni ilişki: OdemeBilgisi - Abonelik
-            entity.HasOne(o => o.Abonelik)
-                    .WithMany(a => a.Odemeler)
-                    .HasForeignKey(o => o.AbonelikId)
-                    .OnDelete(DeleteBehavior.SetNull);
         });
-
+        
         // Randevu yapılandırması
         modelBuilder.Entity<Randevu>(entity =>
         {
@@ -108,18 +98,18 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Durum).HasMaxLength(50).HasDefaultValue("Bekliyor");
             entity.Property(e => e.DiyetisyenOnayi).HasDefaultValue(false);
             entity.Property(e => e.HastaOnayi).HasDefaultValue(false);
-
+            
             entity.HasOne(r => r.Hasta)
                     .WithMany(h => h.Randevular)
                     .HasForeignKey(r => r.HastaId)
                     .OnDelete(DeleteBehavior.Cascade);
-
+                    
             entity.HasOne(r => r.Diyetisyen)
                     .WithMany(d => d.Randevular)
                     .HasForeignKey(r => r.DiyetisyenId)
                     .OnDelete(DeleteBehavior.Cascade);
         });
-
+        
         // DiyetisyenUygunluk yapılandırması
         modelBuilder.Entity<DiyetisyenUygunluk>(entity =>
         {
@@ -128,49 +118,13 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.BaslangicSaati).IsRequired();
             entity.Property(e => e.BitisSaati).IsRequired();
             entity.Property(e => e.TekrarTipi).HasMaxLength(20);
-
+            
             entity.HasOne(du => du.Diyetisyen)
                     .WithMany(d => d.UygunlukZamanlari)
                     .HasForeignKey(du => du.DiyetisyenId)
                     .OnDelete(DeleteBehavior.Cascade);
         });
-
-        // AbonelikPaket yapılandırması (Yeni)
-        modelBuilder.Entity<AbonelikPaket>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Ad).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.Aciklama).HasMaxLength(500).IsRequired();
-            entity.Property(e => e.Fiyat).HasPrecision(10, 2).IsRequired();
-            entity.Property(e => e.SureDegeri).IsRequired();
-            entity.Property(e => e.SureTipi).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.Aktif).HasDefaultValue(true);
-            entity.Property(e => e.MaxRandevuSayisi).IsRequired();
-            entity.Property(e => e.Indirim).HasPrecision(5, 2).HasDefaultValue(0);
-            entity.Property(e => e.OlusturmaTarihi).IsRequired();
-        });
-
-        // Abonelik yapılandırması (Yeni)
-        modelBuilder.Entity<Abonelik>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.BaslangicTarihi).IsRequired();
-            entity.Property(e => e.BitisTarihi).IsRequired();
-            entity.Property(e => e.Durum).HasMaxLength(20).HasDefaultValue("Aktif");
-            entity.Property(e => e.KullanilabilirRandevuSayisi).IsRequired();
-            entity.Property(e => e.OlusturmaTarihi).IsRequired();
-
-            entity.HasOne(a => a.Hasta)
-                  .WithMany()  // Hasta sınıfını güncellememiz gerekecek
-                  .HasForeignKey(a => a.HastaId)
-                  .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(a => a.AbonelikPaket)
-                  .WithMany(ap => ap.Abonelikler)
-                  .HasForeignKey(a => a.AbonelikPaketId)
-                  .OnDelete(DeleteBehavior.Restrict);
-        });
-
+        
         base.OnModelCreating(modelBuilder);
     }
 }
