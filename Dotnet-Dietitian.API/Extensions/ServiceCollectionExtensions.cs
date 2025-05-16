@@ -10,6 +10,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Dotnet_Dietitian.Domain.Entities;
+using Dotnet_Dietitian.Application.Decorators;
 
 namespace Dotnet_Dietitian.API.Extensions
 {
@@ -43,6 +47,29 @@ namespace Dotnet_Dietitian.API.Extensions
             
             // Infrastructure services
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+            
+            // MemoryCache servisini ekleyin
+            services.AddMemoryCache();
+            
+            // Decorator ile repository sınıflarını kaydedin
+            // Hasta Repository için Örnek
+            services.AddScoped<BaseRepository<Hasta>, HastaRepository>();
+            services.AddScoped<IRepository<Hasta>>(provider => {
+                var baseRepo = provider.GetRequiredService<BaseRepository<Hasta>>();
+                var logger = provider.GetRequiredService<ILogger<LoggingRepositoryDecorator<Hasta>>>();
+                var cache = provider.GetRequiredService<IMemoryCache>();
+                
+                // Önce loglama, sonra cache ile sarmala
+                return new CachingRepositoryDecorator<Hasta>(
+                    new LoggingRepositoryDecorator<Hasta>(baseRepo, logger), 
+                    cache
+                );
+            });
+            
+            // Diyetisyen Repository için de benzer eklemeler yapılabilir
+            
+            // Facade servisini ekleyin
+            services.AddScoped<IDiyetYonetimFacade, DiyetYonetimFacade>();
             
             return services;
         }
