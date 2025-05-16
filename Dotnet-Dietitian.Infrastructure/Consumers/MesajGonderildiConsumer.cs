@@ -1,5 +1,5 @@
-using Dotnet_Dietitian.API.Hubs;
 using Dotnet_Dietitian.Domain.Events;
+using Dotnet_Dietitian.Infrastructure.Hubs;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -29,8 +29,6 @@ namespace Dotnet_Dietitian.Infrastructure.Consumers
                                   $"Alıcı: {olay.AliciId} ({olay.AliciTipi})");
             
             // SignalR üzerinden alıcıya bildirim gönder
-            // Burada "user-{id}" formatındaki bir grup adını kullanabilir veya
-            // diğer bir tanımlama mekanizması kullanabilirsiniz
             string aliciGrupAdi = $"user-{olay.AliciId}";
             
             await _hubContext.Clients.Group(aliciGrupAdi).SendAsync("NewMessage", new
@@ -43,7 +41,7 @@ namespace Dotnet_Dietitian.Infrastructure.Consumers
                 gonderimZamani = olay.GonderimZamani
             });
             
-            // Ayrıca özel bir görüşme grubu da oluşturabilirsiniz
+            // Özel görüşme grubu güncellemesi
             string conversationGroupId = GetConversationGroupId(olay.GonderenId, olay.AliciId);
             
             await _hubContext.Clients.Group(conversationGroupId).SendAsync("ConversationUpdated", new
@@ -55,7 +53,6 @@ namespace Dotnet_Dietitian.Infrastructure.Consumers
         
         private string GetConversationGroupId(System.Guid userId1, System.Guid userId2)
         {
-            // İki ID'nin küçükten büyüğe sıralanmasıyla oluşan bir grup ID'si
             return userId1.CompareTo(userId2) < 0 
                 ? $"conv-{userId1}-{userId2}"
                 : $"conv-{userId2}-{userId1}";

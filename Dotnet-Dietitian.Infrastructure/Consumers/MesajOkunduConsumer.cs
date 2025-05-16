@@ -1,5 +1,5 @@
-using Dotnet_Dietitian.API.Hubs;
 using Dotnet_Dietitian.Domain.Events;
+using Dotnet_Dietitian.Infrastructure.Hubs;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -28,10 +28,6 @@ namespace Dotnet_Dietitian.Infrastructure.Consumers
                                   $"Okuyan: {olay.OkuyanId} ({olay.OkuyanTipi}), " +
                                   $"Zaman: {olay.OkunmaZamani}");
             
-            // SignalR üzerinden gönderene bildirim gönder
-            // Burada mesajın hangi görüşmeye ait olduğu bilgisi yok
-            // Normalde mesaj ID'ye göre veritabanından bulunabilir
-            // Ancak basitlik için şimdilik böyle bırakalım
             string userGroupId = $"user-{olay.OkuyanId}";
             
             await _hubContext.Clients.Group(userGroupId).SendAsync("MessageRead", new

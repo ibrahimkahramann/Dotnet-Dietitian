@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Dotnet_Dietitian.API.Hubs
+namespace Dotnet_Dietitian.Infrastructure.Hubs
 {
     public class MesajlasmaChatHub : Hub
     {

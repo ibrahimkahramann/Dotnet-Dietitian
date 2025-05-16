@@ -60,9 +60,6 @@ builder.Services.AddMassTransit(config =>
 });
 
 
-
-
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -80,8 +77,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// SignalR hub endpoint'inizi ekleyin
-app.MapHub<MesajlasmaChatHub>("/mesajlasmahub");
+// SignalR hub endpoint'inizi ekleyin - Namespace değişikliğine dikkat edin!
+app.MapHub<Dotnet_Dietitian.Infrastructure.Hubs.MesajlasmaChatHub>("/mesajlasmahub");
 
 // Seed the database
 if (app.Environment.IsDevelopment())

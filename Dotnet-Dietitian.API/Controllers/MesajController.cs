@@ -1,4 +1,4 @@
-using Dotnet_Dietitian.API.Hubs;
+using Dotnet_Dietitian.Infrastructure.Hubs;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.MesajCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.MesajQueries;
 using MediatR;
