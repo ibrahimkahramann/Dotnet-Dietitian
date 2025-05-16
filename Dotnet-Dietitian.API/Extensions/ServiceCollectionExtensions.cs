@@ -14,6 +14,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Dotnet_Dietitian.Domain.Entities;
 using Dotnet_Dietitian.Application.Decorators;
+using Dotnet_Dietitian.Application.Strategies;
+using Dotnet_Dietitian.Application.TemplatePattern;
 
 namespace Dotnet_Dietitian.API.Extensions
 {
@@ -70,6 +72,17 @@ namespace Dotnet_Dietitian.API.Extensions
             
             // Facade servisini ekleyin
             services.AddScoped<IDiyetYonetimFacade, DiyetYonetimFacade>();
+            
+            // Strategy pattern kayıtları
+            services.AddScoped<IKaloriHesaplamaStrategy, HarrisBenedictKaloriStrategy>();
+            services.AddScoped<KaloriHesaplamaService>();
+
+            // İhtiyaç duyulduğunda alternatif strateji seçimi için named instance kayıtları
+            services.AddScoped<HarrisBenedictKaloriStrategy>();
+            services.AddScoped<MifflinStJeorKaloriStrategy>();
+            
+            // Template Pattern kayıtları
+            services.AddScoped<DiyetProgramOlusturucuFactory>();
             
             return services;
         }
