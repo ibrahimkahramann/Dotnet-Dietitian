@@ -25,6 +25,8 @@ namespace Dotnet_Dietitian.API.Extensions
            // MediatR kaydı
             services.AddMediatR(typeof(GetCheckAppUserQuery).Assembly);        
 
+            services.AddSingleton<IAppConfigService, AppConfigService>();
+
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IDiyetisyenRepository, DiyetisyenRepository>();
