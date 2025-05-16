@@ -53,6 +53,9 @@ namespace Dotnet_Dietitian.API.Extensions
             // MemoryCache servisini ekleyin
             services.AddMemoryCache();
             
+            // Repository kaydı
+            services.AddScoped<IMesajRepository, MesajRepository>();
+            
             // Decorator ile repository sınıflarını kaydedin
             // Hasta Repository için Örnek
             services.AddScoped<BaseRepository<Hasta>, HastaRepository>();

@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<OdemeBilgisi> OdemeBilgileri { get; set; }
     public DbSet<Randevu> Randevular { get; set; }
     public DbSet<DiyetisyenUygunluk> DiyetisyenUygunluklar { get; set; }
+    public DbSet<Mesaj> Mesajlar { get; set; } // Mevcut DbSet'lere ekleyin
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -123,6 +124,19 @@ public class ApplicationDbContext : DbContext
                     .WithMany(d => d.UygunlukZamanlari)
                     .HasForeignKey(du => du.DiyetisyenId)
                     .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        // Mesaj yapılandırması
+        modelBuilder.Entity<Mesaj>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.GonderenId).IsRequired();
+            entity.Property(e => e.GonderenTipi).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.AliciId).IsRequired();
+            entity.Property(e => e.AliciTipi).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Icerik).IsRequired();
+            entity.Property(e => e.GonderimZamani).IsRequired();
+            entity.Property(e => e.Okundu).HasDefaultValue(false);
         });
         
         base.OnModelCreating(modelBuilder);
