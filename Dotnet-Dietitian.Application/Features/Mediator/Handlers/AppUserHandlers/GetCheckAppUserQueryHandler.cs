@@ -19,7 +19,10 @@ public class GetCheckAppUserQueryHandler : IRequestHandler<GetCheckAppUserQuery,
 
     public async Task<GetCheckAppUserQueryResult> Handle(GetCheckAppUserQuery request, CancellationToken cancellationToken)
     {
-        var values = await _appUserRepository.GetByFilterAsync(x => x.Username == request.Username && x.Password == request.Password);
+        // Şifreye göre kullanıcıyı kontrol et
+        var values = await _appUserRepository.GetByFilterAsync(x => 
+            x.Username == request.Username && 
+            x.Password == request.Password);
         
         if (values != null)
         {

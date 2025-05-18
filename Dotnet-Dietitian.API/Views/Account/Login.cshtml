@@ -10,6 +10,13 @@
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">Giriş Yap</h2>
                     
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success mb-3">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+                    
                     <form asp-action="Login" method="post">
                         <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                         
