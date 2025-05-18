@@ -485,50 +485,74 @@ namespace Dotnet_Dietitian.Persistence.Data
                     await context.SaveChangesAsync();
                 }
                 
-                // Mesaj seed data örneği:
-                if (!context.Mesajlar.Any() && hastalar.Any() && diyetisyenler.Any())
+                /* // Mesaj seed data örneği:
+                if (!context.Mesajlar.Any())
                 {
-                    var mesajlar = new List<Mesaj>();
+                    // Önce veritabanından mevcut kayıtları çekelim
+                    var mevcutDiyetisyenler = await context.Diyetisyenler.ToListAsync();
+                    var mevcutHastalar = await context.Hastalar.ToListAsync();
                     
-                    // Güvenli bir şekilde mesajları ekleyelim - değişkenleri burada tanımla
-                    int hastaCount = hastalar.Count;
-                    int diyetisyenCount = diyetisyenler.Count;
-                    
-                    // Her hasta ve diyetisyen arasında örnek mesajlaşma
-                    for (int i = 0; i < Math.Min(hastaCount, 5); i++)
+                    if (mevcutDiyetisyenler.Count > 0 && mevcutHastalar.Count > 0)
                     {
-                        var diyetisyenIndex = i % diyetisyenCount;
+                        var mesajlar = new List<Mesaj>();
                         
-                        // Hastadan diyetisyene mesaj
-                        mesajlar.Add(new Mesaj
-                        {
-                            Id = Guid.NewGuid(),
-                            GonderenId = hastalar[i].Id,
-                            GonderenTipi = "Hasta",
-                            AliciId = diyetisyenler[diyetisyenIndex].Id,
-                            AliciTipi = "Diyetisyen",
-                            Icerik = $"Merhaba, ben {hastalar[i].Ad}. Bir sorum var.",
-                            GonderimZamani = DateTime.Now.AddHours(-2),
-                            Okundu = true,
-                            OkunmaZamani = DateTime.Now.AddHours(-1)
-                        });
+                        // Debug için bilgi yazdıralım
+                        Console.WriteLine($"Bulunan diyetisyen sayısı: {mevcutDiyetisyenler.Count}");
+                        Console.WriteLine($"Bulunan hasta sayısı: {mevcutHastalar.Count}");
                         
-                        // Diyetisyenden hastaya yanıt
-                        mesajlar.Add(new Mesaj
+                        // Her hasta ve diyetisyen için mesaj eklemeden önce kontrol edelim
+                        for (int i = 0; i < Math.Min(mevcutHastalar.Count, 5); i++)
                         {
-                            Id = Guid.NewGuid(),
-                            GonderenId = diyetisyenler[diyetisyenIndex].Id,
-                            GonderenTipi = "Diyetisyen",
-                            AliciId = hastalar[i].Id,
-                            AliciTipi = "Hasta",
-                            Icerik = $"Merhaba {hastalar[i].Ad}, nasıl yardımcı olabilirim?",
-                            GonderimZamani = DateTime.Now.AddHours(-1)
-                        });
+                            var diyetisyenIndex = i % mevcutDiyetisyenler.Count;
+                            
+                            var hastaId = mevcutHastalar[i].Id;
+                            var diyetisyenId = mevcutDiyetisyenler[diyetisyenIndex].Id;
+                            
+                            // Varlık kontrolü
+                            var hastaExists = await context.Hastalar.AnyAsync(h => h.Id == hastaId);
+                            var diyetisyenExists = await context.Diyetisyenler.AnyAsync(d => d.Id == diyetisyenId);
+                            
+                            if (!hastaExists || !diyetisyenExists)
+                            {
+                                Console.WriteLine($"HATA: Hasta ID {hastaId} veya Diyetisyen ID {diyetisyenId} veritabanında bulunamadı.");
+                                continue;
+                            }
+                            
+                            // Her şey yolunda, mesajları ekle
+                            mesajlar.Add(new Mesaj
+                            {
+                                Id = Guid.NewGuid(),
+                                GonderenId = hastaId,
+                                GonderenTipi = "Hasta",
+                                AliciId = diyetisyenId,
+                                AliciTipi = "Diyetisyen",
+                                Icerik = $"Merhaba, ben {mevcutHastalar[i].Ad}. Bir sorum var.",
+                                GonderimZamani = DateTime.Now.AddHours(-2),
+                                Okundu = true,
+                                OkunmaZamani = DateTime.Now.AddHours(-1)
+                            });
+                            
+                            await context.SaveChangesAsync(); // Her mesaj ekledikten sonra kaydet
+                            
+                            mesajlar.Clear(); // Önceki mesajı temizle
+                            
+                            // İkinci mesaj
+                            mesajlar.Add(new Mesaj
+                            {
+                                Id = Guid.NewGuid(),
+                                GonderenId = diyetisyenId,
+                                GonderenTipi = "Diyetisyen",
+                                AliciId = hastaId,
+                                AliciTipi = "Hasta",
+                                Icerik = $"Merhaba {mevcutHastalar[i].Ad}, nasıl yardımcı olabilirim?",
+                                GonderimZamani = DateTime.Now.AddHours(-1)
+                            });
+                            
+                            await context.SaveChangesAsync(); // Her mesaj ekledikten sonra kaydet
+                            mesajlar.Clear();
+                        }
                     }
-                    
-                    await context.Mesajlar.AddRangeAsync(mesajlar);
-                    await context.SaveChangesAsync();
-                }
+                } */
                 
                 Console.WriteLine("Seed verileri başarıyla eklendi.");
             }
