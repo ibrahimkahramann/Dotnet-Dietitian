@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlerleme Takibi (Test Modu) - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+    <style>
+        .test-mode-banner {
+            background-color: #ffcc00;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            font-weight: bold;
+        }
+        body {
+            padding-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-mode-banner">
+        TEST MODU - Oturum kontrolü devre dışı bırakıldı
+    </div>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="patient-dashboard.html" class="list-group-item list-group-item-action py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patient-diet-plan.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planım
+                </a>
+                <a href="patient-appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevularım
+                </a>
+                <a href="ilerleme-takibi-test.html" class="list-group-item list-group-item-action active py-3 px-4" id="progress-link">
+                    <i class="bi bi-graph-up-arrow me-2"></i> İlerleme Takibi (Test)
+                </a>
+                <a href="patient-messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">1</span>
+                </a>
+                <a href="patient-profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="patient-settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="session-test.html" class="btn btn-warning w-100">
+                    <i class="bi bi-tools me-2"></i> Oturum Test
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">2</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3"><i class="bi bi-calendar-check"></i></div>
+                                        <div>
+                                            <p class="mb-0">Yarın saat 14:00'de randevunuz var</p>
+                                            <small class="text-muted">10 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-info me-3"><i class="bi bi-chat-dots"></i></div>
+                                        <div>
+                                            <p class="mb-0">Diyetisyeninizden yeni bir mesaj</p>
+                                            <small class="text-muted">1 saat önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">Tüm bildirimleri gör</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Test Kullanıcısı</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="patient-profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="patient-settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="session-test.html"><i class="bi bi-tools me-2"></i> Oturum Test</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold">İlerleme Takibi <span class="badge bg-warning text-dark">Test Modu</span></h2>
+                        <p class="text-muted">Bu sayfa test için oluşturulmuştur, oturum kontrolü olmadan çalışır.</p>
+                    </div>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProgressModal">
+                        <i class="bi bi-plus-lg me-2"></i>Yeni Ölçüm Ekle
+                    </button>
+                </div>
+                
+                <!-- Test Mode Alert -->
+                <div class="alert alert-warning mb-4">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="alert-heading">Test Modu Aktif</h5>
+                            <p class="mb-0">Bu sayfa oturum kontrolü olmadan test amaçlı çalışır. Herhangi bir kimlik doğrulama gerektirmez ve verileri kaydetmez. Asıl sayfaya erişmek için lütfen giriş yapın veya <a href="patient-progress-tracking.html">normal ilerleme takibi sayfasını</a> kullanın.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Summary Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Mevcut Kilo</h6>
+                                        <h3 class="mb-0 fw-bold">78.2 kg</h3>
+                                    </div>
+                                    <div class="bg-light p-3 rounded-3">
+                                        <i class="bi bi-person-fill text-success fs-3"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3 d-flex align-items-center">
+                                    <span class="badge bg-success me-2">-1.3 kg</span>
+                                    <small class="text-muted">Son 30 günde</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Vücut Kitle İndeksi</h6>
+                                        <h3 class="mb-0 fw-bold">26.2</h3>
+                                    </div>
+                                    <div class="bg-light p-3 rounded-3">
+                                        <i class="bi bi-calculator text-warning fs-3"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3 d-flex align-items-center">
+                                    <span class="badge bg-warning text-dark me-2">Hafif Kilolu</span>
+                                    <small class="text-muted">Hedef: 22-25</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Vücut Yağ Oranı</h6>
+                                        <h3 class="mb-0 fw-bold">22%</h3>
+                                    </div>
+                                    <div class="bg-light p-3 rounded-3">
+                                        <i class="bi bi-droplet-half text-info fs-3"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3 d-flex align-items-center">
+                                    <span class="badge bg-info me-2">-0.8%</span>
+                                    <small class="text-muted">Son 30 günde</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-1">Hedef İlerleme</h6>
+                                        <h3 class="mb-0 fw-bold">38%</h3>
+                                    </div>
+                                    <div class="bg-light p-3 rounded-3">
+                                        <i class="bi bi-flag-fill text-danger fs-3"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 38%"></div>
+                                    </div>
+                                    <small class="text-muted mt-2 d-block">Hedefe 4.8 kg kaldı</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weight Progress Chart Placeholder -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Kilo Takibi</h5>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary active">1 Ay</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">3 Ay</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">6 Ay</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">1 Yıl</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="weightChart" height="300"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Test Mode Tools -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light py-3">
+                        <h5 class="mb-0 fw-bold">Test Araçları</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <button class="btn btn-outline-success" id="createPatientSession">
+                                        <i class="bi bi-person-plus me-2"></i>Hasta Oturumu Oluştur
+                                    </button>
+                                    <button class="btn btn-outline-danger" id="clearSession">
+                                        <i class="bi bi-trash me-2"></i>Oturumu Temizle
+                                    </button>
+                                </div>
+                                <div class="mb-3">
+                                    <p><strong>Mevcut Oturum:</strong> <span id="currentSession">Yok</span></p>
+                                </div>
+                                <div>
+                                    <a href="session-test.html" class="btn btn-primary">
+                                        <i class="bi bi-tools me-2"></i>Oturum Test Sayfasına Git
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info mb-0">
+                                    <h6 class="alert-heading">Nasıl Test Edilir?</h6>
+                                    <ol class="mb-0">
+                                        <li>Bu sayfayı kullanarak ilerleme takibi özelliklerini inceleyebilirsiniz</li>
+                                        <li>Oturum durumunu görüntülemek için "Oturum Test Sayfasına Git" düğmesini kullanın</li>
+                                        <li>Gerçek uygulamada bu sayfadan ziyade normal ilerleme takibi sayfasını kullanın</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                });
+            }
+            
+            // Weight Progress Chart
+            const weightCtx = document.getElementById('weightChart').getContext('2d');
+            const weightChart = new Chart(weightCtx, {
+                type: 'line',
+                data: {
+                    labels: ['12 Nis', '19 Nis', '26 Nis', '03 May', '10 May'],
+                    datasets: [
+                        {
+                            label: 'Kilo (kg)',
+                            data: [79.3, 79.5, 79.0, 78.7, 78.2],
+                            backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                            borderColor: '#198754',
+                            tension: 0.2,
+                            fill: true
+                        },
+                        {
+                            label: 'Hedef Kilo',
+                            data: [79.3, 79.1, 78.9, 78.7, 78.5],
+                            borderColor: '#6c757d',
+                            borderDash: [5, 5],
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 77,
+                            max: 80,
+                            ticks: {
+                                stepSize: 0.5
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Session Management
+            const currentSessionEl = document.getElementById('currentSession');
+            const createPatientSessionBtn = document.getElementById('createPatientSession');
+            const clearSessionBtn = document.getElementById('clearSession');
+            
+            // Update session info
+            function updateSessionInfo() {
+                const sessionType = sessionStorage.getItem('userType');
+                const localType = localStorage.getItem('userType');
+                
+                if (sessionType || localType) {
+                    currentSessionEl.textContent = sessionType || localType;
+                    currentSessionEl.style.color = 'green';
+                } else {
+                    currentSessionEl.textContent = 'Yok';
+                    currentSessionEl.style.color = 'red';
+                }
+            }
+            
+            // Create patient session
+            createPatientSessionBtn.addEventListener('click', function() {
+                sessionStorage.setItem('userType', 'patient');
+                localStorage.setItem('userType', 'patient');
+                updateSessionInfo();
+                alert('Hasta oturumu oluşturuldu!');
+            });
+            
+            // Clear session
+            clearSessionBtn.addEventListener('click', function() {
+                sessionStorage.removeItem('userType');
+                localStorage.removeItem('userType');
+                updateSessionInfo();
+                alert('Oturum temizlendi!');
+            });
+            
+            // Initial update
+            updateSessionInfo();
+        });
+    </script>
+</body>
+</html> 

@@ -4,6 +4,7 @@ using Dotnet_Dietitian.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dotnet_Dietitian.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518122341_AddMesajEntity")]
+    partial class AddMesajEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,6 +310,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<Guid?>("DiyetisyenId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("GonderenId")
                         .HasColumnType("uniqueidentifier");
 
@@ -317,6 +323,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
                     b.Property<DateTime>("GonderimZamani")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("HastaId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Icerik")
                         .IsRequired()
@@ -332,9 +341,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AliciId");
+                    b.HasIndex("DiyetisyenId");
 
-                    b.HasIndex("GonderenId");
+                    b.HasIndex("HastaId");
 
                     b.ToTable("Mesajlar");
                 });
@@ -477,33 +486,17 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Mesaj", b =>
                 {
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "AliciDiyetisyen")
-                        .WithMany("AlinanMesajlar")
-                        .HasForeignKey("AliciId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "Diyetisyen")
+                        .WithMany()
+                        .HasForeignKey("DiyetisyenId");
 
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "AliciHasta")
-                        .WithMany("AlinanMesajlar")
-                        .HasForeignKey("AliciId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "Hasta")
+                        .WithMany()
+                        .HasForeignKey("HastaId");
 
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "GonderenDiyetisyen")
-                        .WithMany("GonderilenMesajlar")
-                        .HasForeignKey("GonderenId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.Navigation("Diyetisyen");
 
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "GonderenHasta")
-                        .WithMany("GonderilenMesajlar")
-                        .HasForeignKey("GonderenId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AliciDiyetisyen");
-
-                    b.Navigation("AliciHasta");
-
-                    b.Navigation("GonderenDiyetisyen");
-
-                    b.Navigation("GonderenHasta");
+                    b.Navigation("Hasta");
                 });
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.OdemeBilgisi", b =>
@@ -548,10 +541,6 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Diyetisyen", b =>
                 {
-                    b.Navigation("AlinanMesajlar");
-
-                    b.Navigation("GonderilenMesajlar");
-
                     b.Navigation("Hastalar");
 
                     b.Navigation("OlusturulanProgramlar");
@@ -563,10 +552,6 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Hasta", b =>
                 {
-                    b.Navigation("AlinanMesajlar");
-
-                    b.Navigation("GonderilenMesajlar");
-
                     b.Navigation("Odemeler");
 
                     b.Navigation("Randevular");

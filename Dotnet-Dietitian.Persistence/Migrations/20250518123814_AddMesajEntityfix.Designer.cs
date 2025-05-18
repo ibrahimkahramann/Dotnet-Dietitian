@@ -4,6 +4,7 @@ using Dotnet_Dietitian.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dotnet_Dietitian.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518123814_AddMesajEntityfix")]
+    partial class AddMesajEntityfix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,6 +310,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<Guid?>("DiyetisyenId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("GonderenId")
                         .HasColumnType("uniqueidentifier");
 
@@ -317,6 +323,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
                     b.Property<DateTime>("GonderimZamani")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("HastaId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Icerik")
                         .IsRequired()
@@ -334,7 +343,11 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
                     b.HasIndex("AliciId");
 
+                    b.HasIndex("DiyetisyenId");
+
                     b.HasIndex("GonderenId");
+
+                    b.HasIndex("HastaId");
 
                     b.ToTable("Mesajlar");
                 });
@@ -477,33 +490,41 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Mesaj", b =>
                 {
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "AliciDiyetisyen")
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", null)
                         .WithMany("AlinanMesajlar")
                         .HasForeignKey("AliciId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "AliciHasta")
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", null)
                         .WithMany("AlinanMesajlar")
                         .HasForeignKey("AliciId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "GonderenDiyetisyen")
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "Diyetisyen")
+                        .WithMany()
+                        .HasForeignKey("DiyetisyenId");
+
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", null)
                         .WithMany("GonderilenMesajlar")
                         .HasForeignKey("GonderenId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "GonderenHasta")
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", null)
                         .WithMany("GonderilenMesajlar")
                         .HasForeignKey("GonderenId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("AliciDiyetisyen");
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "Hasta")
+                        .WithMany()
+                        .HasForeignKey("HastaId");
 
-                    b.Navigation("AliciHasta");
+                    b.Navigation("Diyetisyen");
 
-                    b.Navigation("GonderenDiyetisyen");
-
-                    b.Navigation("GonderenHasta");
+                    b.Navigation("Hasta");
                 });
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.OdemeBilgisi", b =>

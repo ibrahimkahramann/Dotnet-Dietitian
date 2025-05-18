@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasta Paneli - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="patient-dashboard.html" class="list-group-item list-group-item-action active py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patient-diet-plan.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planım
+                </a>
+                <a href="patient-appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevularım
+                </a>
+                <a href="patient-progress-tracking.html" class="list-group-item list-group-item-action py-3 px-4" id="progress-link" data-public-page="true" onclick="sessionStorage.setItem('userType', 'patient'); localStorage.setItem('userType', 'patient'); return true;">
+                    <i class="bi bi-graph-up-arrow me-2"></i> İlerleme Takibi
+                </a>
+                <a href="patient-messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">1</span>
+                </a>
+                <a href="patient-profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="patient-settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3">
+                                            <i class="bi bi-clipboard2-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yeni diyet planınız hazır</p>
+                                            <small class="text-muted">30 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-primary me-3">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yarın saat 15:00'de randevunuz var</p>
+                                            <small class="text-muted">1 saat önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">
+                                        Tüm bildirimleri gör
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Mehmet Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="patient-profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="patient-settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Dashboard Content (shown by default) -->
+                <div id="dashboard-content" class="content-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">Merhaba, Mehmet</h2>
+                        <div>
+                            <span class="text-muted me-2">Bugün:</span>
+                            <span class="fw-bold" id="current-date">15 Haziran 2025</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Welcome Card & Quick Stats -->
+                    <div class="row mb-4">
+                        <div class="col-lg-8 mb-4 mb-lg-0">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                                            <i class="bi bi-clipboard2-pulse fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-0">Bugünkü Diyet Planınız</h5>
+                                            <p class="text-muted mb-0">Dr. Ayşe Yılmaz tarafından hazırlandı</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-0 bg-light">
+                                                <div class="card-body p-3">
+                                                    <h6 class="mb-3"><i class="bi bi-sunrise text-warning me-2"></i> Kahvaltı</h6>
+                                                    <ul class="list-unstyled mb-0">
+                                                        <li class="mb-2 d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>1 dilim tam tahıllı ekmek</span>
+                                                        </li>
+                                                        <li class="mb-2 d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>2 yemek kaşığı peynir</span>
+                                                        </li>
+                                                        <li class="mb-2 d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>1 adet haşlanmış yumurta</span>
+                                                        </li>
+                                                        <li class="d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>1 bardak süt</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-0 bg-light">
+                                                <div class="card-body p-3">
+                                                    <h6 class="mb-3"><i class="bi bi-sun text-warning me-2"></i> Öğle Yemeği</h6>
+                                                    <ul class="list-unstyled mb-0">
+                                                        <li class="mb-2 d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>1 kase sebze çorbası</span>
+                                                        </li>
+                                                        <li class="mb-2 d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>120g ızgara tavuk</span>
+                                                        </li>
+                                                        <li class="mb-2 d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>1 kase salata</span>
+                                                        </li>
+                                                        <li class="d-flex align-items-center">
+                                                            <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                            <span>1 dilim tam tahıllı ekmek</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-2">
+                                        <a href="#" class="btn btn-outline-success">Tüm Diyet Planını Gör</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-3">Hızlı Bilgiler</h5>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-calendar-check text-success me-2"></i> Sonraki Randevu</span>
+                                            <span class="text-dark fw-medium">16 Haz, 15:00</span>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-droplet text-primary me-2"></i> Su Tüketimi</span>
+                                            <span class="text-dark fw-medium">1.2 / 2.5 L</span>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-activity text-danger me-2"></i> Günlük Adım</span>
+                                            <span class="text-dark fw-medium">4,526 / 10,000</span>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-trophy text-warning me-2"></i> Kalori Hedefi</span>
+                                            <span class="text-dark fw-medium">1,250 / 1,800</span>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-flag-fill text-danger me-2"></i> Hedef İlerleme</span>
+                                            <span class="text-dark fw-medium">38%</span>
+                                        </li>
+                                    </ul>
+                                    <div class="mt-3 text-center">
+                                        <a href="patient-progress-tracking.html" class="btn btn-outline-success" onclick="sessionStorage.setItem('userType', 'patient'); localStorage.setItem('userType', 'patient');">
+                                            <i class="bi bi-graph-up-arrow me-2"></i>İlerleme Takibi Sayfası
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress & Upcoming Appointments -->
+                    <div class="row">
+                        <div class="col-lg-6 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0 fw-bold">İlerleme Takibi</h5>
+                                        <a href="#" class="btn btn-sm btn-outline-success">Detayları Gör</a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="fw-medium">Kilo Hedefi</span>
+                                            <span class="text-success">65 / 75 kg</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 66%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="fw-medium">Egzersiz Planı</span>
+                                            <span class="text-primary">3 / 5 gün</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="fw-medium">Diyet Uyumu</span>
+                                            <span class="text-info">80%</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        <p class="mb-0 text-muted small">Son güncelleme: 2 gün önce</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0 fw-bold">Yaklaşan Randevular</h5>
+                                        <a href="#" class="btn btn-sm btn-outline-success">Randevu Al</a>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <div class="list-group-item py-3 px-4">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <h6 class="mb-1">Dr. Ayşe Yılmaz ile Görüşme</h6>
+                                                    <p class="mb-0 text-muted small">
+                                                        <i class="bi bi-calendar me-2"></i> 16 Haziran 2025
+                                                        <i class="bi bi-clock ms-3 me-2"></i> 15:00 - 15:30
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-success">Onaylandı</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="list-group-item py-3 px-4">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <h6 class="mb-1">Aylık Takip ve Değerlendirme</h6>
+                                                    <p class="mb-0 text-muted small">
+                                                        <i class="bi bi-calendar me-2"></i> 30 Haziran 2025
+                                                        <i class="bi bi-clock ms-3 me-2"></i> 10:00 - 10:30
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-warning text-dark">Beklemede</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="list-group-item py-3 px-4 border-bottom-0">
+                                            <div class="d-flex">
+                                                <button class="btn btn-outline-primary me-2 w-100">
+                                                    <i class="bi bi-calendar-plus me-1"></i> Yeni Randevu
+                                                </button>
+                                                <button class="btn btn-outline-secondary w-100">
+                                                    <i class="bi bi-clock-history me-1"></i> Geçmiş Randevular
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tips & Messages Preview -->
+                    <div class="row">
+                        <div class="col-lg-6 mb-4 mb-lg-0">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white py-3">
+                                    <h5 class="mb-0 fw-bold">Beslenme İpuçları</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a href="#" class="list-group-item list-group-item-action p-4">
+                                            <h6 class="mb-2 text-success"><i class="bi bi-lightbulb me-2"></i> Su Tüketimini Arttırma</h6>
+                                            <p class="mb-0 text-muted small">Günde en az 2-2.5 litre su içmeyi hedefleyin. Yanınızda her zaman su şişesi bulundurun ve...</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action p-4">
+                                            <h6 class="mb-2 text-success"><i class="bi bi-lightbulb me-2"></i> Protein Kaynakları</h6>
+                                            <p class="mb-0 text-muted small">Yumurta, tavuk, balık gibi kaliteli protein kaynaklarını düzenli olarak tüketin. Bitkisel protein...</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action p-4">
+                                            <h6 class="mb-2 text-success"><i class="bi bi-lightbulb me-2"></i> Ara Öğün Alternatifleri</h6>
+                                            <p class="mb-0 text-muted small">Acıktığınızda sağlıklı atıştırmalıklar tercih edin. Badem, ceviz, yoğurt, meyve gibi...</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0 fw-bold">Son Mesajlar</h5>
+                                        <a href="#" class="btn btn-sm btn-outline-success">Tümünü Gör</a>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a href="#" class="list-group-item list-group-item-action p-4">
+                                            <div class="d-flex">
+                                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" alt="Dr. Ayşe Yılmaz">
+                                                <div>
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <h6 class="mb-0">Dr. Ayşe Yılmaz</h6>
+                                                        <small class="text-muted">Bugün, 10:45</small>
+                                                    </div>
+                                                    <p class="mb-0 text-muted small">Merhaba Mehmet, diyet planınızı güncelledim. Yeni listeyi inceleyebilirsiniz...</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action p-4">
+                                            <div class="d-flex">
+                                                <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" alt="Sistem">
+                                                <div>
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <h6 class="mb-0">Sistem Bildirimi</h6>
+                                                        <small class="text-muted">Dün, 18:30</small>
+                                                    </div>
+                                                    <p class="mb-0 text-muted small">Yarınki randevunuz için otomatik hatırlatma. Dr. Ayşe Yılmaz ile saat 15:00'deki...</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-top-0 text-center">
+                                    <a href="#" class="btn btn-success w-100">
+                                        <i class="bi bi-chat-text me-2"></i> Yeni Mesaj Gönder
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Other Content Sections (hidden by default) -->
+                <div id="diet-plans-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Diyet Planım</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="appointments-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Randevularım</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="progress-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">İlerleme Takibi</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="messages-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Mesajlar</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="profile-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Profilim</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="settings-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Ayarlar</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth-helper.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/patient-navigation.js"></script>
+    <script>
+        // TEST MODU: Oturum kontrolü devre dışı bırakıldı
+        console.log('Dashboard: TEST MODU - Otomatik hasta oturumu oluşturuldu');
+        
+        // Otomatik hasta oturumu oluştur 
+        sessionStorage.setItem('userType', 'patient');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hasta oturumu zaten oluşturuldu - yönlendirme kontrolü devre dışı
+            
+            // Hasta panelinde doğru çalışması için kritik linkleri düzelt
+            const criticalLinks = {
+                'messages-link': 'patient-messages.html',
+                'profile-link': 'patient-profile.html',
+                'settings-link': 'patient-settings.html'
+            };
+            
+            // Fix links if needed
+            Object.keys(criticalLinks).forEach(linkId => {
+                const link = document.getElementById(linkId);
+                if (link) {
+                    // Set correct href
+                    link.setAttribute('href', criticalLinks[linkId]);
+                }
+            });
+            
+            // Also, fix dropdown menu links
+            const dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(link => {
+                const text = link.textContent.trim();
+                if (text.includes('Profilim')) {
+                    link.setAttribute('href', 'patient-profile.html');
+                } else if (text.includes('Ayarlar')) {
+                    link.setAttribute('href', 'patient-settings.html');
+                } else if (text.includes('Mesaj')) {
+                    link.setAttribute('href', 'patient-messages.html');
+                }
+            });
+            
+            // Geçerli tarihi ayarla
+            const currentDateEl = document.getElementById('current-date');
+            if (currentDateEl) {
+                const now = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                currentDateEl.textContent = now.toLocaleDateString('tr-TR', options);
+            }
+        });
+    </script>
+</body>
+</html> 

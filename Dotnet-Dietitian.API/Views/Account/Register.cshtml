@@ -1,0 +1,102 @@
+@using Dotnet_Dietitian.API.Models
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Yeni Hesap Oluştur</h2>
+                    
+                    <form asp-action="Register" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Hesap Tipi</label>
+                            <div class="form-check">
+                                <input asp-for="UserType" class="form-check-input" type="radio" value="Hasta" checked />
+                                <label class="form-check-label" for="userTypePatient">
+                                    Hasta olarak kayıt ol
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input asp-for="UserType" class="form-check-input" type="radio" value="Diyetisyen" />
+                                <label class="form-check-label" for="userTypeDietitian">
+                                    Diyetisyen olarak kayıt ol
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="IdentityNumber" class="form-label">T.C. Kimlik No</label>
+                            <input asp-for="IdentityNumber" class="form-control" maxlength="11" />
+                            <span asp-validation-for="IdentityNumber" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label">Ad</label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label">Soyad</label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">E-posta</label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">Telefon</label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Password" class="form-label">Şifre</label>
+                                <input asp-for="Password" type="password" class="form-control" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmPassword" class="form-label">Şifre Tekrar</label>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input asp-for="AgreeTerms" type="checkbox" class="form-check-input" />
+                            <label asp-for="AgreeTerms" class="form-check-label">
+                                <a href="/Home/Privacy" target="_blank">Kullanım koşullarını</a> kabul ediyorum
+                            </label>
+                            <span asp-validation-for="AgreeTerms" class="text-danger d-block"></span>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Kayıt Ol</button>
+                        </div>
+                    </form>
+        
+                    <div class="mt-3 text-center">
+                        <p>Zaten hesabınız var mı? <a asp-action="Login">Giriş Yap</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

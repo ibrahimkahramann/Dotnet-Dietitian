@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlar - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="patient-dashboard.html" class="list-group-item list-group-item-action py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patient-diet-plan.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planım
+                </a>
+                <a href="patient-appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevularım
+                </a>
+                <a href="patient-progress-tracking.html" class="list-group-item list-group-item-action py-3 px-4" id="progress-link">
+                    <i class="bi bi-graph-up-arrow me-2"></i> İlerleme Takibi
+                </a>
+                <a href="patient-messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">1</span>
+                </a>
+                <a href="patient-profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="patient-settings.html" class="list-group-item list-group-item-action active py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3">
+                                            <i class="bi bi-clipboard2-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yeni diyet planınız hazır</p>
+                                            <small class="text-muted">30 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-primary me-3">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yarın saat 15:00'de randevunuz var</p>
+                                            <small class="text-muted">1 saat önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">
+                                        Tüm bildirimleri gör
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Mehmet Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="patient-profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="patient-settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Settings Content -->
+                <div class="settings-content">
+                    <div class="mb-4">
+                        <h2 class="fw-bold mb-0">Ayarlar</h2>
+                        <p class="text-muted">Uygulama ayarlarınızı ve tercihlerinizi yönetin</p>
+                    </div>
+                    
+                    <!-- Alert placeholder -->
+                    <div id="settingsAlert"></div>
+                    
+                    <!-- Settings Tabs -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-0">
+                            <div class="row g-0">
+                                <div class="col-md-3 border-end">
+                                    <div class="list-group list-group-flush border-bottom">
+                                        <a href="#general" class="list-group-item list-group-item-action active px-4 py-3" data-bs-toggle="list">
+                                            <i class="bi bi-sliders me-2"></i> Genel
+                                        </a>
+                                        <a href="#notifications" class="list-group-item list-group-item-action px-4 py-3" data-bs-toggle="list">
+                                            <i class="bi bi-bell me-2"></i> Bildirimler
+                                        </a>
+                                        <a href="#privacy" class="list-group-item list-group-item-action px-4 py-3" data-bs-toggle="list">
+                                            <i class="bi bi-shield-lock me-2"></i> Gizlilik ve Güvenlik
+                                        </a>
+                                        <a href="#appearance" class="list-group-item list-group-item-action px-4 py-3" data-bs-toggle="list">
+                                            <i class="bi bi-palette me-2"></i> Görünüm
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="tab-content p-4">
+                                        <!-- General Settings -->
+                                        <div class="tab-pane fade show active" id="general">
+                                            <h5 class="mb-4">Genel Ayarlar</h5>
+                                            <form id="generalSettingsForm">
+                                                <div class="mb-4">
+                                                    <label class="form-label">Dil</label>
+                                                    <select class="form-select">
+                                                        <option value="tr" selected>Türkçe</option>
+                                                        <option value="en">English</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label class="form-label">Zaman Dilimi</label>
+                                                    <select class="form-select">
+                                                        <option value="europe-istanbul" selected>(GMT+3:00) İstanbul</option>
+                                                        <option value="europe-london">(GMT+0:00) Londra</option>
+                                                        <option value="america-new_york">(GMT-5:00) New York</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label class="form-label">Tarih Formatı</label>
+                                                    <select class="form-select">
+                                                        <option value="dd-mm-yyyy" selected>GG/AA/YYYY</option>
+                                                        <option value="mm-dd-yyyy">AA/GG/YYYY</option>
+                                                        <option value="yyyy-mm-dd">YYYY/AA/GG</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label class="form-label">Ölçü Birimleri</label>
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="radio" name="weightUnit" id="weightMetric" checked>
+                                                        <label class="form-check-label" for="weightMetric">
+                                                            Metrik (kg, cm)
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="weightUnit" id="weightImperial">
+                                                        <label class="form-check-label" for="weightImperial">
+                                                            İngiliz (lb, in)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-success">Kaydet</button>
+                                            </form>
+                                        </div>
+                                        
+                                        <!-- Notification Settings -->
+                                        <div class="tab-pane fade" id="notifications">
+                                            <h5 class="mb-4">Bildirim Ayarları</h5>
+                                            <div class="mb-4">
+                                                <h6 class="mb-3">E-posta Bildirimleri</h6>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifAppointments" checked>
+                                                    <label class="form-check-label" for="emailNotifAppointments">Randevu hatırlatıcıları</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifMessages" checked>
+                                                    <label class="form-check-label" for="emailNotifMessages">Yeni mesajlar</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifDietUpdates" checked>
+                                                    <label class="form-check-label" for="emailNotifDietUpdates">Diyet planı güncellemeleri</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotifMarketing">
+                                                    <label class="form-check-label" for="emailNotifMarketing">Pazarlama e-postaları ve güncellemeler</label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <h6 class="mb-3">Uygulama Bildirimleri</h6>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="appNotifAppointments" checked>
+                                                    <label class="form-check-label" for="appNotifAppointments">Randevu hatırlatıcıları</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="appNotifMessages" checked>
+                                                    <label class="form-check-label" for="appNotifMessages">Yeni mesajlar</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="appNotifDietUpdates" checked>
+                                                    <label class="form-check-label" for="appNotifDietUpdates">Diyet planı güncellemeleri</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="appNotifDailyReminders" checked>
+                                                    <label class="form-check-label" for="appNotifDailyReminders">Günlük hatırlatmalar (su içme, egzersiz vb.)</label>
+                                                </div>
+                                            </div>
+                                            
+                                            <button type="button" class="btn btn-success">Kaydet</button>
+                                        </div>
+                                        
+                                        <!-- Privacy Settings -->
+                                        <div class="tab-pane fade" id="privacy">
+                                            <h5 class="mb-4">Gizlilik ve Güvenlik</h5>
+                                            <div class="mb-4">
+                                                <h6 class="mb-3">Hesap Güvenliği</h6>
+                                                <div class="d-grid gap-2 d-md-flex mb-3">
+                                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                                        <i class="bi bi-key me-2"></i> Şifre Değiştir
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary" type="button">
+                                                        <i class="bi bi-shield-check me-2"></i> İki Faktörlü Doğrulama
+                                                    </button>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="loginAlerts" checked>
+                                                    <label class="form-check-label" for="loginAlerts">Yeni giriş uyarıları</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="sessionTimeout" checked>
+                                                    <label class="form-check-label" for="sessionTimeout">30 dakika hareketsizlik sonrası oturumu kapat</label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-4">
+                                                <h6 class="mb-3">Veri Gizliliği</h6>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="shareHealthData" checked>
+                                                    <label class="form-check-label" for="shareHealthData">Sağlık ve ilerleme verilerimi diyetisyenimle paylaş</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="shareActivityData" checked>
+                                                    <label class="form-check-label" for="shareActivityData">Aktivite verilerimi diyetisyenimle paylaş</label>
+                                                </div>
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="shareUsageData">
+                                                    <label class="form-check-label" for="shareUsageData">Anonim kullanım verilerini iyileştirme amacıyla paylaş</label>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <button class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-download me-2"></i> Verilerimi İndir
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger ms-2">
+                                                        <i class="bi bi-trash me-2"></i> Hesabımı Sil
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <button type="button" class="btn btn-success">Kaydet</button>
+                                        </div>
+                                        
+                                        <!-- Appearance Settings -->
+                                        <div class="tab-pane fade" id="appearance">
+                                            <h5 class="mb-4">Görünüm</h5>
+                                            <div class="mb-4">
+                                                <label class="form-label">Tema</label>
+                                                <div class="d-flex gap-3 mb-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="theme" id="themeLight" checked>
+                                                        <label class="form-check-label" for="themeLight">
+                                                            Açık
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="theme" id="themeDark">
+                                                        <label class="form-check-label" for="themeDark">
+                                                            Koyu
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="theme" id="themeSystem">
+                                                        <label class="form-check-label" for="themeSystem">
+                                                            Sistem ayarını kullan
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="form-label">Ana Panel Düzeni</label>
+                                                <select class="form-select mb-3">
+                                                    <option value="default" selected>Standart</option>
+                                                    <option value="compact">Kompakt</option>
+                                                    <option value="detailed">Detaylı</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="form-label">Görünüm Tercihleri</label>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="showProgress" checked>
+                                                    <label class="form-check-label" for="showProgress">
+                                                        Ana panelde ilerleme grafiğini göster
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="showWaterTracker" checked>
+                                                    <label class="form-check-label" for="showWaterTracker">
+                                                        Su takibini ana panelde göster
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="showCalories" checked>
+                                                    <label class="form-check-label" for="showCalories">
+                                                        Kalori takibini ana panelde göster
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-success">Kaydet</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Şifre Değiştir</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Mevcut Şifre</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Yeni Şifre</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                            <div class="form-text">Şifreniz en az 8 karakter uzunluğunda olmalı ve harf, rakam ve özel karakter içermelidir.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Yeni Şifre (Tekrar)</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" form="changePasswordForm" class="btn btn-success">Şifreyi Değiştir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth-helper.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/patient-navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Settings form submissions
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show success message
+                    const alertPlaceholder = document.getElementById('settingsAlert');
+                    if (alertPlaceholder) {
+                        alertPlaceholder.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                                Ayarlarınız başarıyla kaydedildi.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                    }
+                    
+                    // If it's the password form, close the modal
+                    if (form.id === 'changePasswordForm') {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                        modal.hide();
+                    }
+                    
+                    // Scroll to top to see the success message
+                    window.scrollTo(0, 0);
+                });
+            });
+            
+            // Ensure sidebar links always point to correct patient pages
+            const correctLinks = {
+                'messages-link': 'patient-messages.html',
+                'profile-link': 'patient-profile.html',
+                'settings-link': 'patient-settings.html'
+            };
+            
+            // Fix links if needed
+            Object.keys(correctLinks).forEach(linkId => {
+                const link = document.getElementById(linkId);
+                if (link) {
+                    // Force correct href
+                    link.setAttribute('href', correctLinks[linkId]);
+                    
+                    // Add click listener to double-check href at click time
+                    link.addEventListener('click', function(e) {
+                        // Make absolutely sure the href is correct
+                        if (this.getAttribute('href') !== correctLinks[linkId]) {
+                            this.setAttribute('href', correctLinks[linkId]);
+                        }
+                    });
+                }
+            });
+            
+            // Also, fix dropdown menu links
+            const dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                // Replace regular page links with patient page links
+                if (href === 'profile.html') {
+                    link.setAttribute('href', 'patient-profile.html');
+                } else if (href === 'settings.html') {
+                    link.setAttribute('href', 'patient-settings.html');
+                } else if (href === 'messages.html') {
+                    link.setAttribute('href', 'patient-messages.html');
+                }
+            });
+            
+            // Tab navigation via URL
+            const url = window.location.href;
+            if (url.includes('#')) {
+                const tabId = url.split('#')[1];
+                const tabElement = document.querySelector(`a[href="#${tabId}"]`);
+                if (tabElement) {
+                    const tab = new bootstrap.Tab(tabElement);
+                    tab.show();
+                }
+            }
+        });
+    </script>
+    
+    <!-- EMERGENCY FIX: Force correct patient page links -->
+    <script>
+        // This is an emergency fix that runs immediately and after a delay
+        // to ensure links always point to correct patient pages
+        (function fixPatientLinks() {
+            console.log('⚠️ EMERGENCY FIX: Running patient link correction');
+            
+            // Fix message link
+            var messagesLink = document.getElementById('messages-link');
+            if (messagesLink) messagesLink.href = 'patient-messages.html';
+            
+            // Fix profile link
+            var profileLink = document.getElementById('profile-link');
+            if (profileLink) profileLink.href = 'patient-profile.html';
+            
+            // Fix settings link
+            var settingsLink = document.getElementById('settings-link');
+            if (settingsLink) settingsLink.href = 'patient-settings.html';
+            
+            // Fix dropdown links
+            var dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(function(link) {
+                var text = link.textContent.trim();
+                if (text.includes('Profilim')) {
+                    link.href = 'patient-profile.html';
+                } else if (text.includes('Ayarlar')) {
+                    link.href = 'patient-settings.html';
+                } else if (text.includes('Mesaj')) {
+                    link.href = 'patient-messages.html';
+                }
+            });
+            
+            // Run again after a delay to ensure it catches any dynamically updated links
+            setTimeout(fixPatientLinks, 200);
+        })();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,183 @@
+@using Dotnet_Dietitian.API.Models
+@model GetHastaByIdQueryResult
+@{
+    ViewData["Title"] = "Hasta Paneli";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-controller="Patient" asp-action="Dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i>Panel
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Patient" asp-action="DietProgram">
+                            <i class="fas fa-utensils me-2"></i>Diyet Programı
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Patient" asp-action="Appointments">
+                            <i class="fas fa-calendar-alt me-2"></i>Randevularım
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Patient" asp-action="Messages">
+                            <i class="fas fa-comments me-2"></i>Mesajlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Patient" asp-action="Profile">
+                            <i class="fas fa-user-circle me-2"></i>Profilim
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Hoş Geldiniz, @Model.Ad</h1>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-success text-white mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-utensils me-2"></i>Aktif Diyet Programı</h5>
+                            <p class="card-text fs-2">
+                                @(Model.DiyetProgramiAdi ?? "Atanmamış")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-calendar-alt me-2"></i>Yaklaşan Randevu</h5>
+                            <p class="card-text fs-2">
+                                @(Model.Randevular != null && Model.Randevular.Any() 
+                                  ? Model.Randevular.OrderBy(r => r.RandevuBaslangicTarihi).First().RandevuBaslangicTarihi.ToString("dd.MM.yyyy HH:mm")
+                                  : "Randevu Yok")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-user-md me-2"></i>Diyetisyenim</h5>
+                            <p class="card-text fs-2">
+                                @(Model.DiyetisyenAdi ?? "Atanmamış")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-calendar-check me-2"></i>Yaklaşan Randevular
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Randevular != null && Model.Randevular.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Tarih</th>
+                                                <th>Saat</th>
+                                                <th>Tür</th>
+                                                <th>Durum</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var randevu in Model.Randevular.OrderBy(r => r.RandevuBaslangicTarihi).Take(5))
+                                            {
+                                                <tr>
+                                                    <td>@randevu.RandevuBaslangicTarihi.ToString("dd.MM.yyyy")</td>
+                                                    <td>@randevu.RandevuBaslangicTarihi.ToString("HH:mm")</td>
+                                                    <td>@randevu.RandevuTuru</td>
+                                                    <td>
+                                                        @if (randevu.Durum == "Onaylandı")
+                                                        {
+                                                            <span class="badge bg-success">@randevu.Durum</span>
+                                                        }
+                                                        else if (randevu.Durum == "Bekliyor")
+                                                        {
+                                                            <span class="badge bg-warning text-dark">@randevu.Durum</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger">@randevu.Durum</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info mb-0">
+                                    Yaklaşan randevunuz bulunmuyor. <a asp-action="Appointments">Randevu almak için tıklayın.</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-weight me-2"></i>Kilo Takibi
+                        </div>
+                        <div class="card-body">
+                            <canvas id="weightChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Kilo değeri için güvenli dönüşüm
+        const baseWeight = @(Model.Kilo.HasValue ? Json.Serialize(Model.Kilo.Value) : "0");
+        // Sample data for weight chart
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        const weightChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1 Hafta', '2 Hafta', '3 Hafta', '4 Hafta', 'Şu an'],
+                datasets: [{
+                    label: 'Kilo (kg)',
+                    data: [baseWeight + 2, baseWeight + 1.5, baseWeight + 0.8, baseWeight + 0.3, baseWeight],
+                    backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    </script>
+}

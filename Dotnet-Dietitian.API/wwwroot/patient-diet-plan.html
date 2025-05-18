@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diyet Planım - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="patient-dashboard.html" class="list-group-item list-group-item-action py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patient-diet-plan.html" class="list-group-item list-group-item-action active py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planım
+                </a>
+                <a href="patient-appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevularım
+                </a>
+                <a href="patient-progress-tracking.html" class="list-group-item list-group-item-action py-3 px-4" id="progress-link">
+                    <i class="bi bi-graph-up-arrow me-2"></i> İlerleme Takibi
+                </a>
+                <a href="patient-messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">1</span>
+                </a>
+                <a href="patient-profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="patient-settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3">
+                                            <i class="bi bi-clipboard2-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yeni diyet planınız hazır</p>
+                                            <small class="text-muted">30 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-primary me-3">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yarın saat 15:00'de randevunuz var</p>
+                                            <small class="text-muted">1 saat önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">
+                                        Tüm bildirimleri gör
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Mehmet Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="patient-profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="patient-settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Diet Plan Content -->
+                <div class="diet-plan-content">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                        <div class="mb-3 mb-md-0">
+                            <h2 class="fw-bold mb-0">Diyet Planım</h2>
+                            <p class="text-muted">Diyetisyeniniz tarafından size özel hazırlanan diyet planı</p>
+                        </div>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-primary me-2">
+                                <i class="bi bi-printer me-2"></i> Yazdır
+                            </button>
+                            <button class="btn btn-outline-success">
+                                <i class="bi bi-download me-2"></i> İndir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Diet Plan Info Card -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h5 class="fw-bold">Kişisel Diyet Programı</h5>
+                                    <p class="text-muted mb-0">Dr. Ayşe Yılmaz tarafından 10 Haziran 2025 tarihinde oluşturuldu</p>
+                                </div>
+                                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                    <span class="badge bg-success p-2">Aktif Plan</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Diet Plan Description -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="card-title mb-0 fw-bold">Plan Özeti</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row mb-4">
+                                <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                                            <i class="bi bi-calendar-week"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Süre</div>
+                                            <div class="fw-bold">4 Hafta</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                                            <i class="bi bi-lightning-charge"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Kalori</div>
+                                            <div class="fw-bold">1800 kcal/gün</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info me-3">
+                                            <i class="bi bi-droplet"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Su</div>
+                                            <div class="fw-bold">2.5 L/gün</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning me-3">
+                                            <i class="bi bi-bullseye"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Hedef</div>
+                                            <div class="fw-bold">Kilo Verme</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6 class="fw-bold mb-3">Diyet Türü</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark p-2">Akdeniz Diyeti</span>
+                                    <span class="badge bg-light text-dark p-2">Düşük Karbonhidrat</span>
+                                    <span class="badge bg-light text-dark p-2">Glütensiz</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h6 class="fw-bold mb-3">Notlar</h6>
+                                <p>Bu diyet planı, kilo verme hedefinize ulaşmanıza yardımcı olmak için özel olarak hazırlanmıştır. Akdeniz diyeti temelli düşük karbonhidratlı beslenme programını içermektedir. Her öğün için belirtilen porsiyonları dikkate alınız ve öğün aralarında bol su tüketmeyi unutmayınız. Haftada en az 3 gün 30-45 dakikalık orta şiddetli egzersiz yapmanız önerilir.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Diet Plan Calendar -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="card-title mb-0 fw-bold">Haftalık Plan</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="nav nav-tabs" id="weekTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="week1-tab" data-bs-toggle="tab" data-bs-target="#week1" type="button" role="tab">Hafta 1</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="week2-tab" data-bs-toggle="tab" data-bs-target="#week2" type="button" role="tab">Hafta 2</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="week3-tab" data-bs-toggle="tab" data-bs-target="#week3" type="button" role="tab">Hafta 3</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="week4-tab" data-bs-toggle="tab" data-bs-target="#week4" type="button" role="tab">Hafta 4</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content p-4" id="weekTabContent">
+                                <div class="tab-pane fade show active" id="week1" role="tabpanel">
+                                    <h6 class="fw-bold mb-3">Hafta 1 Diyet Planı</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th style="width: 15%">Öğün</th>
+                                                    <th>Pazartesi</th>
+                                                    <th>Salı</th>
+                                                    <th>Çarşamba</th>
+                                                    <th>Perşembe</th>
+                                                    <th>Cuma</th>
+                                                    <th>Cumartesi</th>
+                                                    <th>Pazar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th class="bg-light">Kahvaltı</th>
+                                                    <td>Yulaf ezmesi, süt, muz</td>
+                                                    <td>Peynirli omlet, tam tahıllı ekmek</td>
+                                                    <td>Yoğurt, granola, çilek</td>
+                                                    <td>Haşlanmış yumurta, avokado, çavdar ekmeği</td>
+                                                    <td>Protein shake, badem</td>
+                                                    <td>Yeşil sebzeli omlet, domates</td>
+                                                    <td>Tam tahıllı tost, peynir, domates</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="bg-light">Ara Öğün</th>
+                                                    <td>Elma, badem</td>
+                                                    <td>Yoğurt, ceviz</td>
+                                                    <td>Havuç, humus</td>
+                                                    <td>Armut, fındık</td>
+                                                    <td>Protein bar</td>
+                                                    <td>Yoğurt, kuru üzüm</td>
+                                                    <td>Muz, fıstık ezmesi</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="bg-light">Öğle Yemeği</th>
+                                                    <td>Tavuklu salata, zeytinyağı</td>
+                                                    <td>Mercimek çorbası, çavdar ekmeği</td>
+                                                    <td>Ton balıklı salata, zeytinyağı</td>
+                                                    <td>Izgara sebzeli kinoa</td>
+                                                    <td>Hindi sandviç, tam tahıllı ekmek</td>
+                                                    <td>Nohutlu sebze salatası</td>
+                                                    <td>Tavuk şiş, ızgara sebze</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="bg-light">Ara Öğün</th>
+                                                    <td>Portakal, ceviz</td>
+                                                    <td>Protein shake</td>
+                                                    <td>Kuru kayısı, fındık</td>
+                                                    <td>Elma, badem</td>
+                                                    <td>Salatalık, labne peyniri</td>
+                                                    <td>Protein bar</td>
+                                                    <td>Yoğurt, yaban mersini</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="bg-light">Akşam Yemeği</th>
+                                                    <td>Izgara somon, buharda brokoli</td>
+                                                    <td>Fırın tavuk, sebze</td>
+                                                    <td>Izgara köfte, salata</td>
+                                                    <td>Sebzeli balık buğulama</td>
+                                                    <td>Mercimekli bulgur pilavı</td>
+                                                    <td>Etli sebze yemeği</td>
+                                                    <td>Hindi, fırın patates</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="week2" role="tabpanel">
+                                    <div class="text-center p-5">
+                                        <i class="bi bi-calendar-week text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="mt-3">Hafta 2 Diyet Planı</h5>
+                                        <p class="text-muted">Hafta 2 planı diyetisyeniniz tarafından yakında eklenecek.</p>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="week3" role="tabpanel">
+                                    <div class="text-center p-5">
+                                        <i class="bi bi-calendar-week text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="mt-3">Hafta 3 Diyet Planı</h5>
+                                        <p class="text-muted">Hafta 3 planı diyetisyeniniz tarafından yakında eklenecek.</p>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="week4" role="tabpanel">
+                                    <div class="text-center p-5">
+                                        <i class="bi bi-calendar-week text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="mt-3">Hafta 4 Diyet Planı</h5>
+                                        <p class="text-muted">Hafta 4 planı diyetisyeniniz tarafından yakında eklenecek.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Diet Plan Notes -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="card-title mb-0 fw-bold">Diyetisyen Notları</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex mb-4">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Dr. Ayşe Yılmaz">
+                                <div>
+                                    <h6 class="fw-bold mb-1">Dr. Ayşe Yılmaz</h6>
+                                    <p class="text-muted small mb-2">10 Haziran 2025, 14:30</p>
+                                    <p class="mb-0">Mehmet Bey, bu diyet planı sizin kişisel ihtiyaçlarınız ve sağlık durumunuz göz önünde bulundurularak hazırlanmıştır. İlk hafta adaptasyon sürecidir, bu süreçte vücudunuzun tepkisini gözlemleyeceğiz. Haftada 1 kg civarında kilo kaybı hedefliyoruz. Öğünlerinizi atlamamaya dikkat edin ve günde en az 2.5 litre su içmeyi unutmayın. Yürüyüş ve hafif egzersizler yapmanızı öneriyorum. Sorularınız için benimle iletişime geçebilirsiniz.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Dr. Ayşe Yılmaz">
+                                <div>
+                                    <h6 class="fw-bold mb-1">Dr. Ayşe Yılmaz</h6>
+                                    <p class="text-muted small mb-2">12 Haziran 2025, 10:15</p>
+                                    <p class="mb-0">Kan şekerinizin düzenlenmesi için öğün aralarının düzenli olması çok önemli. Ara öğünleri atlamamaya özen gösterin. Ayrıca, planın dışına çıkmanız gerekirse en yakın sağlıklı alternatifi seçmeye çalışın. İlerlemenizi takip etmek için haftada bir kilo ölçümü yapmanızı öneririm.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Questions and Feedback -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="card-title mb-0 fw-bold">Soru ve Geribildirim</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="questionFeedback" class="form-label">Diyetisyeninize soru sorun veya geri bildirim gönderin</label>
+                                    <textarea class="form-control" id="questionFeedback" rows="3" placeholder="Diyet planınızla ilgili soru veya geri bildiriminizi yazın..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">Gönder</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/patient-navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure sidebar links always point to correct patient pages
+            const correctLinks = {
+                'messages-link': 'patient-messages.html',
+                'profile-link': 'patient-profile.html',
+                'settings-link': 'patient-settings.html'
+            };
+            
+            // Fix links if needed
+            Object.keys(correctLinks).forEach(linkId => {
+                const link = document.getElementById(linkId);
+                if (link) {
+                    // Force correct href
+                    link.setAttribute('href', correctLinks[linkId]);
+                    
+                    // Add click listener to double-check href at click time
+                    link.addEventListener('click', function(e) {
+                        // Make absolutely sure the href is correct
+                        if (this.getAttribute('href') !== correctLinks[linkId]) {
+                            this.setAttribute('href', correctLinks[linkId]);
+                        }
+                    });
+                }
+            });
+            
+            // Also, fix dropdown menu links
+            const dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                // Replace regular page links with patient page links
+                if (href === 'profile.html') {
+                    link.setAttribute('href', 'patient-profile.html');
+                } else if (href === 'settings.html') {
+                    link.setAttribute('href', 'patient-settings.html');
+                } else if (href === 'messages.html') {
+                    link.setAttribute('href', 'patient-messages.html');
+                }
+            });
+        });
+    </script>
+    
+    <!-- EMERGENCY FIX: Force correct patient page links -->
+    <script>
+        // This is an emergency fix that runs immediately and after a delay
+        // to ensure links always point to correct patient pages
+        (function fixPatientLinks() {
+            console.log('⚠️ EMERGENCY FIX: Running patient link correction');
+            
+            // Fix message link
+            var messagesLink = document.getElementById('messages-link');
+            if (messagesLink) messagesLink.href = 'patient-messages.html';
+            
+            // Fix profile link
+            var profileLink = document.getElementById('profile-link');
+            if (profileLink) profileLink.href = 'patient-profile.html';
+            
+            // Fix settings link
+            var settingsLink = document.getElementById('settings-link');
+            if (settingsLink) settingsLink.href = 'patient-settings.html';
+            
+            // Fix dropdown links
+            var dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(function(link) {
+                var text = link.textContent.trim();
+                if (text.includes('Profilim')) {
+                    link.href = 'patient-profile.html';
+                } else if (text.includes('Ayarlar')) {
+                    link.href = 'patient-settings.html';
+                } else if (text.includes('Mesaj')) {
+                    link.href = 'patient-messages.html';
+                }
+            });
+            
+            // Run again after a delay to ensure it catches any dynamically updated links
+            setTimeout(fixPatientLinks, 200);
+        })();
+    </script>
+</body>
+</html> 

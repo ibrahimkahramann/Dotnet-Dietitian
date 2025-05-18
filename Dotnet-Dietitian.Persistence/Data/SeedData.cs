@@ -485,6 +485,51 @@ namespace Dotnet_Dietitian.Persistence.Data
                     await context.SaveChangesAsync();
                 }
                 
+                // Mesaj seed data örneği:
+                if (!context.Mesajlar.Any() && hastalar.Any() && diyetisyenler.Any())
+                {
+                    var mesajlar = new List<Mesaj>();
+                    
+                    // Güvenli bir şekilde mesajları ekleyelim - değişkenleri burada tanımla
+                    int hastaCount = hastalar.Count;
+                    int diyetisyenCount = diyetisyenler.Count;
+                    
+                    // Her hasta ve diyetisyen arasında örnek mesajlaşma
+                    for (int i = 0; i < Math.Min(hastaCount, 5); i++)
+                    {
+                        var diyetisyenIndex = i % diyetisyenCount;
+                        
+                        // Hastadan diyetisyene mesaj
+                        mesajlar.Add(new Mesaj
+                        {
+                            Id = Guid.NewGuid(),
+                            GonderenId = hastalar[i].Id,
+                            GonderenTipi = "Hasta",
+                            AliciId = diyetisyenler[diyetisyenIndex].Id,
+                            AliciTipi = "Diyetisyen",
+                            Icerik = $"Merhaba, ben {hastalar[i].Ad}. Bir sorum var.",
+                            GonderimZamani = DateTime.Now.AddHours(-2),
+                            Okundu = true,
+                            OkunmaZamani = DateTime.Now.AddHours(-1)
+                        });
+                        
+                        // Diyetisyenden hastaya yanıt
+                        mesajlar.Add(new Mesaj
+                        {
+                            Id = Guid.NewGuid(),
+                            GonderenId = diyetisyenler[diyetisyenIndex].Id,
+                            GonderenTipi = "Diyetisyen",
+                            AliciId = hastalar[i].Id,
+                            AliciTipi = "Hasta",
+                            Icerik = $"Merhaba {hastalar[i].Ad}, nasıl yardımcı olabilirim?",
+                            GonderimZamani = DateTime.Now.AddHours(-1)
+                        });
+                    }
+                    
+                    await context.Mesajlar.AddRangeAsync(mesajlar);
+                    await context.SaveChangesAsync();
+                }
+                
                 Console.WriteLine("Seed verileri başarıyla eklendi.");
             }
             catch (Exception ex)

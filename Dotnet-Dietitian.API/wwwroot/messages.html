@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesajlar - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .message-list {
+            height: calc(100vh - 230px);
+            overflow-y: auto;
+        }
+        
+        .chat-container {
+            height: calc(100vh - 230px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .message {
+            max-width: 75%;
+            margin-bottom: 1rem;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            position: relative;
+        }
+        
+        .message-sent {
+            background-color: #e9f9ef;
+            color: #343a40;
+            margin-left: auto;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .message-received {
+            background-color: #f8f9fa;
+            margin-right: auto;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .contact-active {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="dietitian-dashboard.html" class="list-group-item list-group-item-action py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patients-view.html" class="list-group-item list-group-item-action py-3 px-4" id="patients-link">
+                    <i class="bi bi-people me-2"></i> Hastalarım
+                </a>
+                <a href="appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevular
+                </a>
+                <a href="diet-plans.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planları
+                </a>
+                <a href="messages.html" class="list-group-item list-group-item-action active py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">3</span>
+                </a>
+                <a href="profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3"><i class="bi bi-calendar-check"></i></div>
+                                        <div>
+                                            <p class="mb-0">Bugün saat 14:00'de randevunuz var</p>
+                                            <small class="text-muted">10 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">Tüm bildirimleri gör</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Dr. Ayşe Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <h2 class="fw-bold mb-4">Mesajlar</h2>
+                
+                <div class="row g-4">
+                    <!-- Message List -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">Konuşmalar</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button" id="messageOptionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messageOptionsDropdown">
+                                        <li><a class="dropdown-item" href="#"><i class="bi bi-check-all me-2"></i>Tümünü okundu işaretle</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="bi bi-archive me-2"></i>Arşivlenmiş mesajlar</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="input-group p-3 border-bottom">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control border-0 bg-light" placeholder="Mesajlarda ara...">
+                                </div>
+                                <div class="message-list">
+                                    <!-- Unread Message -->
+                                    <a href="#" class="list-group-item list-group-item-action px-3 py-3 d-flex contact-active" data-contact="mehmet">
+                                        <div class="position-relative me-3">
+                                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle" width="50" height="50" alt="Contact">
+                                            <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1" style="width: 12px; height: 12px;"></span>
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0 fw-bold">Mehmet Demir</h6>
+                                                <small class="text-muted">12:45</small>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <p class="mb-0 small text-truncate">Merhaba doktor hanım, son önerdiğiniz diyet planı hakkında bir sorum var...</p>
+                                                <span class="badge rounded-pill bg-success ms-2">2</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <!-- Unread Message -->
+                                    <a href="#" class="list-group-item list-group-item-action px-3 py-3 d-flex" data-contact="ayse">
+                                        <div class="position-relative me-3">
+                                            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&auto=format" class="rounded-circle" width="50" height="50" alt="Contact">
+                                            <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1" style="width: 12px; height: 12px;"></span>
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0 fw-bold">Ayşe Kaya</h6>
+                                                <small class="text-muted">Dün</small>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <p class="mb-0 small text-truncate">Doktor hanım, yarınki randevumu bir saat erteleyebilir miyiz?</p>
+                                                <span class="badge rounded-pill bg-success ms-2">1</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <!-- Read Message -->
+                                    <a href="#" class="list-group-item list-group-item-action px-3 py-3 d-flex" data-contact="ali">
+                                        <div class="position-relative me-3">
+                                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle" width="50" height="50" alt="Contact">
+                                            <span class="position-absolute bottom-0 end-0 bg-secondary rounded-circle p-1" style="width: 12px; height: 12px;"></span>
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0">Ali Yıldız</h6>
+                                                <small class="text-muted">Pazartesi</small>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <p class="mb-0 small text-muted text-truncate">Teşekkürler, programı takip etmeye devam edeceğim.</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <!-- Read Message -->
+                                    <a href="#" class="list-group-item list-group-item-action px-3 py-3 d-flex" data-contact="zeynep">
+                                        <div class="me-3">
+                                            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&auto=format" class="rounded-circle" width="50" height="50" alt="Contact">
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0">Zeynep Çelik</h6>
+                                                <small class="text-muted">23 Nis</small>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <p class="mb-0 small text-muted text-truncate">Önerdiğiniz beslenme programını uygulamaya başladım, çok memnunum.</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Area -->
+                    <div class="col-md-8">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="position-relative me-3">
+                                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="45" height="45" alt="Contact">
+                                        <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-1" style="width: 12px; height: 12px;"></span>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0 fw-bold">Mehmet Demir</h5>
+                                        <p class="mb-0 small text-muted">Çevrimiçi</p>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-secondary btn-sm rounded-circle me-2">
+                                                <i class="bi bi-telephone"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm rounded-circle me-2">
+                                                <i class="bi bi-camera-video"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm rounded-circle" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profili görüntüle</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-clock-history me-2"></i>Geçmiş mesajlar</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-bell-slash me-2"></i>Bildirimleri kapat</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-container">
+                                <div class="chat-messages">
+                                    <!-- Conversation -->
+                                    <div class="text-center small text-muted mb-3">Bugün, 10 Mayıs 2023</div>
+                                    
+                                    <!-- Received Message -->
+                                    <div class="d-flex mb-4">
+                                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=120&h=120&fit=crop&auto=format" class="rounded-circle me-2 align-self-end" width="35" height="35" alt="Contact">
+                                        <div>
+                                            <div class="message message-received">
+                                                <p class="mb-0">Merhaba doktor hanım, nasılsınız?</p>
+                                            </div>
+                                            <small class="text-muted">12:30</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Sent Message -->
+                                    <div class="message message-sent">
+                                        <p class="mb-0">Merhaba Mehmet Bey, teşekkür ederim, iyiyim. Siz nasılsınız?</p>
+                                        <small class="text-muted d-block text-end">12:32 • Okundu</small>
+                                    </div>
+                                    
+                                    <!-- Received Message -->
+                                    <div class="d-flex mb-4">
+                                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=120&h=120&fit=crop&auto=format" class="rounded-circle me-2 align-self-end" width="35" height="35" alt="Contact">
+                                        <div>
+                                            <div class="message message-received">
+                                                <p class="mb-0">Ben de iyiyim, sağ olun. Son verdiğiniz diyet planını uygulamaya başladım ama bir sorum var. Akşam yemeğinde önerdiğiniz tahıl miktarı biraz fazla geldi bana. Bunu azaltabilir miyim?</p>
+                                            </div>
+                                            <small class="text-muted">12:40</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Received Message -->
+                                    <div class="d-flex mb-4">
+                                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=120&h=120&fit=crop&auto=format" class="rounded-circle me-2 align-self-end" width="35" height="35" alt="Contact">
+                                        <div>
+                                            <div class="message message-received">
+                                                <p class="mb-0">Ayrıca sabah kahvaltısında yumurta yerine başka bir protein kaynağı önerebilir misiniz?</p>
+                                            </div>
+                                            <small class="text-muted">12:42</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Sent Message -->
+                                    <div class="message message-sent">
+                                        <p class="mb-0">Tabii ki, akşam tahıl miktarını 1/2 porsiyona düşürebilirsiniz. Sabah kahvaltısında yumurta yerine peynir, yoğurt veya badem/ceviz gibi kuruyemişleri tercih edebilirsiniz.</p>
+                                        <small class="text-muted d-block text-end">12:44 • Okundu</small>
+                                    </div>
+                                    
+                                    <!-- Typing Indicator -->
+                                    <div class="d-flex mb-4">
+                                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=120&h=120&fit=crop&auto=format" class="rounded-circle me-2 align-self-end" width="35" height="35" alt="Contact">
+                                        <div class="message message-received p-2">
+                                            <div class="typing-indicator">
+                                                <span class="dot"></span>
+                                                <span class="dot"></span>
+                                                <span class="dot"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chat-input">
+                                    <form>
+                                        <div class="input-group">
+                                            <button class="btn btn-light border" type="button">
+                                                <i class="bi bi-emoji-smile"></i>
+                                            </button>
+                                            <button class="btn btn-light border" type="button">
+                                                <i class="bi bi-paperclip"></i>
+                                            </button>
+                                            <input type="text" class="form-control border" placeholder="Mesajınızı yazın...">
+                                            <button class="btn btn-success" type="submit">
+                                                <i class="bi bi-send-fill"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth-helper.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                });
+            }
+            
+            // Contact switching functionality
+            const contactItems = document.querySelectorAll('.message-list a');
+            contactItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all contacts
+                    contactItems.forEach(contact => {
+                        contact.classList.remove('contact-active');
+                    });
+                    
+                    // Add active class to clicked contact
+                    this.classList.add('contact-active');
+                    
+                    // In a real app, you would load the conversation with this contact
+                    const contactName = this.getAttribute('data-contact');
+                    console.log(`Load conversation with ${contactName}`);
+                    
+                    // Remove unread badge if present
+                    const badge = this.querySelector('.badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+                });
+            });
+            
+            // Auto-scroll chat to bottom
+            const chatMessages = document.querySelector('.chat-messages');
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Handle message sending
+            const chatForm = document.querySelector('.chat-input form');
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const input = this.querySelector('input');
+                const message = input.value.trim();
+                
+                if (message) {
+                    // In a real app, you would send this message to the server
+                    console.log(`Sending message: ${message}`);
+                    
+                    // Add message to chat (in a real app this would happen after confirmation from server)
+                    const chatMessages = document.querySelector('.chat-messages');
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message message-sent';
+                    messageElement.innerHTML = `
+                        <p class="mb-0">${message}</p>
+                        <small class="text-muted d-block text-end">Şimdi • Gönderildi</small>
+                    `;
+                    chatMessages.appendChild(messageElement);
+                    
+                    // Clear input
+                    input.value = '';
+                    
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

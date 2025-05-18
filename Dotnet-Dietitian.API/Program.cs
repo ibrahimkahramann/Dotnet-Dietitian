@@ -8,10 +8,36 @@ using Dotnet_Dietitian.Persistence.Data;
 using Dotnet_Dietitian.API.Middlewares;
 using MassTransit;
 using Dotnet_Dietitian.Infrastructure.Consumers;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "MultiScheme";
+    options.DefaultAuthenticateScheme = "MultiScheme";
+    options.DefaultChallengeScheme = "MultiScheme";
+})
+.AddPolicyScheme("MultiScheme", "Cookie or JWT", options =>
+{
+    options.ForwardDefaultSelector = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+            return JwtBearerDefaults.AuthenticationScheme;
+        
+        return CookieAuthenticationDefaults.AuthenticationScheme;
+    };
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(1);
+})
+.AddJwtBearer(opt =>
 {
     opt.RequireHttpsMetadata = false;
     opt.TokenValidationParameters = new TokenValidationParameters
@@ -25,7 +51,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews()
+    .AddRazorRuntimeCompilation(); // Hot reload
 
 builder.Services.AddApplicationServices(builder.Configuration);
 
@@ -71,11 +98,15 @@ if (app.Environment.IsDevelopment())
 //exception handler
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseStaticFiles();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // SignalR hub endpoint'inizi ekleyin - Namespace değişikliğine dikkat edin!
 app.MapHub<Dotnet_Dietitian.Infrastructure.Hubs.MesajlasmaChatHub>("/mesajlasmahub");

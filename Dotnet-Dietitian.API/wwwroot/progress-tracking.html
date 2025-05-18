@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0;url=patient-progress-tracking.html">
+    <title>Yönlendiriliyor - DijetUP</title>
+    <script>
+        // TEST MODU: Oturum kontrolü olmadan çalışacak şekilde ayarla
+        sessionStorage.setItem('userType', 'patient');
+        
+        // İlerleme takibi sayfasına yönlendirme
+        window.onload = function() {
+            window.location.href = "patient-progress-tracking.html";
+        };
+    </script>
+</head>
+<body>
+    <p style="text-align: center; margin-top: 50px; font-family: Arial, sans-serif;">
+        Yönlendiriliyor... Otomatik olarak yönlendirilmezseniz, 
+        <a href="patient-progress-tracking.html">buraya tıklayın</a>.
+    </p>
+</body>
+</html> 
