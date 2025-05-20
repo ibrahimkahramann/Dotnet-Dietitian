@@ -3,61 +3,151 @@
 }
 
 <!-- Hero Section -->
-<section class="hero bg-light py-5">
+<section id="home" class="hero-section d-flex align-items-center">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1>Sağlıklı Yaşam İçin<br><span class="text-success">Profesyonel Diyet Takibi</span></h1>
-                <p class="lead mt-4">
-                    Uzman diyetisyenlerimiz eşliğinde kişiselleştirilmiş beslenme programları ile daha sağlıklı bir yaşama adım atın.
-                </p>
-                <div class="mt-4">
-                    <a href="/Account/Register" class="btn btn-success btn-lg me-3">Hemen Başla</a>
-                    <a href="#nasil-calisir" class="btn btn-outline-dark btn-lg">Nasıl Çalışır?</a>
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-4">Sağlıklı Yaşam İçin<br><span class="text-success">Dijital Çözüm</span></h1>
+                <p class="lead mb-4">Diyetisyenler ve hastalar arasında kesintisiz iletişim sağlayan, diyet planlarını kolayca yönetmenize olanak tanıyan modern uygulama.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-success btn-lg">Hemen Başla</a>
+                    <a href="#features" class="btn btn-outline-dark btn-lg">Daha Fazla Bilgi</a>
                 </div>
             </div>
-            <div class="col-md-6 mt-4 mt-md-0">
-                <img src="~/images/healthy-eating.jpg" class="img-fluid rounded-3 shadow" alt="Sağlıklı Beslenme">
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop&auto=format" alt="Diyetisyen Uygulaması" class="img-fluid rounded-4 shadow">
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features -->
-<section class="py-5" id="nasil-calisir">
-    <div class="container">
-        <h2 class="text-center mb-5">Nasıl Çalışır?</h2>
+<!-- Features Section -->
+<section id="features" class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="fw-bold">Neler Sunuyoruz?</h2>
+                <p class="text-muted lead">Diyetisyen-hasta iletişimini kolaylaştıran ve sağlıklı yaşamı destekleyen özellikler</p>
+            </div>
+        </div>
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3">
-                            <i class="fas fa-user-plus fa-lg"></i>
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle mb-4">
+                            <i class="bi bi-calendar-check"></i>
                         </div>
-                        <h5>Üye Olun</h5>
-                        <p>Basit kayıt formumuzu doldurarak sistemimize üye olun ve kişisel bilgilerinizi ekleyin.</p>
+                        <h4>Randevu Yönetimi</h4>
+                        <p class="text-muted">Randevularınızı kolayca planlayın, düzenleyin veya iptal edin.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3">
-                            <i class="fas fa-calendar-check fa-lg"></i>
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle mb-4">
+                            <i class="bi bi-clipboard2-pulse"></i>
                         </div>
-                        <h5>Randevu Alın</h5>
-                        <p>Size uygun diyetisyeni seçin ve online veya yüz yüze görüşme için randevu alın.</p>
+                        <h4>Diyet Planları</h4>
+                        <p class="text-muted">Kişiselleştirilmiş diyet planlarınızı oluşturun ve takip edin.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3">
-                            <i class="fas fa-chart-line fa-lg"></i>
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle mb-4">
+                            <i class="bi bi-bell"></i>
                         </div>
-                        <h5>Takip Edin</h5>
-                        <p>Kişiselleştirilmiş diyet programınızı takip edin ve ilerlemenizi düzenli olarak izleyin.</p>
+                        <h4>Gerçek Zamanlı Bildirimler</h4>
+                        <p class="text-muted">Önemli güncellemeler ve hatırlatmalar için anlık bildirimler alın.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle mb-4">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <h4>Mesajlaşma</h4>
+                        <p class="text-muted">Diyetisyeninizle güvenli ve kolay iletişim kurun.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle mb-4">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h4>İlerleme Takibi</h4>
+                        <p class="text-muted">Grafik ve raporlarla sağlık hedeflerinize ulaşmadaki ilerlemenizi izleyin.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle mb-4">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h4>Güvenli Erişim</h4>
+                        <p class="text-muted">Kişisel verileriniz ve sağlık bilgileriniz tam koruma altında.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-5">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=600&h=400&fit=crop&auto=format" alt="Sağlıklı Beslenme Danışmanlığı" class="img-fluid rounded-4 shadow mb-2 about-image">
+                <p class="text-center text-muted small mb-4">Diyetisyenlerimiz sağlıklı beslenme konusunda uzman danışmanlık sağlar</p>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <img src="https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?w=300&h=200&fit=crop&auto=format" alt="Sağlıklı Beslenme" class="img-fluid rounded-4 shadow about-small-image">
+                        <p class="text-center text-muted small mt-1">Doğru beslenme alışkanlıkları</p>
+                    </div>
+                    <div class="col-6">
+                        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=200&fit=crop&auto=format" alt="Taze Gıdalar" class="img-fluid rounded-4 shadow about-small-image">
+                        <p class="text-center text-muted small mt-1">Taze ve dengeli beslenme</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Neden Biz?</h2>
+                <p class="lead mb-4">DijetUP, diyetisyenler ve hastalar arasında dijital köprü kuran modern bir uygulamadır.</p>
+                <div class="d-flex mb-3">
+                    <div class="me-3 text-success">
+                        <i class="bi bi-check-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5>Uzman Diyetisyen Ağı</h5>
+                        <p class="text-muted">Alanında uzman diyetisyenlerle çalışarak en iyi hizmeti alın.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <div class="me-3 text-success">
+                        <i class="bi bi-check-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5>Kişiselleştirilmiş Diyet Planları</h5>
+                        <p class="text-muted">Size özel hazırlanan diyet programlarıyla hedeflerinize daha hızlı ulaşın.</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="me-3 text-success">
+                        <i class="bi bi-check-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5>7/24 Destek</h5>
+                        <p class="text-muted">Sağlık yolculuğunuzun her adımında yanınızdayız.</p>
                     </div>
                 </div>
             </div>
@@ -66,82 +156,139 @@
 </section>
 
 <!-- Testimonials -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-5">Mutlu Danışanlarımız</h2>
+<section class="bg-light py-5">
+    <div class="container py-5">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="fw-bold">Kullanıcılarımız Ne Diyor?</h2>
+                <p class="text-muted lead">DijetUP ile sağlıklı yaşama adım atan kişilerin deneyimleri</p>
+            </div>
+        </div>
         <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex mb-3">
-                            <div class="text-warning">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
+            <div class="col-lg-10 mx-auto">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-4">
+                                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="60" height="60" alt="Ayşe Yılmaz">
+                                    <div>
+                                        <h5 class="mb-0">Ayşe Yılmaz</h5>
+                                        <small class="text-muted">Hasta</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0">"DijetUP sayesinde diyetisyenimle sürekli iletişim halindeyim. Diyet programım her zaman yanımda ve bildirimler sayesinde hiçbir öğünü kaçırmıyorum."</p>
                             </div>
                         </div>
-                        <p class="card-text">"3 aylık program sonunda 12 kilo verdim ve kendimi çok daha enerjik hissediyorum. Diyetisyenimin önerileri hayatımı değiştirdi."</p>
-                        <div class="d-flex align-items-center mt-3">
-                            <div class="flex-shrink-0">
-                                <img src="~/images/testimonial-1.jpg" class="rounded-circle" width="50" height="50" alt="Ayşe Y.">
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="mb-0">Ayşe Y.</h6>
-                                <small class="text-muted">İstanbul</small>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-4">
+                                    <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="60" height="60" alt="Ahmet Yılmaz">
+                                    <div>
+                                        <h5 class="mb-0">Ahmet Yılmaz</h5>
+                                        <small class="text-muted">Hasta</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0">"DijetUP, diyetisyenimle iletişimimizi kolaylaştırdı. Diyet programımı takip etmek çok daha kolay oldu ve bildirimler sayesinde sağlık hedeflerime daha hızlı ulaştım."</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-4">Bizimle İletişime Geçin</h2>
+                <p class="lead text-muted mb-5">Sorularınız mı var? Size yardımcı olmaktan memnuniyet duyarız.</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form id="contactForm" class="needs-validation" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Adınız</label>
+                            <input type="text" class="form-control" id="name" required>
+                            <div class="invalid-feedback">
+                                Lütfen adınızı girin.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="email" required>
+                            <div class="invalid-feedback">
+                                Geçerli bir e-posta adresi girin.
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="subject" class="form-label">Konu</label>
+                            <input type="text" class="form-control" id="subject" required>
+                            <div class="invalid-feedback">
+                                Lütfen konu girin.
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="message" class="form-label">Mesajınız</label>
+                            <textarea class="form-control" id="message" rows="5" required></textarea>
+                            <div class="invalid-feedback">
+                                Lütfen mesajınızı girin.
+                            </div>
+                        </div>
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">Mesaj Gönder</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section id="team" class="py-5">
+    <div class="container py-5">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="fw-bold">Ekip Üyelerimiz</h2>
+                <p class="text-muted lead">DijetUP ekibindeki uzman diyetisyenler</p>
+            </div>
+        </div>
+        <div class="row g-4">
             <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex mb-3">
-                            <div class="text-warning">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                        <p class="card-text">"Spor performansımı artırmak için aldığım beslenme programı sayesinde hem kas kütlemi artırdım hem de daha iyi performans gösteriyorum."</p>
-                        <div class="d-flex align-items-center mt-3">
-                            <div class="flex-shrink-0">
-                                <img src="~/images/testimonial-2.jpg" class="rounded-circle" width="50" height="50" alt="Mehmet K.">
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="mb-0">Mehmet K.</h6>
-                                <small class="text-muted">Ankara</small>
-                            </div>
-                        </div>
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&auto=format" class="card-img-top" alt="Dr. Ayşe Yılmaz">
+                    <div class="card-body">
+                        <h5 class="card-title">Dr. Ayşe Yılmaz</h5>
+                        <p class="card-text text-muted">Diyetisyen, Beslenme Uzmanı</p>
+                        <p class="card-text">15 yıllık deneyimi ile kilo yönetimi ve sağlıklı beslenme konusunda uzman.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex mb-3">
-                            <div class="text-warning">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                        </div>
-                        <p class="card-text">"Kronik rahatsızlığım için özel hazırlanan diyet programı sayesinde ilaç kullanımımı azalttım ve kendimi çok daha iyi hissediyorum."</p>
-                        <div class="d-flex align-items-center mt-3">
-                            <div class="flex-shrink-0">
-                                <img src="~/images/testimonial-3.jpg" class="rounded-circle" width="50" height="50" alt="Zeynep A.">
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="mb-0">Zeynep A.</h6>
-                                <small class="text-muted">İzmir</small>
-                            </div>
-                        </div>
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&auto=format" class="card-img-top" alt="Dr. Mehmet Demir">
+                    <div class="card-body">
+                        <h5 class="card-title">Dr. Mehmet Demir</h5>
+                        <p class="card-text text-muted">Beslenme ve Diyet Uzmanı</p>
+                        <p class="card-text">Spor beslenmesi ve performans destekleme konusunda uzmanlaşmış deneyimli diyetisyen.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop&auto=format" class="card-img-top" alt="Dr. Zeynep Kaya">
+                    <div class="card-body">
+                        <h5 class="card-title">Dr. Zeynep Kaya</h5>
+                        <p class="card-text text-muted">Klinik Beslenme Uzmanı</p>
+                        <p class="card-text">Özel sağlık durumlarına göre beslenme programları oluşturmada uzman diyetisyen.</p>
                     </div>
                 </div>
             </div>

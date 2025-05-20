@@ -15,6 +15,7 @@ using Dotnet_Dietitian.Application.Features.Results.AppUserResults;
 using Dotnet_Dietitian.Application.Dtos;
 using System.Text;
 using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -76,14 +77,9 @@ namespace Dotnet_Dietitian.API.Controllers
                     var tokenResponse = _jwtTokenGenerator.GenerateToken(result);
                     
                     // User.Identity üzerinden kullanabilmek için claim-based authentication
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, result.Username),
-                        new Claim(ClaimTypes.NameIdentifier, result.Id.ToString()),
-                        new Claim(ClaimTypes.Role, result.Role)
-                    };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var claimsIdentity = new ClaimsIdentity(
+                        new JwtSecurityTokenHandler().ReadJwtToken(tokenResponse.Token).Claims,
+                        CookieAuthenticationDefaults.AuthenticationScheme);
 
                     await HttpContext.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,

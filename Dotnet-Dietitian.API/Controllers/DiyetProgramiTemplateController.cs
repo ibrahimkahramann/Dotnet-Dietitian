@@ -16,7 +16,7 @@ namespace Dotnet_Dietitian.API.Controllers
         private readonly DiyetProgramOlusturucuFactory _programFactory;
         private readonly IRepository<Hasta> _hastaRepository;
         private readonly IMediator _mediator;
-        
+
         public DiyetProgramiTemplateController(
             DiyetProgramOlusturucuFactory programFactory,
             IRepository<Hasta> hastaRepository,
@@ -26,7 +26,7 @@ namespace Dotnet_Dietitian.API.Controllers
             _hastaRepository = hastaRepository;
             _mediator = mediator;
         }
-        
+
         [HttpPost("olustur")]
         public async Task<IActionResult> OlusturDiyetProgrami(DiyetProgramOlusturModel model)
         {
@@ -36,10 +36,10 @@ namespace Dotnet_Dietitian.API.Controllers
                 var hasta = await _hastaRepository.GetByIdAsync(model.HastaId);
                 if (hasta == null)
                     return NotFound($"ID:{model.HastaId} olan hasta bulunamadı");
-                
+
                 // Uygun program oluşturucuyu seç
                 var programOlusturucu = _programFactory.GetProgramOlusturucu(model.ProgramTipi);
-                
+
                 // Template method kalıbını kullanarak programı oluştur
                 var diyetProgramCommand = programOlusturucu.ProgramOlustur(
                     hasta,
@@ -47,13 +47,14 @@ namespace Dotnet_Dietitian.API.Controllers
                     model.SureGun,
                     model.AktiviteSeviyesi
                 );
-                
+
                 // Oluşturulan programı kaydet
                 await _mediator.Send(diyetProgramCommand);
-                
-                return Ok(new { 
+
+                return Ok(new
+                {
                     message = $"{diyetProgramCommand.Ad} başarıyla oluşturuldu",
-                    program = diyetProgramCommand 
+                    program = diyetProgramCommand
                 });
             }
             catch (ArgumentException ex)
@@ -66,7 +67,7 @@ namespace Dotnet_Dietitian.API.Controllers
             }
         }
     }
-    
+
     public class DiyetProgramOlusturModel
     {
         public Guid HastaId { get; set; }

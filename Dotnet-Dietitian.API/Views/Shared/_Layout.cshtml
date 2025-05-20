@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] - Diyetisyen Takip Sistemi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="~/css/site.css">
+    <title>@ViewData["Title"] - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/style.css">
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg bg-success navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-leaf me-2"></i>Diyetisyen Takip
+            <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-heart-pulse-fill text-success me-2"></i>
+                <span class="fw-bold">DijetUP</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -21,33 +22,42 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" && ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Özellikler</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">Hakkımızda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">İletişim</a>
                     </li>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         @if (User.IsInRole("Diyetisyen"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Dietitian" asp-action="Dashboard">Panel</a>
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Dietitian" && ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")" asp-controller="Dietitian" asp-action="Dashboard">Panel</a>
                             </li>
                         }
                         else if (User.IsInRole("Hasta"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Patient" asp-action="Dashboard">Panel</a>
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Patient" && ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")" asp-controller="Patient" asp-action="Dashboard">Panel</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Logout">Çıkış Yap</a>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-outline-danger" asp-controller="Account" asp-action="Logout">Çıkış Yap</a>
                         </li>
                     }
                     else
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+                        <li class="nav-item ms-lg-3">
+                            <a class="btn btn-outline-success @(ViewContext.RouteData.Values["Controller"].ToString() == "Account" && ViewContext.RouteData.Values["Action"].ToString() == "Login" ? "active" : "")" asp-controller="Account" asp-action="Login">Giriş Yap</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-success @(ViewContext.RouteData.Values["Controller"].ToString() == "Account" && ViewContext.RouteData.Values["Action"].ToString() == "Register" ? "active" : "")" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
                         </li>
                     }
                 </ul>
@@ -61,24 +71,69 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-5">
+    <footer class="bg-dark text-white py-5">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Diyetisyen Takip Sistemi</h5>
-                    <p>Sağlıklı bir yaşam için yanınızdayız!</p>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <a class="d-inline-flex align-items-center mb-3 text-white text-decoration-none" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-heart-pulse-fill text-success me-2 fs-3"></i>
+                        <span class="fw-bold fs-3">DijetUP</span>
+                    </a>
+                    <p class="text-light opacity-75 mt-2">Sağlıklı yaşamın dijital destekçisi. Diyetisyen ve hastalar arasında köprü kuruyoruz.</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p>&copy; @DateTime.Now.Year - Tüm hakları saklıdır</p>
+                <div class="col-6 col-lg-2 offset-lg-1">
+                    <h5 class="text-white fw-bold mb-3">Sayfalar</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Index" class="text-light opacity-75 text-decoration-none fs-6">Ana Sayfa</a></li>
+                        <li class="mb-2"><a href="#features" class="text-light opacity-75 text-decoration-none fs-6">Özellikler</a></li>
+                        <li class="mb-2"><a href="#about" class="text-light opacity-75 text-decoration-none fs-6">Hakkımızda</a></li>
+                        <li class="mb-2"><a href="#contact" class="text-light opacity-75 text-decoration-none fs-6">İletişim</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h5 class="text-white fw-bold mb-3">Hizmetler</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-light opacity-75 text-decoration-none fs-6">Diyet Planları</a></li>
+                        <li class="mb-2"><a href="#" class="text-light opacity-75 text-decoration-none fs-6">Randevu Sistemi</a></li>
+                        <li class="mb-2"><a href="#" class="text-light opacity-75 text-decoration-none fs-6">Beslenme Danışmanlığı</a></li>
+                        <li class="mb-2"><a href="#" class="text-light opacity-75 text-decoration-none fs-6">Sağlık Takibi</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="text-white fw-bold mb-3">İletişim</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3 text-light opacity-75 fs-6"><i class="bi bi-geo-alt me-2"></i> İstanbul, Türkiye</li>
+                        <li class="mb-3"><a href="mailto:info@dijetup.com" class="text-light opacity-75 text-decoration-none fs-6"><i class="bi bi-envelope me-2"></i> info@dijetup.com</a></li>
+                        <li class="mb-3"><a href="tel:+902121234567" class="text-light opacity-75 text-decoration-none fs-6"><i class="bi bi-telephone me-2"></i> +90 212 123 45 67</a></li>
+                    </ul>
+                    <div class="d-flex mt-3">
+                        <a href="#" class="text-light opacity-75 me-3 social-icon"><i class="bi bi-facebook fs-4"></i></a>
+                        <a href="#" class="text-light opacity-75 me-3 social-icon"><i class="bi bi-twitter fs-4"></i></a>
+                        <a href="#" class="text-light opacity-75 me-3 social-icon"><i class="bi bi-instagram fs-4"></i></a>
+                        <a href="#" class="text-light opacity-75 social-icon"><i class="bi bi-linkedin fs-4"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-light opacity-25">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-light opacity-75 mb-0 fs-6">&copy; @DateTime.Now.Year DijetUP. Tüm hakları saklıdır.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-light opacity-75 fs-6">Gizlilik Politikası</a></li>
+                        <li class="list-inline-item"><span class="text-light opacity-75 mx-2">•</span></li>
+                        <li class="list-inline-item"><a href="#" class="text-light opacity-75 fs-6">Kullanım Şartları</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </footer>
 
     <!-- JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="~/js/site.js"></script>
+    <script src="~/js/script.js"></script>
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
