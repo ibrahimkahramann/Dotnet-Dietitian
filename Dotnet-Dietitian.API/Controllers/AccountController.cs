@@ -64,6 +64,9 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Şifreyi hash'le
                 string hashedPassword = HashPassword(model.Password);
                 
+                // UserType değerini forma bakarak al
+                string userType = Request.Form["userType"].ToString();
+                
                 // MediatR ile kullanıcı kontrolü
                 var result = await _mediator.Send(new GetCheckAppUserQuery
                 {
@@ -73,6 +76,14 @@ namespace Dotnet_Dietitian.API.Controllers
 
                 if (result.IsExist)
                 {
+                    // Usertype kontrolü
+                    if (!string.IsNullOrEmpty(userType) && result.Role != userType)
+                    {
+                        // Kullanıcı tipi eşleşmiyor, hata mesajı göster
+                        ModelState.AddModelError(string.Empty, $"Bu hesap {userType} hesabı değil. Lütfen doğru giriş formu kullanın.");
+                        return View(model);
+                    }
+
                     // JWT token oluştur
                     var tokenResponse = _jwtTokenGenerator.GenerateToken(result);
                     
@@ -99,19 +110,43 @@ namespace Dotnet_Dietitian.API.Controllers
                         Expires = tokenResponse.ExpireDate
                     });
 
+                    // Kullanıcı tipini de sessionStorage için cookie olarak ekle
+                    Response.Cookies.Append("userType", result.Role, new CookieOptions
+                    {
+                        HttpOnly = false, // JavaScript erişimi için false
+                        Secure = true,
+                        SameSite = SameSiteMode.Lax,
+                        Expires = tokenResponse.ExpireDate
+                    });
+
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
                         return Redirect(returnUrl);
                     }
 
+                    // Kullanıcı tipine göre yönlendirme yap
+                    if (result.Role == "Hasta")
+                    {
+                        return RedirectToAction("Dashboard", "Patient");
+                    }
+                    else if (result.Role == "Diyetisyen")
+                    {
+                        return RedirectToAction("Dashboard", "Dietitian");
+                    }
+                    
                     return RedirectToAction("Index", "Home");
                 }
 
+                // Kullanıcı bulunamadı veya şifre hatalı
                 ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
                 return View(model);
             }
             catch (Exception ex)
             {
+                // Hatayı loglama
+                Console.WriteLine($"Login hatası: {ex.Message}");
+                
+                // Kullanıcıya bir hata mesajı göster ve aynı sayfaya geri dön
                 ModelState.AddModelError(string.Empty, $"Giriş işlemi sırasında bir hata oluştu: {ex.Message}");
                 return View(model);
             }
