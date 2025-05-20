@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Redirect to login page
             setTimeout(function () {
-                window.location.href = 'login.html';
+                window.location.href = '/Account/Logout';
             }, 500);
         });
     }
@@ -271,18 +271,21 @@ window.addEventListener('scroll', function () {
 const dashboardLinks = document.querySelectorAll('a[href="dashboard.html"], a[href="#dashboard"]');
 dashboardLinks.forEach(link => {
     link.addEventListener('click', function (e) {
-        // Check if user type is stored
         const userType = sessionStorage.getItem('userType') || localStorage.getItem('userType');
 
         if (userType) {
-            e.preventDefault();
-            // Redirect to the appropriate dashboard based on user type
-            if (userType === 'patient') {
-                window.location.href = 'patient-dashboard.html';
-            } else if (userType === 'dietitian') {
-                window.location.href = 'dietitian-dashboard.html';
+            e.preventDefault(); // Prevent the default link behavior
+            if (userType === 'Hasta') {
+                window.location.href = '/Patient/Dashboard'; // Correct MVC path
+            } else if (userType === 'Diyetisyen') {
+                window.location.href = '/Dietitian/Dashboard'; // Correct MVC path
+            } else {
+                // Fallback for unknown but existing userType, redirect to login
+                window.location.href = '/Account/Login';
             }
         }
-        // If no user type is stored, let the default link work (usually to login page)
+        // If no userType is stored, the default link behavior will proceed.
+        // It's advisable that such links on public pages point to '/Account/Login' by default,
+        // or to a server-side action that handles redirection.
     });
 }); 

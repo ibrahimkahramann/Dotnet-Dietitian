@@ -1,0 +1,97 @@
+@{
+    ViewData["Title"] = "Mesajlar - DijetUP";
+    Layout = "_PatientLayout";
+}
+
+<div class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Mesajlarım</h2>
+        <div>
+            <button class="btn btn-success">
+                <i class="bi bi-chat-dots me-2"></i>Yeni Mesaj
+            </button>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 mb-4 mb-lg-0">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control border-end-0" placeholder="Mesaj ara...">
+                        <span class="input-group-text bg-white border-start-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action p-3 active">
+                            <div class="d-flex">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Dr. Ayşe Yılmaz">
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Dr. Ayşe Yılmaz</h6>
+                                        <small class="text-muted">10:45</small>
+                                    </div>
+                                    <p class="mb-0 text-truncate">Merhaba, diyet planınızı güncelledim. Yeni listeyi inceleyebilirsiniz...</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action p-3">
+                            <div class="d-flex">
+                                <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Dr. Mehmet Öz">
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Dr. Mehmet Öz</h6>
+                                        <small class="text-muted">Dün</small>
+                                    </div>
+                                    <p class="mb-0 text-truncate">Son test sonuçlarınızı aldım, her şey yolunda görünüyor...</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action p-3">
+                            <div class="d-flex">
+                                <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Sistem">
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Sistem Bildirimi</h6>
+                                        <small class="text-muted">2 gün önce</small>
+                                    </div>
+                                    <p class="mb-0 text-truncate">Yarınki randevunuz için otomatik hatırlatma...</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100 d-flex flex-column">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Dr. Ayşe Yılmaz">
+                        <div>
+                            <h5 class="mb-0 fw-bold">Dr. Ayşe Yılmaz</h5>
+                            <p class="mb-0 text-muted small">Çevrimiçi</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0" style="overflow-y: auto; max-height: 400px;">
+                    <div class="alert alert-info m-3 mb-0">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Bu sayfa şu anda geliştiriliyor. Yakında mesajlaşma özellikleri burada görüntülenecek.
+                    </div>
+                </div>
+                <div class="card-footer bg-white p-3 mt-auto border-top">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Mesajınızı yazın...">
+                        <button class="btn btn-success">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

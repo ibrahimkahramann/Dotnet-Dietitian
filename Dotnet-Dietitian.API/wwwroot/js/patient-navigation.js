@@ -13,11 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // If no user type found or not patient, redirect to login
         if (!userType) {
             console.log('No user authentication found, redirecting to login');
-            window.location.href = 'login.html?type=patient';
+            window.location.href = '/Account/Login?type=patient';
             return false;
-        } else if (userType !== 'patient') {
+        } else if (userType !== 'Hasta') {
             console.log('Non-patient user tried to access patient page, redirecting to login');
-            window.location.href = 'login.html?authError=patient';
+            window.location.href = '/Account/Login?authError=patient';
             return false;
         }
         
@@ -32,13 +32,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Explicit patient page URL mappings
     const correctPatientURLs = {
-        'dashboard-link': 'patient-dashboard.html',
-        'diet-plans-link': 'patient-diet-plan.html',
-        'appointments-link': 'patient-appointments.html',
-        'progress-link': 'progress-tracking.html',
-        'messages-link': 'patient-messages.html',
-        'profile-link': 'patient-profile.html',
-        'settings-link': 'patient-settings.html'
+        'dashboard-link': '/Patient/Dashboard',
+        'diet-plans-link': '/Patient/DietProgram',
+        'appointments-link': '/Patient/Appointments',
+        'progress-link': '/Patient/ProgressTracking',
+        'messages-link': '/Patient/Messages',
+        'profile-link': '/Patient/Profile',
+        'settings-link': '/Patient/Settings'
     };
     
     // Fix all patient links with the correct URLs
@@ -63,11 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const linkText = link.textContent.trim();
                 
                 if (linkText.includes('Profilim')) {
-                    link.setAttribute('href', 'patient-profile.html');
+                    link.setAttribute('href', '/Patient/Profile');
                 } else if (linkText.includes('Ayarlar')) {
-                    link.setAttribute('href', 'patient-settings.html');
+                    link.setAttribute('href', '/Patient/Settings');
                 } else if (linkText.includes('Mesaj')) {
-                    link.setAttribute('href', 'patient-messages.html');
+                    link.setAttribute('href', '/Patient/Messages');
+                } else if (linkText.includes('Çıkış')) {
+                    link.setAttribute('href', '/Account/Logout');
                 }
             });
         }

@@ -53,21 +53,39 @@ namespace Dotnet_Dietitian.API.Controllers
         
         public IActionResult DietProgram()
         {
+            // Burada hastanın diyet programı verileri çekilir
             return View();
         }
         
-        public IActionResult Appointments()
+        public IActionResult Appointments(bool showPast = false)
         {
+            // Burada hastanın randevu verileri çekilir
+            // showPast parametresi ile geçmiş randevuların görüntülenmesi sağlanabilir
+            ViewData["ShowPast"] = showPast;
             return View();
         }
         
         public IActionResult Messages()
         {
+            // Burada hastanın mesaj verileri çekilir
             return View();
         }
         
         public IActionResult Profile()
         {
+            // Burada hastanın profil bilgileri çekilir
+            return View();
+        }
+        
+        public IActionResult Settings()
+        {
+            // Burada hastanın ayarları çekilir
+            return View();
+        }
+        
+        public IActionResult ProgressTracking()
+        {
+            // Burada hastanın ilerleme bilgileri çekilir
             return View();
         }
     }

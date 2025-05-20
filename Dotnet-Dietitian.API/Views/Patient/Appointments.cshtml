@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Randevularım - DijetUP";
+    Layout = "_PatientLayout";
+    bool showPast = (bool)(ViewData["ShowPast"] ?? false);
+}
+
+<div class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Randevularım</h2>
+        <div>
+            <button class="btn btn-success">
+                <i class="bi bi-plus-circle me-2"></i>Yeni Randevu Oluştur
+            </button>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 border-bottom">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link @(!showPast ? "active" : "")" asp-controller="Patient" asp-action="Appointments">
+                        <i class="bi bi-calendar-check me-2"></i>Yaklaşan Randevular
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(showPast ? "active" : "")" asp-controller="Patient" asp-action="Appointments" asp-route-showPast="true">
+                        <i class="bi bi-clock-history me-2"></i>Geçmiş Randevular
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Bu sayfa şu anda geliştiriliyor. Yakında randevularınızın detayları burada görüntülenecek.
+            </div>
+        </div>
+    </div>
+</div> 

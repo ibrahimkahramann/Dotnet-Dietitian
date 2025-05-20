@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "Ayarlar - DijetUP";
+    Layout = "_PatientLayout";
+}
+
+<div class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Ayarlar</h2>
+        <div>
+            <button class="btn btn-success" id="saveSettings">
+                <i class="bi bi-check-circle me-2"></i>Değişiklikleri Kaydet
+            </button>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="list-group sticky-lg-top">
+                <a href="#account" class="list-group-item list-group-item-action active py-3">
+                    <i class="bi bi-person-circle me-2"></i>Hesap Ayarları
+                </a>
+                <a href="#notification" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-bell me-2"></i>Bildirim Ayarları
+                </a>
+                <a href="#privacy" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-shield-lock me-2"></i>Gizlilik
+                </a>
+                <a href="#password" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-key me-2"></i>Şifre Değiştir
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm mb-4" id="account">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Hesap Ayarları</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Bu sayfa şu anda geliştiriliyor. Yakında hesap ayarlarınızı buradan düzenleyebileceksiniz.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Ad</label>
+                        <input type="text" class="form-control" id="name" value="Ahmet">
+                    </div>
+                    <div class="mb-3">
+                        <label for="surname" class="form-label">Soyad</label>
+                        <input type="text" class="form-control" id="surname" value="Yılmaz">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-posta</label>
+                        <input type="email" class="form-control" id="email" value="ahmet.yilmaz@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Telefon</label>
+                        <input type="tel" class="form-control" id="phone" value="0555 123 4567">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm mb-4" id="notification">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Bildirim Ayarları</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">E-posta Bildirimleri</label>
+                    </div>
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="smsNotifications" checked>
+                        <label class="form-check-label" for="smsNotifications">SMS Bildirimleri</label>
+                    </div>
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="appointmentReminders" checked>
+                        <label class="form-check-label" for="appointmentReminders">Randevu Hatırlatmaları</label>
+                    </div>
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="dietUpdates" checked>
+                        <label class="form-check-label" for="dietUpdates">Diyet Planı Güncellemeleri</label>
+                    </div>
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="messageNotifications" checked>
+                        <label class="form-check-label" for="messageNotifications">Yeni Mesaj Bildirimleri</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm mb-4" id="privacy">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Gizlilik</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" id="dataSharing" checked>
+                        <label class="form-check-label" for="dataSharing">
+                            Diyetisyenim ile sağlık verilerimi paylaşmayı kabul ediyorum.
+                        </label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" id="anonymousData">
+                        <label class="form-check-label" for="anonymousData">
+                            Anonim olarak verilerimin istatistiksel çalışmalarda kullanılmasını kabul ediyorum.
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm" id="password">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Şifre Değiştir</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Mevcut Şifre</label>
+                        <input type="password" class="form-control" id="currentPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Yeni Şifre</label>
+                        <input type="password" class="form-control" id="newPassword">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Yeni Şifre (Tekrar)</label>
+                        <input type="password" class="form-control" id="confirmPassword">
+                    </div>
+                    <button class="btn btn-primary">Şifreyi Değiştir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ayarlar sayfası için smooth scroll
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    // Aktif link sınıfını değiştir
+                    document.querySelectorAll('.list-group-item').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Smooth scroll
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Kaydet butonu için
+            document.getElementById('saveSettings').addEventListener('click', function() {
+                alert('Ayarlar kaydedildi!');
+            });
+        });
+    </script>
+} 

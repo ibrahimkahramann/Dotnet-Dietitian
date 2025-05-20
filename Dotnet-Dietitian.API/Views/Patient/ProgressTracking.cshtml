@@ -1,0 +1,99 @@
+@{
+    ViewData["Title"] = "İlerleme Takibi - DijetUP";
+    Layout = "_PatientLayout";
+}
+
+<div class="content-section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">İlerleme Takibi</h2>
+        <div>
+            <button class="btn btn-success">
+                <i class="bi bi-plus-circle me-2"></i>Yeni Ölçüm Ekle
+            </button>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Kilo Takibi</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Bu sayfa şu anda geliştiriliyor. Yakında ilerleme takibi grafikleri burada görüntülenecek.
+                    </div>
+                    <canvas id="weightChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Özet Bilgiler</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>Başlangıç Kilosu:</span>
+                            <span class="fw-bold">82.5 kg</span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>Şu Anki Kilo:</span>
+                            <span class="fw-bold">78.5 kg</span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>Hedef Kilo:</span>
+                            <span class="fw-bold">70.0 kg</span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>Toplam Kayıp:</span>
+                            <span class="fw-bold text-success">4.0 kg</span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>Hedefe Kalan:</span>
+                            <span class="fw-bold text-primary">8.5 kg</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // İlerleme grafikleri için yer tutucu
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            const chartData = {
+                labels: ['1 Ocak', '15 Ocak', '1 Şubat', '15 Şubat', '1 Mart', '15 Mart', 'Bugün'],
+                datasets: [{
+                    label: 'Kilo (kg)',
+                    data: [82.5, 81.2, 80.0, 79.3, 78.9, 78.7, 78.5],
+                    backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            };
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            suggestedMin: 65,
+                            suggestedMax: 85
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+} 
