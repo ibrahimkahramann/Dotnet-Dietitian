@@ -33,6 +33,7 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
         public Guid Id { get; set; }
         public DateTime RandevuBaslangicTarihi { get; set; }
         public DateTime RandevuBitisTarihi { get; set; }
+        public string? RandevuTuru { get; set; }
         public string? Durum { get; set; }
     }
 }

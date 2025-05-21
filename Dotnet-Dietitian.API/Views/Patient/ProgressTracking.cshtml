@@ -1,9 +1,16 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "İlerleme Takibi - DijetUP";
     Layout = "_PatientLayout";
 }
 
 <div class="content-section">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">İlerleme Takibi</h2>
         <div>
@@ -37,15 +44,15 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
                             <span>Başlangıç Kilosu:</span>
-                            <span class="fw-bold">82.5 kg</span>
+                            <span class="fw-bold">@(Model.Kilo.HasValue ? Model.Kilo.Value.ToString("0.0") + " kg" : "-")</span>
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
                             <span>Şu Anki Kilo:</span>
-                            <span class="fw-bold">78.5 kg</span>
+                            <span class="fw-bold">@(Model.Kilo.HasValue ? Model.Kilo.Value.ToString("0.0") + " kg" : "-")</span>
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
                             <span>Hedef Kilo:</span>
-                            <span class="fw-bold">70.0 kg</span>
+                            <span class="fw-bold">@(Model.Kilo.HasValue ? (Model.Kilo.Value - 8.5f).ToString("0.0") + " kg" : "-")</span>
                         </li>
                         <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
                             <span>Toplam Kayıp:</span>
@@ -68,11 +75,19 @@
         // İlerleme grafikleri için yer tutucu
         document.addEventListener('DOMContentLoaded', function() {
             const ctx = document.getElementById('weightChart').getContext('2d');
+            
+            // Örnek veri - gerçek uygulamada veritabanından çekilebilir
             const chartData = {
                 labels: ['1 Ocak', '15 Ocak', '1 Şubat', '15 Şubat', '1 Mart', '15 Mart', 'Bugün'],
                 datasets: [{
                     label: 'Kilo (kg)',
-                    data: [82.5, 81.2, 80.0, 79.3, 78.9, 78.7, 78.5],
+                    data: [@(Model.Kilo.HasValue ? (Model.Kilo.Value + 4).ToString("0.0") : "82.5"), 
+                           @(Model.Kilo.HasValue ? (Model.Kilo.Value + 3.2).ToString("0.0") : "81.2"), 
+                           @(Model.Kilo.HasValue ? (Model.Kilo.Value + 2.0).ToString("0.0") : "80.0"), 
+                           @(Model.Kilo.HasValue ? (Model.Kilo.Value + 1.3).ToString("0.0") : "79.3"), 
+                           @(Model.Kilo.HasValue ? (Model.Kilo.Value + 0.9).ToString("0.0") : "78.9"), 
+                           @(Model.Kilo.HasValue ? (Model.Kilo.Value + 0.2).ToString("0.0") : "78.7"), 
+                           @(Model.Kilo.HasValue ? Model.Kilo.Value.ToString("0.0") : "78.5")],
                     backgroundColor: 'rgba(40, 167, 69, 0.2)',
                     borderColor: 'rgba(40, 167, 69, 1)',
                     borderWidth: 2,
@@ -88,8 +103,8 @@
                     scales: {
                         y: {
                             beginAtZero: false,
-                            suggestedMin: 65,
-                            suggestedMax: 85
+                            suggestedMin: @(Model.Kilo.HasValue ? (Model.Kilo.Value - 10).ToString("0.0") : "65"),
+                            suggestedMax: @(Model.Kilo.HasValue ? (Model.Kilo.Value + 10).ToString("0.0") : "85")
                         }
                     }
                 }

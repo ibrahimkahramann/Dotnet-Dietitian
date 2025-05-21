@@ -1,9 +1,16 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "Mesajlar - DijetUP";
     Layout = "_PatientLayout";
 }
 
 <div class="content-section">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Mesajlarım</h2>
         <div>
@@ -25,44 +32,44 @@
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item list-group-item-action p-3 active">
-                            <div class="d-flex">
-                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Dr. Ayşe Yılmaz">
-                                <div class="w-100">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0">Dr. Ayşe Yılmaz</h6>
-                                        <small class="text-muted">10:45</small>
+                    @if (Model.DiyetisyenAdi != null)
+                    {
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action p-3 active">
+                                <div class="d-flex">
+                                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="@Model.DiyetisyenAdi">
+                                    <div class="w-100">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">@Model.DiyetisyenAdi</h6>
+                                            <small class="text-muted">10:45</small>
+                                        </div>
+                                        <p class="mb-0 text-truncate">Merhaba, diyet planınızı güncelledim. Yeni listeyi inceleyebilirsiniz...</p>
                                     </div>
-                                    <p class="mb-0 text-truncate">Merhaba, diyet planınızı güncelledim. Yeni listeyi inceleyebilirsiniz...</p>
                                 </div>
-                            </div>
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action p-3">
-                            <div class="d-flex">
-                                <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Dr. Mehmet Öz">
-                                <div class="w-100">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0">Dr. Mehmet Öz</h6>
-                                        <small class="text-muted">Dün</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action p-3">
+                                <div class="d-flex">
+                                    <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Sistem">
+                                    <div class="w-100">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">Sistem Bildirimi</h6>
+                                            <small class="text-muted">2 gün önce</small>
+                                        </div>
+                                        <p class="mb-0 text-truncate">Yarınki randevunuz için otomatik hatırlatma...</p>
                                     </div>
-                                    <p class="mb-0 text-truncate">Son test sonuçlarınızı aldım, her şey yolunda görünüyor...</p>
                                 </div>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                Henüz bir mesajlaşma geçmişiniz bulunmuyor.
                             </div>
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action p-3">
-                            <div class="d-flex">
-                                <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Sistem">
-                                <div class="w-100">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0">Sistem Bildirimi</h6>
-                                        <small class="text-muted">2 gün önce</small>
-                                    </div>
-                                    <p class="mb-0 text-truncate">Yarınki randevunuz için otomatik hatırlatma...</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -70,9 +77,9 @@
             <div class="card border-0 shadow-sm h-100 d-flex flex-column">
                 <div class="card-header bg-white py-3 border-bottom">
                     <div class="d-flex align-items-center">
-                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="Dr. Ayşe Yılmaz">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="48" alt="@Model.DiyetisyenAdi">
                         <div>
-                            <h5 class="mb-0 fw-bold">Dr. Ayşe Yılmaz</h5>
+                            <h5 class="mb-0 fw-bold">@(Model.DiyetisyenAdi ?? "Diyetisyen")</h5>
                             <p class="mb-0 text-muted small">Çevrimiçi</p>
                         </div>
                     </div>

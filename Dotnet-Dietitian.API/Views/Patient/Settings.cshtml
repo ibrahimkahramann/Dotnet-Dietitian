@@ -1,9 +1,16 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "Ayarlar - DijetUP";
     Layout = "_PatientLayout";
 }
 
 <div class="content-section">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Ayarlar</h2>
         <div>
@@ -43,19 +50,19 @@
                     
                     <div class="mb-3">
                         <label for="name" class="form-label">Ad</label>
-                        <input type="text" class="form-control" id="name" value="Ahmet">
+                        <input type="text" class="form-control" id="name" value="@Model.Ad">
                     </div>
                     <div class="mb-3">
                         <label for="surname" class="form-label">Soyad</label>
-                        <input type="text" class="form-control" id="surname" value="Yılmaz">
+                        <input type="text" class="form-control" id="surname" value="@Model.Soyad">
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">E-posta</label>
-                        <input type="email" class="form-control" id="email" value="ahmet.yilmaz@example.com">
+                        <input type="email" class="form-control" id="email" value="@Model.Email">
                     </div>
                     <div class="mb-3">
                         <label for="phone" class="form-label">Telefon</label>
-                        <input type="tel" class="form-control" id="phone" value="0555 123 4567">
+                        <input type="tel" class="form-control" id="phone" value="@Model.Telefon">
                     </div>
                 </div>
             </div>

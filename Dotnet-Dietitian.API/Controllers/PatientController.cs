@@ -1,92 +1,204 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Dotnet_Dietitian.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediatR;
+using System.Security.Claims;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.HastaQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetProgramiQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.RandevuQueries;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
     [Authorize(Roles = "Hasta, Admin")]
     public class PatientController : Controller
     {
-        public IActionResult Dashboard()
+        private readonly IMediator _mediator;
+
+        public PatientController(IMediator mediator)
         {
-            // Gerçek uygulamada burada veri tabanından hasta verisi çekilir
-            // Şimdilik test verileri oluşturalım
-            var model = new GetHastaByIdQueryResult
+            _mediator = mediator;
+        }
+
+        public async Task<IActionResult> Dashboard()
+        {
+            try
             {
-                Id = Guid.NewGuid(),
-                Ad = "Ahmet",
-                Soyad = "Yılmaz",
-                Email = "ahmet.yilmaz@example.com",
-                Telefon = "05551234567",
-                Kilo = 78.5M,
-                Boy = 178.0M,
-                Yas = 35,
-                DiyetProgramiAdi = "Akdeniz Diyeti",
-                DiyetisyenAdi = "Dr. Ayşe Kaya",
-                
-                Randevular = new List<RandevuDto>
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
                 {
-                    new RandevuDto 
-                    { 
-                        Id = Guid.NewGuid(), 
-                        RandevuBaslangicTarihi = DateTime.Now.AddDays(3),
-                        RandevuBitisTarihi = DateTime.Now.AddDays(3).AddHours(1),
-                        RandevuTuru = "Kontrol",
-                        Durum = "Onaylandı"
-                    },
-                    new RandevuDto 
-                    { 
-                        Id = Guid.NewGuid(), 
-                        RandevuBaslangicTarihi = DateTime.Now.AddDays(10),
-                        RandevuBitisTarihi = DateTime.Now.AddDays(10).AddHours(1),
-                        RandevuTuru = "Diyet Planı Güncelleme",
-                        Durum = "Bekliyor"
-                    }
+                    return RedirectToAction("Login", "Account");
                 }
-            };
-            
-            return View(model);
+
+                // GetHastaByIdQuery ile hasta verilerini getir
+                var model = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda loglama yapılabilir
+                ViewBag.ErrorMessage = "Hasta bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View(new GetHastaByIdQueryResult());
+            }
         }
         
-        public IActionResult DietProgram()
+        public async Task<IActionResult> DietProgram()
         {
-            // Burada hastanın diyet programı verileri çekilir
-            return View();
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // GetHastaByIdQuery ile hasta verilerini getir
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                
+                // Eğer hastanın bir diyet programı varsa, diyet programı detaylarını getir
+                if (hastaModel.DiyetProgramiId.HasValue)
+                {
+                    // Burada diyet programı detaylarını getirecek bir query eklenebilir
+                    // var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(hastaModel.DiyetProgramiId.Value));
+                    // return View(diyetProgrami);
+                }
+                
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Diyet programı bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View();
+            }
         }
         
-        public IActionResult Appointments(bool showPast = false)
+        public async Task<IActionResult> Appointments(bool showPast = false)
         {
-            // Burada hastanın randevu verileri çekilir
-            // showPast parametresi ile geçmiş randevuların görüntülenmesi sağlanabilir
-            ViewData["ShowPast"] = showPast;
-            return View();
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Hasta verilerini getir
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                
+                // Randevuları getirmek için sorgu yapılabilir
+                // var randevular = await _mediator.Send(new GetRandevusByHastaIdQuery(hastaId, showPast));
+                
+                ViewData["ShowPast"] = showPast;
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Randevu bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View();
+            }
         }
         
-        public IActionResult Messages()
+        public async Task<IActionResult> Messages()
         {
-            // Burada hastanın mesaj verileri çekilir
-            return View();
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Hasta verilerini getir
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                
+                // Mesajları getirmek için sorgu yapılabilir
+                // var mesajlar = await _mediator.Send(new GetMesajlarByHastaIdQuery(hastaId));
+                
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Mesaj bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View();
+            }
         }
         
-        public IActionResult Profile()
+        public async Task<IActionResult> Profile()
         {
-            // Burada hastanın profil bilgileri çekilir
-            return View();
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Hasta verilerini getir
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Profil bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View();
+            }
         }
         
-        public IActionResult Settings()
+        public async Task<IActionResult> Settings()
         {
-            // Burada hastanın ayarları çekilir
-            return View();
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Hasta verilerini getir
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Ayar bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View();
+            }
         }
         
-        public IActionResult ProgressTracking()
+        public async Task<IActionResult> ProgressTracking()
         {
-            // Burada hastanın ilerleme bilgileri çekilir
-            return View();
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Hasta verilerini getir
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                
+                // İlerleme takibi verilerini getirmek için ek sorgular yapılabilir
+                // var ilerlemeVerileri = await _mediator.Send(new GetIlerlemeByHastaIdQuery(hastaId));
+                
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "İlerleme bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View();
+            }
         }
     }
 }

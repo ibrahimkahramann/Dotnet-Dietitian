@@ -1,3 +1,5 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "Randevularım - DijetUP";
     Layout = "_PatientLayout";
@@ -5,6 +7,11 @@
 }
 
 <div class="content-section">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Randevularım</h2>
         <div>
@@ -30,10 +37,77 @@
             </ul>
         </div>
         <div class="card-body">
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle-fill me-2"></i>
-                Bu sayfa şu anda geliştiriliyor. Yakında randevularınızın detayları burada görüntülenecek.
-            </div>
+            @if (Model?.Randevular == null || !Model.Randevular.Any())
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
+                </div>
+            }
+            else
+            {
+                var randevular = showPast 
+                    ? Model.Randevular.Where(r => r.RandevuBaslangicTarihi < DateTime.Now).OrderByDescending(r => r.RandevuBaslangicTarihi)
+                    : Model.Randevular.Where(r => r.RandevuBaslangicTarihi >= DateTime.Now).OrderBy(r => r.RandevuBaslangicTarihi);
+                
+                if (!randevular.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Saat</th>
+                                    <th>Randevu Türü</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(var randevu in randevular)
+                                {
+                                    <tr>
+                                        <td>@randevu.RandevuBaslangicTarihi.ToString("dd.MM.yyyy")</td>
+                                        <td>@randevu.RandevuBaslangicTarihi.ToString("HH:mm") - @randevu.RandevuBitisTarihi.ToString("HH:mm")</td>
+                                        <td>@(randevu.RandevuTuru ?? "Muayene")</td>
+                                        <td>
+                                            @if(randevu.Durum == "Onaylandı")
+                                            {
+                                                <span class="badge bg-success">@randevu.Durum</span>
+                                            }
+                                            else if(randevu.Durum == "Bekliyor")
+                                            {
+                                                <span class="badge bg-warning text-dark">@randevu.Durum</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">@randevu.Durum</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if(!showPast)
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger">İptal Et</button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-sm btn-outline-primary">Detay</button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
         </div>
     </div>
 </div> 

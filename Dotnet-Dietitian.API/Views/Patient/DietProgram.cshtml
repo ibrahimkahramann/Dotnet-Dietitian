@@ -1,14 +1,24 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "Diyet Planım - DijetUP";
     Layout = "_PatientLayout";
 }
 
 <div class="content-section">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Diyet Planım</h2>
-        <div>
-            <span class="badge bg-success p-2">Aktif Plan: Akdeniz Diyeti</span>
-        </div>
+        @if (!string.IsNullOrEmpty(Model?.DiyetProgramiAdi))
+        {
+            <div>
+                <span class="badge bg-success p-2">Aktif Plan: @Model.DiyetProgramiAdi</span>
+            </div>
+        }
     </div>
     
     <div class="row">
@@ -18,10 +28,20 @@
                     <h5 class="mb-0 fw-bold">Günlük Beslenme Planı</h5>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        Bu sayfa şu anda geliştiriliyor. Yakında diyet planınızın detayları burada görüntülenecek.
-                    </div>
+                    @if (Model?.DiyetProgramiId == null)
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Henüz bir diyet programınız bulunmamaktadır. Diyetisyeniniz ile görüşerek bir diyet programı oluşturabilirsiniz.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Diyet programınızın detayları burada görüntülenecek. Şu anda @Model.DiyetProgramiAdi programına kayıtlısınız.
+                        </div>
+                    }
                 </div>
             </div>
         </div>
