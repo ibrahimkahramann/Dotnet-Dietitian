@@ -1,6 +1,8 @@
-namespace Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+using MediatR;
+
+namespace Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands
 {
-    public class GetHastaByIdQueryResult
+    public class UpdateHastaProfileCommand : IRequest<Unit>
     {
         public Guid Id { get; set; }
         public string TcKimlikNumarasi { get; set; }
@@ -12,9 +14,7 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
         public string Email { get; set; }
         public string? Telefon { get; set; }
         public Guid? DiyetisyenId { get; set; }
-        public string? DiyetisyenAdi { get; set; }
         public Guid? DiyetProgramiId { get; set; }
-        public string? DiyetProgramiAdi { get; set; }
         public int? GunlukKaloriIhtiyaci { get; set; }
         
         // Additional profile fields
@@ -26,25 +26,5 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
         public string? KronikHastaliklar { get; set; }
         public string? KullanilanIlaclar { get; set; }
         public bool SaglikBilgisiPaylasimiIzni { get; set; }
-        
-        public List<OdemeDto>? Odemeler { get; set; }
-        public List<RandevuDto>? Randevular { get; set; }
     }
-
-    public class OdemeDto
-    {
-        public Guid Id { get; set; }
-        public decimal Tutar { get; set; }
-        public DateTime Tarih { get; set; }
-        public string OdemeTuru { get; set; }
-    }
-
-    public class RandevuDto
-    {
-        public Guid Id { get; set; }
-        public DateTime RandevuBaslangicTarihi { get; set; }
-        public DateTime RandevuBitisTarihi { get; set; }
-        public string? RandevuTuru { get; set; }
-        public string? Durum { get; set; }
-    }
-}
+} 

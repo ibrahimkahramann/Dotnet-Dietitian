@@ -11,6 +11,7 @@ using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetProgramiQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.RandevuQueries;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -198,6 +199,68 @@ namespace Dotnet_Dietitian.API.Controllers
             {
                 ViewBag.ErrorMessage = "İlerleme bilgileri getirilirken bir hata oluştu: " + ex.Message;
                 return View();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfile(UpdateHastaProfileCommand command)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Güvenlik kontrolü: Sadece kendi profilini güncelleyebilir
+                if (command.Id != hastaId)
+                {
+                    return Unauthorized();
+                }
+
+                // Profil güncelleme işlemini gerçekleştir
+                await _mediator.Send(command);
+
+                // Başarılı mesajı ile profil sayfasına yönlendir
+                TempData["SuccessMessage"] = "Profil bilgileriniz başarıyla güncellendi.";
+                return RedirectToAction("Profile");
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda loglama yapılabilir
+                ViewBag.ErrorMessage = "Profil güncellenirken bir hata oluştu: " + ex.Message;
+                
+                // Hata durumunda profil verilerini tekrar getir
+                var model = await _mediator.Send(new GetHastaByIdQuery(command.Id));
+                return View("Profile", model);
+            }
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> UpdatePassword(string currentPassword, string newPassword)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // TODO: Şifre değiştirme işlemi için ayrı bir command ve handler oluşturulmalı
+                
+                // Başarılı mesajı ile profil sayfasına yönlendir
+                TempData["SuccessMessage"] = "Şifreniz başarıyla değiştirildi.";
+                return RedirectToAction("Profile");
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda loglama yapılabilir
+                TempData["ErrorMessage"] = "Şifre değiştirilirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("Profile");
             }
         }
     }

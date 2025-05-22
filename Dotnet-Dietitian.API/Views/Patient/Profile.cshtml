@@ -10,6 +10,22 @@
     {
         <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
     }
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div>
@@ -104,88 +120,187 @@
                     <h5 class="card-title mb-0 fw-bold">Kişisel Bilgiler</h5>
                 </div>
                 <div class="card-body p-4">
-                    <form id="profileUpdateForm">
+                    <form id="profileUpdateForm" action="/Patient/UpdateProfile" method="post">
+                        <input type="hidden" name="Id" value="@Model.Id" />
+                        <input type="hidden" name="TcKimlikNumarasi" value="@Model.TcKimlikNumarasi" />
+                        <input type="hidden" name="DiyetisyenId" value="@Model.DiyetisyenId" />
+                        <input type="hidden" name="DiyetProgramiId" value="@Model.DiyetProgramiId" />
+                        <input type="hidden" name="GunlukKaloriIhtiyaci" value="@Model.GunlukKaloriIhtiyaci" />
+                        
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="firstName" class="form-label">Ad</label>
-                                <input type="text" class="form-control" id="firstName" value="@Model.Ad">
+                                <label for="Ad" class="form-label">Ad</label>
+                                <input type="text" class="form-control" id="Ad" name="Ad" value="@Model.Ad" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="lastName" class="form-label">Soyad</label>
-                                <input type="text" class="form-control" id="lastName" value="@Model.Soyad">
+                                <label for="Soyad" class="form-label">Soyad</label>
+                                <input type="text" class="form-control" id="Soyad" name="Soyad" value="@Model.Soyad" required>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="email" class="form-label">E-posta</label>
-                                <input type="email" class="form-control" id="email" value="@Model.Email">
+                                <label for="Email" class="form-label">E-posta</label>
+                                <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="phone" class="form-label">Telefon</label>
-                                <input type="tel" class="form-control" id="phone" value="@Model.Telefon">
+                                <label for="Telefon" class="form-label">Telefon</label>
+                                <input type="tel" class="form-control" id="Telefon" name="Telefon" value="@Model.Telefon">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="birthDate" class="form-label">Doğum Tarihi</label>
-                                @* <input type="date" class="form-control" id="birthDate" value="@(Model.DogumTarihi.HasValue ? Model.DogumTarihi.Value.ToString("yyyy-MM-dd") : "")"> *@
+                                <label for="DogumTarihi" class="form-label">Doğum Tarihi</label>
+                                <input type="date" class="form-control" id="DogumTarihi" name="DogumTarihi" value="@(Model.DogumTarihi.HasValue ? Model.DogumTarihi.Value.ToString("yyyy-MM-dd") : "")">
                             </div>
                             <div class="col-md-6">
-                                <label for="gender" class="form-label">Cinsiyet</label>
-                                <select class="form-select" id="gender">
-                                    <option>Seçiniz</option>
-                                @*     <option value="female" selected="@(Model.Cinsiyet == "Kadın")">Kadın</option> *@
-                                @*     <option value="male" selected="@(Model.Cinsiyet == "Erkek")">Erkek</option> *@
-                                @*     <option value="other" selected="@(Model.Cinsiyet != "Kadın" && Model.Cinsiyet != "Erkek")">Diğer</option> *@
-                                 </select> 
+                                <label for="Cinsiyet" class="form-label">Cinsiyet</label>
+                                <select class="form-select" id="Cinsiyet" name="Cinsiyet">
+                                    <option value="">Seçiniz</option>
+                                    @if (Model.Cinsiyet == "Kadın")
+                                    {
+                                        <option value="Kadın" selected>Kadın</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Kadın">Kadın</option>
+                                    }
+                                    
+                                    @if (Model.Cinsiyet == "Erkek")
+                                    {
+                                        <option value="Erkek" selected>Erkek</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Erkek">Erkek</option>
+                                    }
+                                    
+                                    @if (Model.Cinsiyet != null && Model.Cinsiyet != "Kadın" && Model.Cinsiyet != "Erkek")
+                                    {
+                                        <option value="Diğer" selected>Diğer</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Diğer">Diğer</option>
+                                    }
+                                </select>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="address" class="form-label">Adres</label>
-                            @* <textarea class="form-control" id="address" rows="3">@Model.Adres</textarea> *@
+                            <label for="Adres" class="form-label">Adres</label>
+                            <textarea class="form-control" id="Adres" name="Adres" rows="3">@Model.Adres</textarea>
                         </div>
                         <hr class="my-4">
                         <h6 class="mb-3">Sağlık Bilgileri</h6>
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <label for="height" class="form-label">Boy (cm)</label>
-                                <input type="number" class="form-control" id="height" value="@Model.Boy">
+                                <label for="Boy" class="form-label">Boy (cm)</label>
+                                <input type="number" class="form-control" id="Boy" name="Boy" value="@Model.Boy">
                             </div>
                             <div class="col-md-4">
-                                <label for="weight" class="form-label">Kilo (kg)</label>
-                                <input type="number" class="form-control" id="weight" value="@Model.Kilo">
+                                <label for="Kilo" class="form-label">Kilo (kg)</label>
+                                <input type="number" class="form-control" id="Kilo" name="Kilo" value="@Model.Kilo">
                             </div>
                             <div class="col-md-4">
-                                <label for="bloodType" class="form-label">Kan Grubu</label>
-                                <select class="form-select" id="bloodType">
-                                    <option value="" disabled>Seçiniz</option>
-                                    @* <option value="A+" selected="@(Model.KanGrubu == "A+")">A Rh+</option> *@
-                                    @* <option value="A-" selected="@(Model.KanGrubu == "A-")">A Rh-</option> *@
-                                    @* <option value="B+" selected="@(Model.KanGrubu == "B+")">B Rh+</option> *@
-                                    @* <option value="B-" selected="@(Model.KanGrubu == "B-")">B Rh-</option> *@
-                                    @* <option value="AB+" selected="@(Model.KanGrubu == "AB+")">AB Rh+</option> *@
-                                    @* <option value="AB-" selected="@(Model.KanGrubu == "AB-")">AB Rh-</option> *@
-                                    @* <option value="O+" selected="@(Model.KanGrubu == "O+")">0 Rh+</option> *@
-                                    @* <option value="O-" selected="@(Model.KanGrubu == "O-")">0 Rh-</option> *@
+                                <label for="KanGrubu" class="form-label">Kan Grubu</label>
+                                <select class="form-select" id="KanGrubu" name="KanGrubu">
+                                    <option value="">Seçiniz</option>
+                                    @if (Model.KanGrubu == "A+")
+                                    {
+                                        <option value="A+" selected>A Rh+</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="A+">A Rh+</option>
+                                    }
+                                    
+                                    @if (Model.KanGrubu == "A-")
+                                    {
+                                        <option value="A-" selected>A Rh-</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="A-">A Rh-</option>
+                                    }
+                                    
+                                    @if (Model.KanGrubu == "B+")
+                                    {
+                                        <option value="B+" selected>B Rh+</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="B+">B Rh+</option>
+                                    }
+                                    
+                                    @if (Model.KanGrubu == "B-")
+                                    {
+                                        <option value="B-" selected>B Rh-</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="B-">B Rh-</option>
+                                    }
+                                    
+                                    @if (Model.KanGrubu == "AB+")
+                                    {
+                                        <option value="AB+" selected>AB Rh+</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="AB+">AB Rh+</option>
+                                    }
+                                    
+                                    @if (Model.KanGrubu == "AB-")
+                                    {
+                                        <option value="AB-" selected>AB Rh-</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="AB-">AB Rh-</option>
+                                    }
+                                    
+                                    @if (Model.KanGrubu == "O+")
+                                    {
+                                        <option value="O+" selected>0 Rh+</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="O+">0 Rh+</option>
+                                    }
+                                    
+                                    @if (Model.KanGrubu == "O-")
+                                    {
+                                        <option value="O-" selected>0 Rh-</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="O-">0 Rh-</option>
+                                    }
                                 </select>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="allergies" class="form-label">Alerjiler (Varsa)</label>
-                            @* <input type="text" class="form-control" id="allergies" value="@Model.Alerjiler"> *@
+                            <label for="Alerjiler" class="form-label">Alerjiler (Varsa)</label>
+                            <input type="text" class="form-control" id="Alerjiler" name="Alerjiler" value="@Model.Alerjiler">
                         </div>
                         <div class="mb-3">
-                            <label for="medicalConditions" class="form-label">Sağlık Durumları (Varsa)</label>
-                            @* <input type="text" class="form-control" id="medicalConditions" value="@Model.KronikHastaliklar"> *@
+                            <label for="KronikHastaliklar" class="form-label">Sağlık Durumları (Varsa)</label>
+                            <input type="text" class="form-control" id="KronikHastaliklar" name="KronikHastaliklar" value="@Model.KronikHastaliklar">
                         </div>
                         <div class="mb-3">
-                            <label for="medications" class="form-label">Kullanılan İlaçlar (Varsa)</label>
-                            @* <input type="text" class="form-control" id="medications" value="@Model.KullanilanIlaclar"> *@
+                            <label for="KullanilanIlaclar" class="form-label">Kullanılan İlaçlar (Varsa)</label>
+                            <input type="text" class="form-control" id="KullanilanIlaclar" name="KullanilanIlaclar" value="@Model.KullanilanIlaclar">
                         </div>
                         <div class="mb-3">
                             <div class="form-check">
-                                @* <input class="form-check-input" type="checkbox" id="shareHealthInfo" @(Model.SaglikBilgisiPaylasimiIzni ? "checked" : "")> *@
-                                <label class="form-check-label" for="shareHealthInfo">
+                                @if (Model.SaglikBilgisiPaylasimiIzni)
+                                {
+                                    <input class="form-check-input" type="checkbox" id="SaglikBilgisiPaylasimiIzni" name="SaglikBilgisiPaylasimiIzni" value="true" checked>
+                                }
+                                else
+                                {
+                                    <input class="form-check-input" type="checkbox" id="SaglikBilgisiPaylasimiIzni" name="SaglikBilgisiPaylasimiIzni" value="true">
+                                }
+                                <label class="form-check-label" for="SaglikBilgisiPaylasimiIzni">
                                     Sağlık bilgilerimi diyetisyenimle paylaşmayı kabul ediyorum
                                 </label>
                             </div>
@@ -207,25 +322,25 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="changePasswordForm">
+                <form id="changePasswordForm" action="/Patient/UpdatePassword" method="post">
                     <div class="mb-3">
                         <label for="currentPassword" class="form-label">Mevcut Şifre</label>
-                        <input type="password" class="form-control" id="currentPassword" required>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                     </div>
                     <div class="mb-3">
                         <label for="newPassword" class="form-label">Yeni Şifre</label>
-                        <input type="password" class="form-control" id="newPassword" required>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
                         <div class="form-text">Şifreniz en az 8 karakter uzunluğunda olmalı ve harf, rakam ve özel karakter içermelidir.</div>
                     </div>
                     <div class="mb-3">
                         <label for="confirmPassword" class="form-label">Yeni Şifre (Tekrar)</label>
                         <input type="password" class="form-control" id="confirmPassword" required>
                     </div>
+                    <div class="modal-footer px-0 pb-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="submit" class="btn btn-success">Şifreyi Değiştir</button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
-                <button type="submit" form="changePasswordForm" class="btn btn-success">Şifreyi Değiştir</button>
             </div>
         </div>
     </div>
@@ -234,51 +349,9 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Profile update form submission
-            const profileForm = document.getElementById('profileUpdateForm');
-            if (profileForm) {
-                profileForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    // Show success message
-                    const alertPlaceholder = document.getElementById('profileUpdateAlert');
-                    if (alertPlaceholder) {
-                        alertPlaceholder.innerHTML = `
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                Profil bilgileriniz başarıyla güncellendi.
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-                    }
-                    
-                    // Scroll to top to see the success message
-                    window.scrollTo(0, 0);
-                });
-            }
-            
-            // Password change form submission
-            const passwordForm = document.getElementById('changePasswordForm');
-            if (passwordForm) {
-                passwordForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const newPassword = document.getElementById('newPassword').value;
-                    const confirmPassword = document.getElementById('confirmPassword').value;
-                    
-                    if (newPassword !== confirmPassword) {
-                        alert('Şifreler eşleşmiyor. Lütfen tekrar deneyin.');
-                        return;
-                    }
-                    
-                    alert('Şifreniz başarıyla değiştirildi.');
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
-                    modal.hide();
-                });
-            }
-            
             // Calculate BMI when height or weight changes
-            const heightInput = document.getElementById('height');
-            const weightInput = document.getElementById('weight');
+            const heightInput = document.getElementById('Boy');
+            const weightInput = document.getElementById('Kilo');
             
             if (heightInput && weightInput) {
                 const calculateBMI = function() {
@@ -295,6 +368,20 @@
                 heightInput.addEventListener('change', calculateBMI);
                 weightInput.addEventListener('change', calculateBMI);
             }
+            
+            // Password change form validation
+            const passwordForm = document.getElementById('changePasswordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        e.preventDefault();
+                        alert('Şifreler eşleşmiyor. Lütfen tekrar deneyin.');
+                    }
+                });
+            }
         });
     </script>
-} 
+}

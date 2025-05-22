@@ -14,6 +14,16 @@ public class Hasta : BaseEntity
     public Guid? DiyetProgramiId { get; set; }
     public int? GunlukKaloriIhtiyaci { get; set; }
     
+    // Additional profile fields
+    public DateTime? DogumTarihi { get; set; }
+    public string? Cinsiyet { get; set; }
+    public string? Adres { get; set; }
+    public string? KanGrubu { get; set; }
+    public string? Alerjiler { get; set; }
+    public string? KronikHastaliklar { get; set; }
+    public string? KullanilanIlaclar { get; set; }
+    public bool SaglikBilgisiPaylasimiIzni { get; set; }
+    
     // Navigation properties
     public virtual Diyetisyen? Diyetisyen { get; set; }
     public virtual DiyetProgrami? DiyetProgrami { get; set; }
