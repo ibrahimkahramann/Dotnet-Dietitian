@@ -1,3 +1,4 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -102,8 +103,8 @@
                         </div>
                         <div class="dropdown">
                             <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
-                                <span class="d-none d-lg-block text-dark">@User.Identity?.Name</span>
+                                <img src="@(ViewData["DiyetisyenModel"] != null ? ((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).ProfilResmiUrl ?? "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" : "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format")" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">@(ViewData["DiyetisyenModel"] != null ? $"{((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).Ad} {((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).Soyad}" : User.Identity?.Name)</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" asp-controller="Dietitian" asp-action="Profile"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>

@@ -5,222 +5,276 @@
     Layout = "_DietitianLayout";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold">Profilim</h2>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-        <i class="bi bi-pencil-square me-2"></i> Profili Düzenle
-    </button>
+<div class="mb-4">
+    <h2 class="fw-bold mb-0">Profilim</h2>
+    <p class="text-muted">Kişisel ve profesyonel bilgilerinizi görüntüleyin ve düzenleyin</p>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="profileAlert">
         @TempData["SuccessMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<!-- Profile Information -->
-<div class="row">
-    <div class="col-lg-4 mb-4">
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Profil Kartı -->
+    <div class="col-md-4">
         <div class="card border-0 shadow-sm">
-            <div class="card-body text-center">
-                <div class="position-relative mx-auto mb-4" style="width: 120px;">
-                    <img src="@(string.IsNullOrEmpty(Model.ProfilResmiUrl) ? "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" : Model.ProfilResmiUrl)" 
-                         class="rounded-circle img-thumbnail" width="120" height="120" alt="@Model.Ad @Model.Soyad">
-                    <button class="btn btn-sm btn-light rounded-circle position-absolute bottom-0 end-0 border" title="Profil fotoğrafını değiştir">
-                        <i class="bi bi-camera"></i>
+            <div class="card-body text-center p-4">
+                <div class="mb-4 position-relative mx-auto" style="width: 150px; height: 150px;">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilResmiUrl) ? "/img/default-avatar.png" : Model.ProfilResmiUrl)" 
+                         class="rounded-circle img-thumbnail" alt="Profil Resmi" style="width: 150px; height: 150px; object-fit: cover;">
+                    <button class="btn btn-sm btn-success position-absolute bottom-0 end-0 rounded-circle p-2" data-bs-toggle="modal" data-bs-target="#changeProfilePicModal">
+                        <i class="bi bi-camera-fill"></i>
                     </button>
                 </div>
-                <h4 class="fw-bold">@Model.Ad @Model.Soyad</h4>
-                <p class="text-muted">@Model.Uzmanlik</p>
-                <div class="d-flex justify-content-center align-items-center mb-3">
-                    <div class="me-2">
-                        <i class="bi bi-star-fill text-warning"></i>
-                        <span class="fw-bold ms-1">@Model.Puan</span>
+                <h4 class="mb-1">@(string.IsNullOrEmpty(Model.Unvan) ? "" : Model.Unvan) @Model.Ad @Model.Soyad</h4>
+                <p class="text-muted mb-3">@(string.IsNullOrEmpty(Model.Uzmanlik) ? "Diyetisyen" : Model.Uzmanlik)</p>
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="bi bi-pencil-square me-2"></i> Profili Düzenle
+                    </button>
+                </div>
+                <hr>
+                <div class="text-start">
+                    <div class="mb-2">
+                        <i class="bi bi-envelope text-muted me-2"></i>
+                        <span>@Model.Email</span>
                     </div>
-                    <span class="text-muted">(@Model.ToplamYorumSayisi değerlendirme)</span>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button class="btn btn-outline-primary me-2">
-                        <i class="bi bi-share me-1"></i> Profili Paylaş
-                    </button>
-                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
-                        <i class="bi bi-qr-code me-1"></i> QR Kod
-                    </button>
+                    <div class="mb-2">
+                        <i class="bi bi-telephone text-muted me-2"></i>
+                        <span>@(string.IsNullOrEmpty(Model.Telefon) ? "Belirtilmemiş" : Model.Telefon)</span>
+                    </div>
+                    <div class="mb-2">
+                        <i class="bi bi-geo-alt text-muted me-2"></i>
+                        <span>@(string.IsNullOrEmpty(Model.Sehir) ? "Belirtilmemiş" : Model.Sehir), Türkiye</span>
+                    </div>
+                    <div class="mb-2">
+                        <i class="bi bi-building text-muted me-2"></i>
+                        <span>@(string.IsNullOrEmpty(Model.CalistigiKurum) ? "Belirtilmemiş" : Model.CalistigiKurum)</span>
+                    </div>
+                    <div>
+                        <i class="bi bi-calendar3 text-muted me-2"></i>
+                        <span>Üyelik: @Model.KayitTarihi.ToString("MMMM yyyy")</span>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Contact Information -->
+        <!-- Değerlendirme ve İstatistikler -->
         <div class="card border-0 shadow-sm mt-4">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">İletişim Bilgileri</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-envelope text-primary me-3"></i>
-                        <div>
-                            <small class="text-muted d-block">E-posta</small>
-                            <span>@Model.Email</span>
-                        </div>
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold mb-0">Değerlendirme</h6>
+                    <div class="d-flex align-items-center">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Round(Model.Puan))
+                            {
+                                <i class="bi bi-star-fill text-warning me-1"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-star text-warning me-1"></i>
+                            }
+                        }
+                        <span class="ms-2 fw-bold">@Model.Puan</span>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-telephone text-success me-3"></i>
-                        <div>
-                            <small class="text-muted d-block">Telefon</small>
-                            <span>@Model.Telefon</span>
-                        </div>
-                    </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted">Toplam Değerlendirme</span>
+                    <span class="fw-bold">@Model.ToplamYorumSayisi</span>
                 </div>
-                <div>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-geo-alt text-danger me-3"></i>
-                        <div>
-                            <small class="text-muted d-block">Şehir</small>
-                            <span>@Model.Sehir</span>
-                        </div>
-                    </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted">Toplam Hasta</span>
+                    <span class="fw-bold">@(Model.Hastalar?.Count ?? 0)</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted">Deneyim</span>
+                    <span class="fw-bold">@(Model.DeneyimYili.HasValue ? $"{Model.DeneyimYili} Yıl" : "Belirtilmemiş")</span>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-lg-8">
-        <!-- Professional Information -->
+    <!-- Profil Bilgileri -->
+    <div class="col-md-8">
+        <!-- Kişisel Bilgiler -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">Profesyonel Bilgiler</h5>
+                <h5 class="mb-0 fw-bold">Kişisel Bilgiler</h5>
             </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <h6 class="fw-bold mb-2">Uzmanlık Alanı</h6>
-                        <p class="text-muted mb-0">@(string.IsNullOrEmpty(Model.Uzmanlik) ? "Belirtilmemiş" : Model.Uzmanlik)</p>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">T.C. Kimlik Numarası</label>
+                        <p class="mb-0">@Model.TcKimlikNumarasi</p>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-2">Mezun Olduğu Okul</h6>
-                        <p class="text-muted mb-0">@(string.IsNullOrEmpty(Model.MezuniyetOkulu) ? "Belirtilmemiş" : Model.MezuniyetOkulu)</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <h6 class="fw-bold mb-2">Deneyim</h6>
-                        <p class="text-muted mb-0">@(Model.DeneyimYili.HasValue ? $"{Model.DeneyimYili} yıl" : "Belirtilmemiş")</p>
+                        <label class="form-label fw-semibold text-muted small">E-posta</label>
+                        <p class="mb-0">@Model.Email</p>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-2">Aktif Hasta Sayısı</h6>
-                        <p class="text-muted mb-0">@(Model.Hastalar?.Count ?? 0)</p>
+                        <label class="form-label fw-semibold text-muted small">Ad</label>
+                        <p class="mb-0">@Model.Ad</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Soyad</label>
+                        <p class="mb-0">@Model.Soyad</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Telefon</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Telefon) ? "Belirtilmemiş" : Model.Telefon)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Şehir</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Sehir) ? "Belirtilmemiş" : Model.Sehir)</p>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- About Me -->
+        <!-- Mesleki Bilgiler -->
         <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Mesleki Bilgiler</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Unvan</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Unvan) ? "Belirtilmemiş" : Model.Unvan)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Uzmanlık Alanı</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Uzmanlik) ? "Belirtilmemiş" : Model.Uzmanlik)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Mezuniyet Okulu</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.MezuniyetOkulu) ? "Belirtilmemiş" : Model.MezuniyetOkulu)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Deneyim</label>
+                        <p class="mb-0">@(Model.DeneyimYili.HasValue ? $"{Model.DeneyimYili} Yıl" : "Belirtilmemiş")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Çalıştığı Kurum</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.CalistigiKurum) ? "Belirtilmemiş" : Model.CalistigiKurum)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Lisans Numarası</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.LisansNumarasi) ? "Belirtilmemiş" : Model.LisansNumarasi)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hakkımda -->
+        <div class="card border-0 shadow-sm">
             <div class="card-header bg-white py-3">
                 <h5 class="mb-0 fw-bold">Hakkımda</h5>
             </div>
-            <div class="card-body">
-                <p class="mb-0">@(string.IsNullOrEmpty(Model.Hakkinda) ? "Henüz bir hakkında yazısı eklenmemiş." : Model.Hakkinda)</p>
-            </div>
-        </div>
-        
-        <!-- Statistics & Achievements -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">İstatistikler & Başarılar</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-4">
-                    <div class="col-md-4 col-sm-6">
-                        <div class="border rounded p-3 text-center">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-flex mb-3">
-                                <i class="bi bi-people text-primary fs-4"></i>
-                            </div>
-                            <h3 class="fw-bold">@(Model.Hastalar?.Count ?? 0)</h3>
-                            <p class="text-muted mb-0">Toplam Hasta</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-sm-6">
-                        <div class="border rounded p-3 text-center">
-                            <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-flex mb-3">
-                                <i class="bi bi-clipboard2-check text-success fs-4"></i>
-                            </div>
-                            <h3 class="fw-bold">0</h3>
-                            <p class="text-muted mb-0">Tamamlanan Programlar</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-sm-6">
-                        <div class="border rounded p-3 text-center">
-                            <div class="bg-warning bg-opacity-10 p-3 rounded-circle d-inline-flex mb-3">
-                                <i class="bi bi-star text-warning fs-4"></i>
-                            </div>
-                            <h3 class="fw-bold">@Model.Puan</h3>
-                            <p class="text-muted mb-0">Ortalama Puan</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="card-body p-4">
+                @if (string.IsNullOrEmpty(Model.Hakkinda))
+                {
+                    <p class="text-muted fst-italic">Henüz bir açıklama eklenmemiş.</p>
+                }
+                else
+                {
+                    <p>@Model.Hakkinda</p>
+                }
             </div>
         </div>
     </div>
 </div>
 
-<!-- Edit Profile Modal -->
+<!-- Profil Düzenleme Modalı -->
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editProfileModalLabel">Profili Düzenle</h5>
+                <h5 class="modal-title" id="editProfileModalLabel">Profil Bilgilerini Düzenle</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form asp-action="UpdateProfile" method="post">
+            <form action="/Dietitian/UpdateProfile" method="post">
                 <div class="modal-body">
                     <input type="hidden" name="Id" value="@Model.Id" />
-                    <div class="row g-3">
+                    <input type="hidden" name="TcKimlikNumarasi" value="@Model.TcKimlikNumarasi" />
+                    <input type="hidden" name="Email" value="@Model.Email" />
+                    
+                    <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Ad</label>
-                            <input type="text" class="form-control" name="Ad" value="@Model.Ad" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Soyad</label>
-                            <input type="text" class="form-control" name="Soyad" value="@Model.Soyad" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">E-posta</label>
-                            <input type="email" class="form-control" name="Email" value="@Model.Email" required>
+                            <label for="Ad" class="form-label">Ad</label>
+                            <input type="text" class="form-control" id="Ad" name="Ad" value="@Model.Ad" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Telefon</label>
-                            <input type="text" class="form-control" name="Telefon" value="@Model.Telefon">
+                            <label for="Soyad" class="form-label">Soyad</label>
+                            <input type="text" class="form-control" id="Soyad" name="Soyad" value="@Model.Soyad" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="Telefon" class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" id="Telefon" name="Telefon" value="@Model.Telefon">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Uzmanlık Alanı</label>
-                            <input type="text" class="form-control" name="Uzmanlik" value="@Model.Uzmanlik">
+                            <label for="Sehir" class="form-label">Şehir</label>
+                            <input type="text" class="form-control" id="Sehir" name="Sehir" value="@Model.Sehir">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="Unvan" class="form-label">Unvan</label>
+                            <input type="text" class="form-control" id="Unvan" name="Unvan" value="@Model.Unvan">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Mezun Olduğu Okul</label>
-                            <input type="text" class="form-control" name="MezuniyetOkulu" value="@Model.MezuniyetOkulu">
+                            <label for="Uzmanlik" class="form-label">Uzmanlık Alanı</label>
+                            <input type="text" class="form-control" id="Uzmanlik" name="Uzmanlik" value="@Model.Uzmanlik">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="MezuniyetOkulu" class="form-label">Mezuniyet Okulu</label>
+                            <input type="text" class="form-control" id="MezuniyetOkulu" name="MezuniyetOkulu" value="@Model.MezuniyetOkulu">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Deneyim (Yıl)</label>
-                            <input type="number" class="form-control" name="DeneyimYili" value="@Model.DeneyimYili" min="0">
+                            <label for="DeneyimYili" class="form-label">Deneyim Yılı</label>
+                            <input type="number" class="form-control" id="DeneyimYili" name="DeneyimYili" value="@Model.DeneyimYili">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="CalistigiKurum" class="form-label">Çalıştığı Kurum</label>
+                            <input type="text" class="form-control" id="CalistigiKurum" name="CalistigiKurum" value="@Model.CalistigiKurum">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Şehir</label>
-                            <input type="text" class="form-control" name="Sehir" value="@Model.Sehir">
+                            <label for="LisansNumarasi" class="form-label">Lisans Numarası</label>
+                            <input type="text" class="form-control" id="LisansNumarasi" name="LisansNumarasi" value="@Model.LisansNumarasi">
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Profil Resmi URL</label>
-                            <input type="text" class="form-control" name="ProfilResmiUrl" value="@Model.ProfilResmiUrl">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Hakkımda</label>
-                            <textarea class="form-control" name="Hakkinda" rows="4">@Model.Hakkinda</textarea>
-                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ProfilResmiUrl" class="form-label">Profil Resmi URL</label>
+                        <input type="text" class="form-control" id="ProfilResmiUrl" name="ProfilResmiUrl" value="@Model.ProfilResmiUrl">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="Hakkinda" class="form-label">Hakkımda</label>
+                        <textarea class="form-control" id="Hakkinda" name="Hakkinda" rows="4">@Model.Hakkinda</textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -232,17 +286,33 @@
     </div>
 </div>
 
-<!-- QR Code Modal -->
-<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
+<!-- Profil Resmi Değiştirme Modalı -->
+<div class="modal fade" id="changeProfilePicModal" tabindex="-1" aria-labelledby="changeProfilePicModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="qrCodeModalLabel">Profil QR Kodu</h5>
+                <h5 class="modal-title" id="changeProfilePicModalLabel">Profil Resmi Değiştir</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=@(Url.Action("Profile", "Dietitian", new { id = Model.Id }, "https"))" class="img-fluid" alt="QR Code">
-                <p class="mt-3 mb-0 text-muted small">Bu QR kodu taratarak profilinize doğrudan erişim sağlayabilirsiniz.</p>
+            <div class="modal-body">
+                <form action="/Dietitian/UpdateProfilePicture" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="profileImage" class="form-label">Yeni profil resmi seçin</label>
+                        <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">veya URL girin</label>
+                        <input type="text" class="form-control" id="imageUrl" name="ProfilResmiUrl" value="@Model.ProfilResmiUrl">
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">İptal</button>
+                        <button type="submit" class="btn btn-success">Kaydet</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -250,15 +320,11 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-dismiss alerts after 5 seconds
+        // Profil güncelleme başarılı olduğunda 3 saniye sonra uyarıyı kapat
+        $(document).ready(function() {
             setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
+                $("#profileAlert").fadeOut('slow');
+            }, 3000);
         });
     </script>
 } 

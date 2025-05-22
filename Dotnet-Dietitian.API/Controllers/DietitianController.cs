@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using System.Linq;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetisyenCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetProgramiQueries;
+using System.IO;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -25,6 +27,27 @@ namespace Dotnet_Dietitian.API.Controllers
         public DietitianController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            // Giriş yapmış kullanıcının ID'sini al
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId) && Guid.TryParse(userId, out var diyetisyenId))
+            {
+                try
+                {
+                    // Diyetisyen verilerini getir ve ViewData'ya ekle
+                    var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
+                    ViewData["DiyetisyenModel"] = diyetisyenModel;
+                }
+                catch (Exception)
+                {
+                    // Hata durumunda sessizce devam et
+                }
+            }
+
+            await base.OnActionExecutionAsync(context, next);
         }
 
         public async Task<IActionResult> Dashboard()
@@ -291,6 +314,81 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Hata durumunda loglama yapılabilir
                 TempData["ErrorMessage"] = "Şifre değiştirilirken bir hata oluştu: " + ex.Message;
                 return RedirectToAction("Settings", new { tab = "privacy" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfilePicture(Guid Id, IFormFile profileImage, string ProfilResmiUrl)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Güvenlik kontrolü: Sadece kendi profilini güncelleyebilir
+                if (Id != diyetisyenId)
+                {
+                    return Unauthorized();
+                }
+
+                // Diyetisyen verilerini getir
+                var diyetisyen = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
+                
+                string profileImageUrl = ProfilResmiUrl;
+                
+                // Eğer dosya yüklendiyse, kaydet ve URL'i güncelle
+                if (profileImage != null && profileImage.Length > 0)
+                {
+                    // Dosya adını belirle
+                    var fileName = $"profile_{diyetisyenId}_{DateTime.Now.Ticks}{Path.GetExtension(profileImage.FileName)}";
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "profiles", fileName);
+                    
+                    // Klasörün var olduğundan emin ol
+                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                    
+                    // Dosyayı kaydet
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await profileImage.CopyToAsync(stream);
+                    }
+                    
+                    // URL'i güncelle
+                    profileImageUrl = $"/img/profiles/{fileName}";
+                }
+                
+                // Profil resmini güncelle
+                var updateCommand = new UpdateDiyetisyenCommand
+                {
+                    Id = diyetisyenId,
+                    TcKimlikNumarasi = diyetisyen.TcKimlikNumarasi,
+                    Ad = diyetisyen.Ad,
+                    Soyad = diyetisyen.Soyad,
+                    Email = diyetisyen.Email,
+                    Telefon = diyetisyen.Telefon,
+                    Uzmanlik = diyetisyen.Uzmanlik,
+                    MezuniyetOkulu = diyetisyen.MezuniyetOkulu,
+                    DeneyimYili = diyetisyen.DeneyimYili,
+                    Hakkinda = diyetisyen.Hakkinda,
+                    Sehir = diyetisyen.Sehir,
+                    ProfilResmiUrl = profileImageUrl,
+                    Unvan = diyetisyen.Unvan,
+                    CalistigiKurum = diyetisyen.CalistigiKurum,
+                    LisansNumarasi = diyetisyen.LisansNumarasi
+                };
+                
+                await _mediator.Send(updateCommand);
+                
+                TempData["SuccessMessage"] = "Profil resminiz başarıyla güncellendi.";
+                return RedirectToAction("Profile");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Profil resmi güncellenirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("Profile");
             }
         }
 
