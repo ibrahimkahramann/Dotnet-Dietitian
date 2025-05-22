@@ -3,137 +3,312 @@
 @{
     ViewData["Title"] = "Ayarlar - DijetUP";
     Layout = "_PatientLayout";
+    
+    // Aktif tab bilgisini al, varsayılan olarak "general" kullan
+    var activeTab = ViewBag.ActiveTab ?? "general";
 }
 
-<div class="content-section">
-    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-    {
-        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
-    }
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Ayarlar</h2>
-        <div>
-            <button class="btn btn-success" id="saveSettings">
-                <i class="bi bi-check-circle me-2"></i>Değişiklikleri Kaydet
-            </button>
+<!-- Page content -->
+<div class="container-fluid p-0">
+    <!-- Settings Content -->
+    <div class="settings-content">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-0">Ayarlar</h2>
+            <p class="text-muted">Uygulama ayarlarınızı ve tercihlerinizi yönetin</p>
+        </div>
+        
+        <!-- Alert placeholder -->
+        <div id="settingsAlert">
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    @ViewBag.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(TempData["SuccessMessage"]?.ToString()))
+            {
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+            {
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        
+        <!-- Settings Tabs -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <div class="col-md-3 border-end">
+                        <div class="list-group list-group-flush border-bottom">
+                            <a href="#general" class="list-group-item list-group-item-action @(activeTab == "general" ? "active" : "") px-4 py-3" data-bs-toggle="list">
+                                <i class="bi bi-sliders me-2"></i> Genel
+                            </a>
+                            <a href="#notifications" class="list-group-item list-group-item-action @(activeTab == "notifications" ? "active" : "") px-4 py-3" data-bs-toggle="list">
+                                <i class="bi bi-bell me-2"></i> Bildirimler
+                            </a>
+                            <a href="#privacy" class="list-group-item list-group-item-action @(activeTab == "privacy" ? "active" : "") px-4 py-3" data-bs-toggle="list">
+                                <i class="bi bi-shield-lock me-2"></i> Gizlilik ve Güvenlik
+                            </a>
+                            <a href="#appearance" class="list-group-item list-group-item-action @(activeTab == "appearance" ? "active" : "") px-4 py-3" data-bs-toggle="list">
+                                <i class="bi bi-palette me-2"></i> Görünüm
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="tab-content p-4">
+                            <!-- General Settings -->
+                            <div class="tab-pane fade @(activeTab == "general" ? "show active" : "")" id="general">
+                                <h5 class="mb-4">Genel Ayarlar</h5>
+                                <form id="generalSettingsForm" asp-controller="Patient" asp-action="UpdateSettings" method="post">
+                                    <input type="hidden" name="settingType" value="general" />
+                                    <div class="mb-4">
+                                        <label class="form-label">Dil</label>
+                                        <select class="form-select" name="language">
+                                            <option value="tr" selected>Türkçe</option>
+                                            <option value="en">English</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Zaman Dilimi</label>
+                                        <select class="form-select" name="timezone">
+                                            <option value="europe-istanbul" selected>(GMT+3:00) İstanbul</option>
+                                            <option value="europe-london">(GMT+0:00) Londra</option>
+                                            <option value="america-new_york">(GMT-5:00) New York</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Tarih Formatı</label>
+                                        <select class="form-select" name="dateFormat">
+                                            <option value="dd-mm-yyyy" selected>GG/AA/YYYY</option>
+                                            <option value="mm-dd-yyyy">AA/GG/YYYY</option>
+                                            <option value="yyyy-mm-dd">YYYY/AA/GG</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Ölçü Birimleri</label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="weightUnit" id="weightMetric" value="metric" checked>
+                                            <label class="form-check-label" for="weightMetric">
+                                                Metrik (kg, cm)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="weightUnit" id="weightImperial" value="imperial">
+                                            <label class="form-check-label" for="weightImperial">
+                                                İngiliz (lb, in)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Kaydet</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Notification Settings -->
+                            <div class="tab-pane fade @(activeTab == "notifications" ? "show active" : "")" id="notifications">
+                                <h5 class="mb-4">Bildirim Ayarları</h5>
+                                <form id="notificationSettingsForm" asp-controller="Patient" asp-action="UpdateSettings" method="post">
+                                    <input type="hidden" name="settingType" value="notifications" />
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">E-posta Bildirimleri</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifAppointments" name="emailNotifAppointments" value="true" checked>
+                                            <label class="form-check-label" for="emailNotifAppointments">Randevu hatırlatıcıları</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifMessages" name="emailNotifMessages" value="true" checked>
+                                            <label class="form-check-label" for="emailNotifMessages">Yeni mesajlar</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifDietUpdates" name="emailNotifDietUpdates" value="true" checked>
+                                            <label class="form-check-label" for="emailNotifDietUpdates">Diyet planı güncellemeleri</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifMarketing" name="emailNotifMarketing" value="true">
+                                            <label class="form-check-label" for="emailNotifMarketing">Pazarlama e-postaları ve güncellemeler</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Uygulama Bildirimleri</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="appNotifAppointments" name="appNotifAppointments" value="true" checked>
+                                            <label class="form-check-label" for="appNotifAppointments">Randevu hatırlatıcıları</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="appNotifMessages" name="appNotifMessages" value="true" checked>
+                                            <label class="form-check-label" for="appNotifMessages">Yeni mesajlar</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="appNotifDietUpdates" name="appNotifDietUpdates" value="true" checked>
+                                            <label class="form-check-label" for="appNotifDietUpdates">Diyet planı güncellemeleri</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="appNotifDailyReminders" name="appNotifDailyReminders" value="true" checked>
+                                            <label class="form-check-label" for="appNotifDailyReminders">Günlük hatırlatmalar (su içme, egzersiz vb.)</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">Kaydet</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Privacy Settings -->
+                            <div class="tab-pane fade @(activeTab == "privacy" ? "show active" : "")" id="privacy">
+                                <h5 class="mb-4">Gizlilik ve Güvenlik</h5>
+                                <form id="privacySettingsForm" asp-controller="Patient" asp-action="UpdateSettings" method="post">
+                                    <input type="hidden" name="settingType" value="privacy" />
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Hesap Güvenliği</h6>
+                                        <div class="d-grid gap-2 d-md-flex mb-3">
+                                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                                <i class="bi bi-key me-2"></i> Şifre Değiştir
+                                            </button>
+                                            <button class="btn btn-outline-secondary" type="button">
+                                                <i class="bi bi-shield-check me-2"></i> İki Faktörlü Doğrulama
+                                            </button>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="loginAlerts" name="loginAlerts" value="true" checked>
+                                            <label class="form-check-label" for="loginAlerts">Yeni giriş uyarıları</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="sessionTimeout" name="sessionTimeout" value="true" checked>
+                                            <label class="form-check-label" for="sessionTimeout">30 dakika hareketsizlik sonrası oturumu kapat</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Veri Gizliliği</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="shareHealthData" name="shareHealthData" value="true" checked>
+                                            <label class="form-check-label" for="shareHealthData">Sağlık ve ilerleme verilerimi diyetisyenimle paylaş</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="shareActivityData" name="shareActivityData" value="true" checked>
+                                            <label class="form-check-label" for="shareActivityData">Aktivite verilerimi diyetisyenimle paylaş</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="shareUsageData" name="shareUsageData" value="true">
+                                            <label class="form-check-label" for="shareUsageData">Anonim kullanım verilerini iyileştirme amacıyla paylaş</label>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-download me-2"></i> Verilerimi İndir
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger ms-2">
+                                                <i class="bi bi-trash me-2"></i> Hesabımı Sil
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">Kaydet</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Appearance Settings -->
+                            <div class="tab-pane fade @(activeTab == "appearance" ? "show active" : "")" id="appearance">
+                                <h5 class="mb-4">Görünüm</h5>
+                                <form id="appearanceSettingsForm" asp-controller="Patient" asp-action="UpdateSettings" method="post">
+                                    <input type="hidden" name="settingType" value="appearance" />
+                                    <div class="mb-4">
+                                        <label class="form-label">Tema</label>
+                                        <div class="d-flex gap-3 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" checked>
+                                                <label class="form-check-label" for="themeLight">
+                                                    Açık
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark">
+                                                <label class="form-check-label" for="themeDark">
+                                                    Koyu
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="theme" id="themeSystem" value="system">
+                                                <label class="form-check-label" for="themeSystem">
+                                                    Sistem ayarını kullan
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Ana Panel Düzeni</label>
+                                        <select class="form-select mb-3" name="dashboardLayout">
+                                            <option value="default" selected>Standart</option>
+                                            <option value="compact">Kompakt</option>
+                                            <option value="detailed">Detaylı</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Görünüm Tercihleri</label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="showProgress" name="showProgress" value="true" checked>
+                                            <label class="form-check-label" for="showProgress">
+                                                Ana panelde ilerleme grafiğini göster
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="showWaterTracker" name="showWaterTracker" value="true" checked>
+                                            <label class="form-check-label" for="showWaterTracker">
+                                                Su takibini ana panelde göster
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="showCalories" name="showCalories" value="true" checked>
+                                            <label class="form-check-label" for="showCalories">
+                                                Kalori takibini ana panelde göster
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Kaydet</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="row">
-        <div class="col-lg-3 mb-4">
-            <div class="list-group sticky-lg-top">
-                <a href="#account" class="list-group-item list-group-item-action active py-3">
-                    <i class="bi bi-person-circle me-2"></i>Hesap Ayarları
-                </a>
-                <a href="#notification" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-bell me-2"></i>Bildirim Ayarları
-                </a>
-                <a href="#privacy" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-shield-lock me-2"></i>Gizlilik
-                </a>
-                <a href="#password" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-key me-2"></i>Şifre Değiştir
-                </a>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Şifre Değiştir</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-        <div class="col-lg-9">
-            <div class="card border-0 shadow-sm mb-4" id="account">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Hesap Ayarları</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        Bu sayfa şu anda geliştiriliyor. Yakında hesap ayarlarınızı buradan düzenleyebileceksiniz.
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Ad</label>
-                        <input type="text" class="form-control" id="name" value="@Model.Ad">
-                    </div>
-                    <div class="mb-3">
-                        <label for="surname" class="form-label">Soyad</label>
-                        <input type="text" class="form-control" id="surname" value="@Model.Soyad">
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">E-posta</label>
-                        <input type="email" class="form-control" id="email" value="@Model.Email">
-                    </div>
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Telefon</label>
-                        <input type="tel" class="form-control" id="phone" value="@Model.Telefon">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card border-0 shadow-sm mb-4" id="notification">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Bildirim Ayarları</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                        <label class="form-check-label" for="emailNotifications">E-posta Bildirimleri</label>
-                    </div>
-                    <div class="mb-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="smsNotifications" checked>
-                        <label class="form-check-label" for="smsNotifications">SMS Bildirimleri</label>
-                    </div>
-                    <div class="mb-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="appointmentReminders" checked>
-                        <label class="form-check-label" for="appointmentReminders">Randevu Hatırlatmaları</label>
-                    </div>
-                    <div class="mb-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="dietUpdates" checked>
-                        <label class="form-check-label" for="dietUpdates">Diyet Planı Güncellemeleri</label>
-                    </div>
-                    <div class="mb-3 form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="messageNotifications" checked>
-                        <label class="form-check-label" for="messageNotifications">Yeni Mesaj Bildirimleri</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card border-0 shadow-sm mb-4" id="privacy">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Gizlilik</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3 form-check">
-                        <input class="form-check-input" type="checkbox" id="dataSharing" checked>
-                        <label class="form-check-label" for="dataSharing">
-                            Diyetisyenim ile sağlık verilerimi paylaşmayı kabul ediyorum.
-                        </label>
-                    </div>
-                    <div class="mb-3 form-check">
-                        <input class="form-check-input" type="checkbox" id="anonymousData">
-                        <label class="form-check-label" for="anonymousData">
-                            Anonim olarak verilerimin istatistiksel çalışmalarda kullanılmasını kabul ediyorum.
-                        </label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card border-0 shadow-sm" id="password">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Şifre Değiştir</h5>
-                </div>
-                <div class="card-body">
+            <div class="modal-body">
+                <form id="changePasswordForm" asp-controller="Patient" asp-action="UpdatePassword" method="post">
                     <div class="mb-3">
                         <label for="currentPassword" class="form-label">Mevcut Şifre</label>
-                        <input type="password" class="form-control" id="currentPassword">
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                     </div>
                     <div class="mb-3">
                         <label for="newPassword" class="form-label">Yeni Şifre</label>
-                        <input type="password" class="form-control" id="newPassword">
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                        <div class="form-text">Şifreniz en az 8 karakter uzunluğunda olmalı ve harf, rakam ve özel karakter içermelidir.</div>
                     </div>
                     <div class="mb-3">
                         <label for="confirmPassword" class="form-label">Yeni Şifre (Tekrar)</label>
-                        <input type="password" class="form-control" id="confirmPassword">
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                     </div>
-                    <button class="btn btn-primary">Şifreyi Değiştir</button>
-                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="submit" form="changePasswordForm" class="btn btn-success">Şifreyi Değiştir</button>
             </div>
         </div>
     </div>
@@ -142,39 +317,46 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Ayarlar sayfası için smooth scroll
-            document.querySelectorAll('.list-group-item').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    // Eğer bu bir sayfa içi link ise (href # ile başlıyorsa)
-                    const targetHref = this.getAttribute('href');
-                    if (targetHref && targetHref.startsWith('#')) {
-                        e.preventDefault();
-                        const targetElement = document.querySelector(targetHref);
-                        
-                        // Aktif link sınıfını değiştir
-                        document.querySelectorAll('.list-group-item').forEach(link => {
-                            if (link.getAttribute('href').startsWith('#')) {
-                                link.classList.remove('active');
-                            }
-                        });
-                        this.classList.add('active');
-                        
-                        // Smooth scroll
-                        if (targetElement) {
-                            window.scrollTo({
-                                top: targetElement.offsetTop - 100,
-                                behavior: 'smooth'
-                            });
-                        }
-                    }
-                    // Eğer bu bir sayfa içi link değilse, normal davranışı devam ettir
+            // Form submissions
+            const forms = document.querySelectorAll('form:not(#changePasswordForm)');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    // Normal form submission - no need to prevent default
                 });
             });
             
-            // Kaydet butonu için
-            document.getElementById('saveSettings').addEventListener('click', function() {
-                alert('Ayarlar kaydedildi!');
+            // Password form validation
+            const passwordForm = document.getElementById('changePasswordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        e.preventDefault();
+                        alert('Şifreler eşleşmiyor!');
+                    }
+                });
+            }
+            
+            // Tab navigation
+            document.querySelectorAll('.list-group-item[data-bs-toggle="list"]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Store the selected tab in the URL hash
+                    const hash = this.getAttribute('href');
+                    history.replaceState(null, '', window.location.pathname + '?tab=' + hash.substring(1));
+                });
             });
+            
+            // Initialize the active tab
+            const activeTab = '@activeTab';
+            if (activeTab) {
+                const tab = document.querySelector(`a[href="#${activeTab}"]`);
+                if (tab) {
+                    const bsTab = new bootstrap.Tab(tab);
+                    bsTab.show();
+                }
+            }
         });
     </script>
-} 
+}

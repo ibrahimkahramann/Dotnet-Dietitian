@@ -155,7 +155,7 @@ namespace Dotnet_Dietitian.API.Controllers
             }
         }
         
-        public async Task<IActionResult> Settings()
+        public async Task<IActionResult> Settings(string tab = "general")
         {
             try
             {
@@ -168,6 +168,10 @@ namespace Dotnet_Dietitian.API.Controllers
 
                 // Hasta verilerini getir
                 var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                
+                // Aktif tab bilgisini ViewBag'e ekle
+                ViewBag.ActiveTab = tab;
+                
                 return View(hastaModel);
             }
             catch (Exception ex)
@@ -240,10 +244,17 @@ namespace Dotnet_Dietitian.API.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> UpdatePassword(string currentPassword, string newPassword)
+        public async Task<IActionResult> UpdatePassword(string currentPassword, string newPassword, string confirmPassword)
         {
             try
             {
+                // Şifrelerin eşleştiğini kontrol et
+                if (newPassword != confirmPassword)
+                {
+                    TempData["ErrorMessage"] = "Yeni şifreler eşleşmiyor.";
+                    return RedirectToAction("Settings", new { tab = "privacy" });
+                }
+
                 // Giriş yapmış kullanıcının ID'sini al
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
@@ -263,22 +274,75 @@ namespace Dotnet_Dietitian.API.Controllers
                 {
                     var result = await _mediator.Send(updatePasswordCommand);
                     
-                    // Başarılı mesajı ile profil sayfasına yönlendir
+                    // Başarılı mesajı ile ayarlar sayfasına yönlendir
                     TempData["SuccessMessage"] = "Şifreniz başarıyla değiştirildi.";
-                    return RedirectToAction("Profile");
+                    return RedirectToAction("Settings", new { tab = "privacy" });
                 }
                 catch (Exception ex)
                 {
                     // Handler'dan gelen hata mesajlarını TempData'ya ekle
                     TempData["ErrorMessage"] = ex.Message;
-                    return RedirectToAction("Profile");
+                    return RedirectToAction("Settings", new { tab = "privacy" });
                 }
             }
             catch (Exception ex)
             {
                 // Hata durumunda loglama yapılabilir
                 TempData["ErrorMessage"] = "Şifre değiştirilirken bir hata oluştu: " + ex.Message;
-                return RedirectToAction("Profile");
+                return RedirectToAction("Settings", new { tab = "privacy" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateSettings(string settingType, IFormCollection formData)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Ayar tipine göre işlem yap
+                switch (settingType)
+                {
+                    case "general":
+                        // Genel ayarları güncelle
+                        // Örneğin: Dil, zaman dilimi, tarih formatı, ölçü birimleri
+                        // Bu ayarlar için bir command ve handler oluşturulabilir
+                        // await _mediator.Send(new UpdateHastaGeneralSettingsCommand { ... });
+                        break;
+                    case "notifications":
+                        // Bildirim ayarlarını güncelle
+                        // Örneğin: E-posta bildirimleri, uygulama bildirimleri
+                        // await _mediator.Send(new UpdateHastaNotificationSettingsCommand { ... });
+                        break;
+                    case "privacy":
+                        // Gizlilik ayarlarını güncelle
+                        // Örneğin: Veri paylaşımı tercihleri
+                        // await _mediator.Send(new UpdateHastaPrivacySettingsCommand { ... });
+                        break;
+                    case "appearance":
+                        // Görünüm ayarlarını güncelle
+                        // Örneğin: Tema, panel düzeni, görünüm tercihleri
+                        // await _mediator.Send(new UpdateHastaAppearanceSettingsCommand { ... });
+                        break;
+                    default:
+                        TempData["ErrorMessage"] = "Geçersiz ayar tipi.";
+                        return RedirectToAction("Settings");
+                }
+
+                // Başarılı mesajı ile ayarlar sayfasına yönlendir
+                TempData["SuccessMessage"] = "Ayarlarınız başarıyla güncellendi.";
+                return RedirectToAction("Settings", new { tab = settingType });
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda loglama yapılabilir
+                TempData["ErrorMessage"] = "Ayarlar güncellenirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("Settings", new { tab = settingType });
             }
         }
     }

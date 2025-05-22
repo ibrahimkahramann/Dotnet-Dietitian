@@ -126,6 +126,45 @@
                                     <span asp-validation-for="Gender" class="invalid-feedback"></span>
                                 </div>
                                 
+                                <!-- Dietitian-specific fields -->
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="LicenseNumber" class="form-label">Lisans Numarası</label>
+                                    <input asp-for="LicenseNumber" class="form-control">
+                                    <span asp-validation-for="LicenseNumber" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="Specialty" class="form-label">Uzmanlık Alanı</label>
+                                    <select asp-for="Specialty" class="form-select">
+                                        <option value="" selected disabled>Seçiniz</option>
+                                        <option value="Genel Beslenme">Genel Beslenme</option>
+                                        <option value="Sporcu Beslenmesi">Sporcu Beslenmesi</option>
+                                        <option value="Kilo Kontrolü">Kilo Kontrolü</option>
+                                        <option value="Klinik Beslenme">Klinik Beslenme</option>
+                                        <option value="Çocuk Beslenmesi">Çocuk Beslenmesi</option>
+                                    </select>
+                                    <span asp-validation-for="Specialty" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-md-6 dietitian-field">
+                                    <label asp-for="GraduationSchool" class="form-label">Mezuniyet Okulu</label>
+                                    <input asp-for="GraduationSchool" class="form-control">
+                                    <span asp-validation-for="GraduationSchool" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-md-6 dietitian-field">
+                                    <label asp-for="ExperienceYears" class="form-label">Deneyim Yılı</label>
+                                    <input asp-for="ExperienceYears" type="number" min="0" max="100" class="form-control">
+                                    <span asp-validation-for="ExperienceYears" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="City" class="form-label">Şehir</label>
+                                    <input asp-for="City" class="form-control">
+                                    <span asp-validation-for="City" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="About" class="form-label">Hakkında</label>
+                                    <textarea asp-for="About" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="About" class="invalid-feedback"></span>
+                                </div>
+                                
                                 <div class="col-12">
                                     <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
                                     <div class="input-group">
@@ -201,13 +240,27 @@
             const patientType = document.getElementById('patientType');
             const dietitianType = document.getElementById('dietitianType');
             const patientFields = document.querySelectorAll('.patient-field');
+            const dietitianFields = document.querySelectorAll('.dietitian-field');
             const togglePasswordBtns = document.querySelectorAll('.toggle-password');
             
             function toggleAccountTypeFields() {
                 if (patientType.checked) {
                     patientFields.forEach(field => field.style.display = 'block');
+                    dietitianFields.forEach(field => {
+                        field.style.display = 'none';
+                        const inputs = field.querySelectorAll('input, select, textarea');
+                        inputs.forEach(input => input.required = false);
+                    });
                 } else {
                     patientFields.forEach(field => field.style.display = 'none');
+                    dietitianFields.forEach(field => {
+                        field.style.display = 'block';
+                        const inputs = field.querySelectorAll('input[type="text"], select');
+                        // Sadece lisans numarası ve uzmanlık alanını zorunlu yap
+                        if (field.querySelector('[name="LicenseNumber"]') || field.querySelector('[name="Specialty"]')) {
+                            inputs.forEach(input => input.required = true);
+                        }
+                    });
                 }
             }
             

@@ -57,5 +57,25 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands
         [Required(ErrorMessage = "Kullanım koşullarını kabul etmeniz gerekmektedir")]
         [Display(Name = "Kullanım Koşulları")]
         public bool AgreeTerms { get; set; }
+
+        // Diyetisyen-specific fields
+        [Display(Name = "Lisans Numarası")]
+        public string? LicenseNumber { get; set; }
+        
+        [Display(Name = "Uzmanlık Alanı")]
+        public string? Specialty { get; set; }
+        
+        [Display(Name = "Mezuniyet Okulu")]
+        public string? GraduationSchool { get; set; }
+        
+        [Display(Name = "Deneyim Yılı")]
+        [Range(0, 100, ErrorMessage = "Geçerli bir deneyim yılı giriniz")]
+        public int? ExperienceYears { get; set; }
+        
+        [Display(Name = "Şehir")]
+        public string? City { get; set; }
+        
+        [Display(Name = "Hakkında")]
+        public string? About { get; set; }
     }
 } 

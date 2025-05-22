@@ -15,6 +15,7 @@ public class Diyetisyen : BaseEntity
     public string? Hakkinda { get; set; }
     public string? ProfilResmiUrl { get; set; }
     public string? Sehir { get; set; }
+    public string? LisansNumarasi { get; set; }
     
     // Navigation properties
     public virtual ICollection<Hasta> Hastalar { get; set; }

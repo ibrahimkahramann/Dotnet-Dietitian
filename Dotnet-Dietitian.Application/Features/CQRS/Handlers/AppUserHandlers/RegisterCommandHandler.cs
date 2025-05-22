@@ -95,6 +95,16 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.AppUserHandlers
                     throw new Exception("Bu telefon numarası zaten kullanılıyor.");
                 }
             }
+            
+            // Diyetisyen için lisans numarası kontrolü
+            if (request.UserType == "Diyetisyen" && !string.IsNullOrEmpty(request.LicenseNumber))
+            {
+                var existingLicense = await _diyetisyenRepository.GetByFilterAsync(d => d.LisansNumarasi == request.LicenseNumber);
+                if (existingLicense != null)
+                {
+                    throw new Exception("Bu lisans numarası zaten kullanılıyor.");
+                }
+            }
 
             // Rol bilgisini al (Hasta veya Diyetisyen)
             var roleType = request.UserType;
@@ -149,7 +159,13 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.AppUserHandlers
                     Ad = request.FirstName,
                     Soyad = request.LastName,
                     Email = request.Email,
-                    Telefon = request.Phone
+                    Telefon = request.Phone,
+                    Uzmanlik = request.Specialty,
+                    LisansNumarasi = request.LicenseNumber,
+                    MezuniyetOkulu = request.GraduationSchool,
+                    DeneyimYili = request.ExperienceYears,
+                    Sehir = request.City,
+                    Hakkinda = request.About
                 };
 
                 await _diyetisyenRepository.AddAsync(diyetisyen);
