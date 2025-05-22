@@ -145,23 +145,29 @@
             // Ayarlar sayfası için smooth scroll
             document.querySelectorAll('.list-group-item').forEach(item => {
                 item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    
-                    // Aktif link sınıfını değiştir
-                    document.querySelectorAll('.list-group-item').forEach(link => {
-                        link.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    // Smooth scroll
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 100,
-                            behavior: 'smooth'
+                    // Eğer bu bir sayfa içi link ise (href # ile başlıyorsa)
+                    const targetHref = this.getAttribute('href');
+                    if (targetHref && targetHref.startsWith('#')) {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(targetHref);
+                        
+                        // Aktif link sınıfını değiştir
+                        document.querySelectorAll('.list-group-item').forEach(link => {
+                            if (link.getAttribute('href').startsWith('#')) {
+                                link.classList.remove('active');
+                            }
                         });
+                        this.classList.add('active');
+                        
+                        // Smooth scroll
+                        if (targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 100,
+                                behavior: 'smooth'
+                            });
+                        }
                     }
+                    // Eğer bu bir sayfa içi link değilse, normal davranışı devam ettir
                 });
             });
             
