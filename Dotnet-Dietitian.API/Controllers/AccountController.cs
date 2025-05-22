@@ -10,13 +10,13 @@ using Dotnet_Dietitian.Application.Interfaces.AppUserInterfaces;
 using System;
 using Dotnet_Dietitian.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Dotnet_Dietitian.Application.Queries.AppUserQueries;
 using Dotnet_Dietitian.Application.Features.Results.AppUserResults;
 using Dotnet_Dietitian.Application.Dtos;
 using System.Text;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using Dotnet_Dietitian.Persistence.Context;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -52,42 +52,27 @@ namespace Dotnet_Dietitian.API.Controllers
         public IActionResult Login(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            return View(new LoginCommand());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(LoginCommand command, string returnUrl = null)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(command);
             }
 
             try
             {
-                // Şifreyi hash'le
-                string hashedPassword = HashPassword(model.Password);
-                
-                // UserType değerini forma bakarak al
-                string userType = Request.Form["userType"].ToString();
-                
-                // MediatR ile kullanıcı kontrolü
-                var result = await _mediator.Send(new GetCheckAppUserQuery
-                {
-                    Username = model.Username,
-                    Password = hashedPassword
-                });
+                // UserType değerini formdan al
+                command.UserType = Request.Form["userType"].ToString();
+
+                // CQRS ile login işlemi
+                var result = await _mediator.Send(command);
 
                 if (result.IsExist)
                 {
-                    // Usertype kontrolü
-                    if (!string.IsNullOrEmpty(userType) && result.Role != userType)
-                    {
-                        // Kullanıcı tipi eşleşmiyor, hata mesajı göster
-                        ModelState.AddModelError(string.Empty, $"Bu hesap {userType} hesabı değil. Lütfen doğru giriş formu kullanın.");
-                        return View(model);
-                    }
-
                     // JWT token oluştur
                     var tokenResponse = _jwtTokenGenerator.GenerateToken(result);
                     
@@ -101,7 +86,7 @@ namespace Dotnet_Dietitian.API.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         new AuthenticationProperties
                         {
-                            IsPersistent = model.RememberMe,
+                            IsPersistent = command.RememberMe,
                             ExpiresUtc = tokenResponse.ExpireDate
                         });
 
@@ -142,8 +127,8 @@ namespace Dotnet_Dietitian.API.Controllers
                 }
 
                 // Kullanıcı bulunamadı veya şifre hatalı
-                ModelState.AddModelError(string.Empty, "Kullanıcı adı veya şifre hatalı");
-                return View(model);
+                ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                return View(command);
             }
             catch (Exception ex)
             {
@@ -152,211 +137,64 @@ namespace Dotnet_Dietitian.API.Controllers
                 
                 // Kullanıcıya bir hata mesajı göster ve aynı sayfaya geri dön
                 ModelState.AddModelError(string.Empty, $"Giriş işlemi sırasında bir hata oluştu: {ex.Message}");
-                return View(model);
+                return View(command);
             }
         }
 
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            return View(new RegisterCommand());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterCommand command)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(command);
             }
 
             try
             {
-                // Kullanıcı adı kontrolü
-                var existingUser = await _appUserRepository.GetByUsernameAsync(model.Username);
-                if (existingUser != null)
+                // CQRS ile kayıt işlemi
+                try
                 {
-                    ModelState.AddModelError("Username", "Bu kullanıcı adı zaten kullanılıyor.");
-                    return View(model);
+                    var userId = await _mediator.Send(command);
+                    TempData["SuccessMessage"] = "Kaydınız başarıyla tamamlandı. Şimdi giriş yapabilirsiniz.";
+                    return RedirectToAction(nameof(Login));
                 }
-                
-                // Email kontrolü
-                bool emailExists = false;
-                if (model.UserType == "Hasta")
+                catch (Exception ex)
                 {
-                    emailExists = await _dbContext.Hastalar.AnyAsync(h => h.Email == model.Email);
-                }
-                else
-                {
-                    emailExists = await _dbContext.Diyetisyenler.AnyAsync(d => d.Email == model.Email);
-                }
-                
-                if (emailExists)
-                {
-                    ModelState.AddModelError("Email", "Bu e-posta adresi zaten kullanılıyor.");
-                    return View(model);
-                }
-                
-                // TC Kimlik No kontrolü
-                bool tcExists = false;
-                if (model.UserType == "Hasta")
-                {
-                    tcExists = await _dbContext.Hastalar.AnyAsync(h => h.TcKimlikNumarasi == model.IdentityNumber);
-                }
-                else
-                {
-                    tcExists = await _dbContext.Diyetisyenler.AnyAsync(d => d.TcKimlikNumarasi == model.IdentityNumber);
-                }
-                
-                if (tcExists)
-                {
-                    ModelState.AddModelError("IdentityNumber", "Bu TC Kimlik Numarası zaten kullanılıyor.");
-                    return View(model);
-                }
-                
-                // Telefon kontrolü (eğer telefon numarası girilmişse)
-                if (!string.IsNullOrEmpty(model.Phone))
-                {
-                    bool phoneExists = false;
-                    if (model.UserType == "Hasta")
+                    // Handler'dan gelen hata mesajlarını ModelState'e ekle
+                    if (ex.Message.Contains("kullanıcı adı"))
                     {
-                        phoneExists = await _dbContext.Hastalar.AnyAsync(h => h.Telefon == model.Phone);
+                        ModelState.AddModelError("Username", ex.Message);
+                    }
+                    else if (ex.Message.Contains("e-posta"))
+                    {
+                        ModelState.AddModelError("Email", ex.Message);
+                    }
+                    else if (ex.Message.Contains("TC Kimlik"))
+                    {
+                        ModelState.AddModelError("IdentityNumber", ex.Message);
+                    }
+                    else if (ex.Message.Contains("telefon"))
+                    {
+                        ModelState.AddModelError("Phone", ex.Message);
                     }
                     else
                     {
-                        phoneExists = await _dbContext.Diyetisyenler.AnyAsync(d => d.Telefon == model.Phone);
+                        ModelState.AddModelError(string.Empty, ex.Message);
                     }
                     
-                    if (phoneExists)
-                    {
-                        ModelState.AddModelError("Phone", "Bu telefon numarası zaten kullanılıyor.");
-                        return View(model);
-                    }
-                }
-
-                // Rol bilgisini al (Hasta veya Diyetisyen)
-                var roleType = model.UserType;
-                var appRole = await _appRoleRepository.GetAsync(r => r.AppRoleName == roleType);
-                if (!appRole.Any())
-                {
-                    ModelState.AddModelError(string.Empty, "Geçersiz kullanıcı tipi.");
-                    return View(model);
-                }
-
-                var roleId = appRole.First().Id;
-                
-                // Tüm entityler için ortak bir ID oluştur
-                var userId = Guid.NewGuid();
-                
-                // Şifreyi hash'le
-                string hashedPassword = HashPassword(model.Password);
-
-                // Transaction başlat
-                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
-                {
-                    try
-                    {
-                        // AppUser oluştur
-                        var appUser = new AppUser
-                        {
-                            Id = userId, // Ortak ID kullan
-                            Username = model.Username,
-                            Password = hashedPassword, // Hash'lenmiş şifre
-                            AppRoleId = roleId
-                        };
-
-                        await _dbContext.AppUsers.AddAsync(appUser);
-                        await _dbContext.SaveChangesAsync();
-
-                        // Kullanıcı tipine göre Hasta veya Diyetisyen kaydı oluştur
-                        if (roleType == "Hasta")
-                        {
-                            var hasta = new Hasta
-                            {
-                                Id = userId, // AppUser ile aynı ID'yi kullan
-                                TcKimlikNumarasi = model.IdentityNumber,
-                                Ad = model.FirstName,
-                                Soyad = model.LastName,
-                                Email = model.Email,
-                                Telefon = model.Phone
-                            };
-
-                            await _dbContext.Hastalar.AddAsync(hasta);
-                            await _dbContext.SaveChangesAsync();
-                        }
-                        else if (roleType == "Diyetisyen")
-                        {
-                            var diyetisyen = new Diyetisyen
-                            {
-                                Id = userId, // AppUser ile aynı ID'yi kullan
-                                TcKimlikNumarasi = model.IdentityNumber,
-                                Ad = model.FirstName,
-                                Soyad = model.LastName,
-                                Email = model.Email,
-                                Telefon = model.Phone
-                            };
-
-                            await _dbContext.Diyetisyenler.AddAsync(diyetisyen);
-                            await _dbContext.SaveChangesAsync();
-                        }
-
-                        // Transaction'ı commit et
-                        await transaction.CommitAsync();
-
-                        // Kullanıcı oluşturulduktan sonra hemen login işlemi için bir token oluşturabiliriz
-                        var userResult = new GetCheckAppUserQueryResult
-                        {
-                            Id = appUser.Id,
-                            Username = appUser.Username,
-                            Role = roleType,
-                            IsExist = true
-                        };
-                        
-                        var tokenResponse = _jwtTokenGenerator.GenerateToken(userResult);
-
-                        TempData["SuccessMessage"] = "Kaydınız başarıyla tamamlandı. Şimdi giriş yapabilirsiniz.";
-                        return RedirectToAction(nameof(Login));
-                    }
-                    catch (DbUpdateException ex)
-                    {
-                        // Hata durumunda transaction'ı rollback et
-                        await transaction.RollbackAsync();
-                        
-                        // Detaylı hata mesajı oluştur
-                        var innerException = ex.InnerException?.Message ?? "";
-                        string errorMessage = "Veritabanı kaydı sırasında bir hata oluştu.";
-                        
-                        if (innerException.Contains("IX_Hastalar_Email") || innerException.Contains("IX_Diyetisyenler_Email"))
-                        {
-                            ModelState.AddModelError("Email", "Bu e-posta adresi zaten kullanılıyor.");
-                        }
-                        else if (innerException.Contains("IX_Hastalar_TcKimlikNumarasi") || innerException.Contains("IX_Diyetisyenler_TcKimlikNumarasi"))
-                        {
-                            ModelState.AddModelError("IdentityNumber", "Bu TC Kimlik Numarası zaten kullanılıyor.");
-                        }
-                        else if (innerException.Contains("IX_Hastalar_Telefon") || innerException.Contains("IX_Diyetisyenler_Telefon"))
-                        {
-                            ModelState.AddModelError("Phone", "Bu telefon numarası zaten kullanılıyor.");
-                        }
-                        else
-                        {
-                            ModelState.AddModelError(string.Empty, $"{errorMessage} Detay: {innerException}");
-                        }
-                        
-                        return View(model);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Hata durumunda transaction'ı rollback et
-                        await transaction.RollbackAsync();
-                        throw new Exception($"Kayıt işlemi sırasında bir hata oluştu: {ex.Message}", ex);
-                    }
+                    return View(command);
                 }
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, $"Kayıt sırasında bir hata oluştu: {ex.Message}");
-                return View(model);
+                return View(command);
             }
         }
 

@@ -1,6 +1,6 @@
 using Dotnet_Dietitian.Application.Features.Results.AppUserResults;
 using Dotnet_Dietitian.Application.Interfaces;
-using Dotnet_Dietitian.Application.Queries.AppUserQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,18 +22,19 @@ namespace Dotnet_Dietitian.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            // Mevcut GetCheckAppUserQuery'i kullanarak kullanıcı doğrulama
-            var query = new GetCheckAppUserQuery
+            // CQRS LoginCommand kullan
+            var loginCommand = new LoginCommand
             {
                 Username = loginDto.Username,
-                Password = loginDto.Password
+                Password = loginDto.Password,
+                UserType = string.Empty // API'den gelen isteklerde UserType kontrolü yapılmıyor
             };
 
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(loginCommand);
 
             if (!result.IsExist)
             {
-                return Unauthorized(new { message = "Kullanıcı adı veya şifre hatalı" });
+                return Unauthorized(new { message = result.ErrorMessage ?? "Kullanıcı adı veya şifre hatalı" });
             }
 
             // Kullanıcı doğrulandıysa token üret

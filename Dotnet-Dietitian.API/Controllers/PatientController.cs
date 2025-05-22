@@ -12,6 +12,7 @@ using Dotnet_Dietitian.Application.Features.CQRS.Queries.RandevuQueries;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -250,11 +251,28 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // TODO: Şifre değiştirme işlemi için ayrı bir command ve handler oluşturulmalı
-                
-                // Başarılı mesajı ile profil sayfasına yönlendir
-                TempData["SuccessMessage"] = "Şifreniz başarıyla değiştirildi.";
-                return RedirectToAction("Profile");
+                // CQRS ile şifre değiştirme işlemi
+                var updatePasswordCommand = new UpdatePasswordCommand
+                {
+                    UserId = hastaId,
+                    CurrentPassword = currentPassword,
+                    NewPassword = newPassword
+                };
+
+                try
+                {
+                    var result = await _mediator.Send(updatePasswordCommand);
+                    
+                    // Başarılı mesajı ile profil sayfasına yönlendir
+                    TempData["SuccessMessage"] = "Şifreniz başarıyla değiştirildi.";
+                    return RedirectToAction("Profile");
+                }
+                catch (Exception ex)
+                {
+                    // Handler'dan gelen hata mesajlarını TempData'ya ekle
+                    TempData["ErrorMessage"] = ex.Message;
+                    return RedirectToAction("Profile");
+                }
             }
             catch (Exception ex)
             {

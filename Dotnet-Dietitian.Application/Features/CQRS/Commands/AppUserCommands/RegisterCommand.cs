@@ -1,8 +1,10 @@
+using MediatR;
+using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Dotnet_Dietitian.API.Models
+namespace Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands
 {
-    public class RegisterViewModel
+    public class RegisterCommand : IRequest<Guid>
     {
         [Required(ErrorMessage = "T.C. Kimlik No gereklidir")]
         [StringLength(11, MinimumLength = 11, ErrorMessage = "TC Kimlik No 11 haneli olmalıdır")]
@@ -25,6 +27,13 @@ namespace Dotnet_Dietitian.API.Models
         [Phone(ErrorMessage = "Geçerli bir telefon numarası giriniz")]
         [Display(Name = "Telefon")]
         public string Phone { get; set; } = string.Empty;
+        
+        [DataType(DataType.Date)]
+        [Display(Name = "Doğum Tarihi")]
+        public DateTime? BirthDate { get; set; }
+        
+        [Display(Name = "Cinsiyet")]
+        public string? Gender { get; set; }
         
         [Required(ErrorMessage = "Kullanıcı adı gereklidir")]
         [Display(Name = "Kullanıcı Adı")]
@@ -49,4 +58,4 @@ namespace Dotnet_Dietitian.API.Models
         [Display(Name = "Kullanım Koşulları")]
         public bool AgreeTerms { get; set; }
     }
-}
+} 

@@ -1,5 +1,6 @@
 @using Dotnet_Dietitian.API.Models
-@model RegisterViewModel
+@using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands
+@model RegisterCommand
 @{
     ViewData["Title"] = "Kayıt Ol - DijetUP";
 }
@@ -21,6 +22,14 @@
     .password-strength {
         height: 5px;
         margin-top: 5px;
+    }
+    
+    .patient-field {
+        display: block;
+    }
+    
+    .dietitian-field {
+        display: none;
     }
 </style>
 
@@ -100,6 +109,23 @@
                                     </div>
                                 </div>
                                 
+                                <!-- Patient-specific fields -->
+                                <div class="col-md-6 patient-field">
+                                    <label asp-for="BirthDate" class="form-label">Doğum Tarihi</label>
+                                    <input asp-for="BirthDate" type="date" class="form-control">
+                                    <span asp-validation-for="BirthDate" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-md-6 patient-field">
+                                    <label asp-for="Gender" class="form-label">Cinsiyet</label>
+                                    <select asp-for="Gender" class="form-select">
+                                        <option value="" selected disabled>Seçiniz</option>
+                                        <option value="Erkek">Erkek</option>
+                                        <option value="Kadın">Kadın</option>
+                                        <option value="Diğer">Diğer</option>
+                                    </select>
+                                    <span asp-validation-for="Gender" class="invalid-feedback"></span>
+                                </div>
+                                
                                 <div class="col-12">
                                     <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
                                     <div class="input-group">
@@ -174,7 +200,22 @@
             // Toggle account type fields
             const patientType = document.getElementById('patientType');
             const dietitianType = document.getElementById('dietitianType');
+            const patientFields = document.querySelectorAll('.patient-field');
             const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+            
+            function toggleAccountTypeFields() {
+                if (patientType.checked) {
+                    patientFields.forEach(field => field.style.display = 'block');
+                } else {
+                    patientFields.forEach(field => field.style.display = 'none');
+                }
+            }
+            
+            patientType.addEventListener('change', toggleAccountTypeFields);
+            dietitianType.addEventListener('change', toggleAccountTypeFields);
+            
+            // Initial toggle
+            toggleAccountTypeFields();
             
             // Toggle password visibility
             togglePasswordBtns.forEach(btn => {

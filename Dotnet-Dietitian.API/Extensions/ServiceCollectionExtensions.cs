@@ -1,6 +1,6 @@
 using Dotnet_Dietitian.Application.Interfaces;
 using Dotnet_Dietitian.Application.Interfaces.AppUserInterfaces;
-using Dotnet_Dietitian.Application.Queries.AppUserQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 using Dotnet_Dietitian.Application.Services;
 using Dotnet_Dietitian.Infrastructure.Services;
 using Dotnet_Dietitian.Persistence.Context;
@@ -29,7 +29,7 @@ namespace Dotnet_Dietitian.API.Extensions
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             
            // MediatR kaydı
-            services.AddMediatR(typeof(GetCheckAppUserQuery).Assembly);        
+            services.AddMediatR(typeof(LoginCommand).Assembly);        
 
             services.AddSingleton<IAppConfigService, AppConfigService>();
 

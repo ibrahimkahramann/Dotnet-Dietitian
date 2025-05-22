@@ -1,8 +1,10 @@
+using Dotnet_Dietitian.Application.Features.Results.AppUserResults;
+using MediatR;
 using System.ComponentModel.DataAnnotations;
 
-namespace Dotnet_Dietitian.API.Models
+namespace Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands
 {
-    public class LoginViewModel
+    public class LoginCommand : IRequest<GetCheckAppUserQueryResult>
     {
         [Required(ErrorMessage = "Kullanıcı adı gereklidir")]
         [Display(Name = "Kullanıcı Adı")]
@@ -15,5 +17,7 @@ namespace Dotnet_Dietitian.API.Models
         
         [Display(Name = "Beni Hatırla")]
         public bool RememberMe { get; set; }
+        
+        public string UserType { get; set; } = string.Empty;
     }
-}
+} 

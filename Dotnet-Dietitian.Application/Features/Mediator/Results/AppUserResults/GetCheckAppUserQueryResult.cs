@@ -10,4 +10,5 @@ public class GetCheckAppUserQueryResult
     
     public bool IsExist { get; set; }
     
+    public string ErrorMessage { get; set; }
 }
