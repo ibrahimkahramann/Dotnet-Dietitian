@@ -1,0 +1,360 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.RandevuResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Randevular - DijetUP";
+    Layout = "_DietitianLayout";
+    var randevular = ViewBag.Randevular as List<GetRandevuQueryResult> ?? new List<GetRandevuQueryResult>();
+    var showPast = ViewData["ShowPast"] as bool? ?? false;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Randevular</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
+        <i class="bi bi-plus-circle me-2"></i> Yeni Randevu
+    </button>
+</div>
+
+<!-- Calendar and Appointments Tabs -->
+<ul class="nav nav-tabs mb-4" id="appointmentsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="list-tab" data-bs-toggle="tab" data-bs-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">
+            <i class="bi bi-list-ul me-2"></i>Liste Görünümü
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab" aria-controls="calendar" aria-selected="false">
+            <i class="bi bi-calendar3 me-2"></i>Takvim Görünümü
+        </button>
+    </li>
+</ul>
+
+<!-- Tabs Content -->
+<div class="tab-content" id="appointmentsTabsContent">
+    <!-- List View -->
+    <div class="tab-pane fade show active" id="list" role="tabpanel" aria-labelledby="list-tab">
+        <!-- Filters -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+                            <input type="text" id="searchAppointment" class="form-control border-0 bg-light" placeholder="Hasta adına göre ara...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select bg-light border-0" id="filterStatus">
+                            <option value="">Tüm Durumlar</option>
+                            <option value="Beklemede">Beklemede</option>
+                            <option value="Onaylandı">Onaylandı</option>
+                            <option value="İptal Edildi">İptal Edildi</option>
+                            <option value="Tamamlandı">Tamamlandı</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select bg-light border-0" id="filterDateRange">
+                            <option value="upcoming" selected="@(!showPast)">Gelecek Randevular</option>
+                            <option value="past" selected="@(showPast)">Geçmiş Randevular</option>
+                            <option value="all">Tüm Randevular</option>
+                            <option value="today">Bugün</option>
+                            <option value="week">Bu Hafta</option>
+                            <option value="month">Bu Ay</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-light w-100" id="refreshAppointments">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Yenile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments List -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Hasta</th>
+                                <th>Tarih & Saat</th>
+                                <th>Tür</th>
+                                <th>Durum</th>
+                                <th class="text-end pe-4">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (randevular.Any())
+                            {
+                                @foreach (var randevu in randevular)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                                <div>
+                                                    <h6 class="mb-0">@randevu.HastaAdSoyad</h6>
+                                                    <small class="text-muted">ID: #@randevu.HastaId.ToString().Substring(0, 5)</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>@randevu.RandevuBaslangicTarihi.ToShortDateString()</div>
+                                            <small class="text-muted">@randevu.RandevuBaslangicTarihi.ToString("HH:mm") - @randevu.RandevuBitisTarihi.ToString("HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(randevu.RandevuTuru))
+                                            {
+                                                <span class="badge bg-info">@randevu.RandevuTuru</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Belirtilmemiş</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                var statusClass = randevu.Durum switch
+                                                {
+                                                    "Onaylandı" => "bg-success",
+                                                    "Beklemede" => "bg-warning text-dark",
+                                                    "İptal Edildi" => "bg-danger",
+                                                    "Tamamlandı" => "bg-primary",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">@randevu.Durum</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary view-appointment-btn" data-id="@randevu.Id">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary edit-appointment-btn" data-id="@randevu.Id">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-check-circle me-2"></i>Onayla</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-check2-all me-2"></i>Tamamlandı</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i>İptal Et</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <p class="text-muted mb-0">
+                                            @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
+                                        </p>
+                                        <button class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
+                                            <i class="bi bi-plus-circle me-1"></i> Yeni Randevu
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar View -->
+    <div class="tab-pane fade" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div id="appointmentsCalendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Appointment Modal -->
+<div class="modal fade" id="newAppointmentModal" tabindex="-1" aria-labelledby="newAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newAppointmentModalLabel">Yeni Randevu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newAppointmentForm">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Hasta</label>
+                            <select class="form-select" name="patientId" required>
+                                <option value="" selected disabled>Hasta Seçin</option>
+                                @if (Model.Hastalar != null)
+                                {
+                                    @foreach (var hasta in Model.Hastalar)
+                                    {
+                                        <option value="@hasta.Id">@hasta.Ad @hasta.Soyad</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Randevu Tarihi</label>
+                            <input type="date" class="form-control" name="appointmentDate" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Başlangıç Saati</label>
+                            <input type="time" class="form-control" name="startTime" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Bitiş Saati</label>
+                            <input type="time" class="form-control" name="endTime" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Randevu Türü</label>
+                            <select class="form-select" name="appointmentType">
+                                <option value="">Seçiniz</option>
+                                <option value="İlk Görüşme">İlk Görüşme</option>
+                                <option value="Kontrol">Kontrol</option>
+                                <option value="Diyet Planı">Diyet Planı</option>
+                                <option value="Danışmanlık">Danışmanlık</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Durum</label>
+                            <select class="form-select" name="status" required>
+                                <option value="Beklemede">Beklemede</option>
+                                <option value="Onaylandı">Onaylandı</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notlar</label>
+                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-success" id="saveAppointmentBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.css" rel="stylesheet">
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales/tr.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calendar initialization
+            const calendarEl = document.getElementById('appointmentsCalendar');
+            if (calendarEl) {
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    locale: 'tr',
+                    buttonText: {
+                        today: 'Bugün',
+                        month: 'Ay',
+                        week: 'Hafta',
+                        day: 'Gün'
+                    },
+                    events: [
+                        // Randevu verileri buraya gelecek
+                        @if (randevular.Any())
+                        {
+                            foreach (var randevu in randevular)
+                            {
+                                var color = randevu.Durum switch
+                                {
+                                    "Onaylandı" => "#198754",
+                                    "Beklemede" => "#ffc107",
+                                    "İptal Edildi" => "#dc3545",
+                                    "Tamamlandı" => "#0d6efd",
+                                    _ => "#6c757d"
+                                };
+                                
+                                <text>
+                                {
+                                    title: '@randevu.HastaAdSoyad',
+                                    start: '@randevu.RandevuBaslangicTarihi.ToString("yyyy-MM-ddTHH:mm:ss")',
+                                    end: '@randevu.RandevuBitisTarihi.ToString("yyyy-MM-ddTHH:mm:ss")',
+                                    extendedProps: {
+                                        id: '@randevu.Id',
+                                        status: '@randevu.Durum',
+                                        type: '@randevu.RandevuTuru'
+                                    },
+                                    backgroundColor: '@color',
+                                    borderColor: '@color'
+                                },
+                                </text>
+                            }
+                        }
+                    ],
+                    eventClick: function(info) {
+                        // Tıklanan randevu detaylarını göster
+                        alert('Randevu: ' + info.event.title);
+                    },
+                    dateClick: function(info) {
+                        // Yeni randevu oluştur
+                        const modal = new bootstrap.Modal(document.getElementById('newAppointmentModal'));
+                        document.querySelector('input[name="appointmentDate"]').value = info.dateStr;
+                        modal.show();
+                    }
+                });
+                
+                calendar.render();
+                
+                // Tab changed event (render calendar when tab becomes visible)
+                document.getElementById('calendar-tab').addEventListener('shown.bs.tab', function() {
+                    calendar.updateSize();
+                });
+            }
+            
+            // Filter date range change
+            const filterDateRange = document.getElementById('filterDateRange');
+            if (filterDateRange) {
+                filterDateRange.addEventListener('change', function() {
+                    if (this.value === 'past') {
+                        window.location.href = '@Url.Action("Appointments", "Dietitian", new { showPast = true })';
+                    } else if (this.value === 'upcoming') {
+                        window.location.href = '@Url.Action("Appointments", "Dietitian", new { showPast = false })';
+                    }
+                });
+            }
+            
+            // Save appointment button click handler
+            const saveAppointmentBtn = document.getElementById('saveAppointmentBtn');
+            if (saveAppointmentBtn) {
+                saveAppointmentBtn.addEventListener('click', function() {
+                    // Form validation
+                    const form = document.getElementById('newAppointmentForm');
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+                    
+                    // Submit form logic would go here
+                    alert('Randevu başarıyla oluşturuldu.');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('newAppointmentModal'));
+                    modal.hide();
+                });
+            }
+        });
+    </script>
+} 

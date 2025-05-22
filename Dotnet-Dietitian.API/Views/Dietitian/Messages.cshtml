@@ -1,0 +1,224 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Mesajlar - DijetUP";
+    Layout = "_DietitianLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Mesajlar</h2>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="row g-0">
+            <!-- Left Sidebar - Contact List -->
+            <div class="col-md-4 col-lg-3 border-end">
+                <div class="p-3 border-bottom">
+                    <div class="input-group">
+                        <input type="text" class="form-control border-0 bg-light" placeholder="Hasta ara..." id="searchContact">
+                        <button class="btn btn-light border-0" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="contacts-list" style="height: calc(100vh - 250px); overflow-y: auto;">
+                    @if (Model.Hastalar != null && Model.Hastalar.Any())
+                    {
+                        foreach (var hasta in Model.Hastalar)
+                        {
+                            <a href="#" class="contact-item d-flex align-items-center p-3 border-bottom text-decoration-none text-dark" data-id="@hasta.Id" onclick="selectContact('@hasta.Id', '@hasta.Ad @hasta.Soyad')">
+                                <div class="position-relative me-3">
+                                    <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle" width="50" height="50" alt="@hasta.Ad @hasta.Soyad">
+                                    <span class="position-absolute bottom-0 end-0 bg-success rounded-circle" style="width: 12px; height: 12px;"></span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">@hasta.Ad @hasta.Soyad</h6>
+                                    <p class="text-muted small mb-0">Son mesaj içeriği...</p>
+                                </div>
+                                <div class="text-end ms-2">
+                                    <small class="text-muted">12:45</small>
+                                    <div class="badge bg-danger rounded-pill">2</div>
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center p-4">
+                            <p class="mb-0 text-muted">Henüz hasta kaydınız bulunmuyor.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Right Content - Messages -->
+            <div class="col-md-8 col-lg-9" id="messageContent">
+                <!-- Default empty state -->
+                <div class="text-center py-5" id="emptyState">
+                    <div class="mb-4">
+                        <i class="bi bi-chat-text text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4>Mesajlarınız</h4>
+                    <p class="text-muted mb-4">Mesajlaşmaya başlamak için soldaki listeden bir hasta seçin.</p>
+                </div>
+                
+                <!-- Chat area (initially hidden) -->
+                <div class="d-none" id="chatArea" style="height: calc(100vh - 200px); display: flex; flex-direction: column;">
+                    <!-- Chat header -->
+                    <div class="p-3 border-bottom d-flex align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40" alt="Patient" id="chatHeaderImage">
+                            <div>
+                                <h6 class="mb-0" id="chatHeaderName">Hasta Adı</h6>
+                                <small class="text-success" id="chatHeaderStatus">Çevrimiçi</small>
+                            </div>
+                        </div>
+                        <div class="ms-auto">
+                            <button class="btn btn-light rounded-circle" title="Görüntülü Arama">
+                                <i class="bi bi-camera-video"></i>
+                            </button>
+                            <button class="btn btn-light rounded-circle ms-2" title="Sesli Arama">
+                                <i class="bi bi-telephone"></i>
+                            </button>
+                            <button class="btn btn-light rounded-circle ms-2" title="Daha Fazla">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages container -->
+                    <div class="p-3 flex-grow-1 overflow-auto" id="messagesContainer">
+                        <!-- Sample messages - will be filled dynamically -->
+                        <div class="d-flex mb-3">
+                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle align-self-start me-3" width="35" height="35" alt="Patient">
+                            <div class="bg-light rounded-3 p-3" style="max-width: 75%;">
+                                <p class="mb-0">Merhaba, diyet programımla ilgili birkaç sorum vardı. Müsait olduğunuzda cevaplarsanız sevinirim.</p>
+                                <small class="text-muted mt-1 d-block">10:30</small>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3 justify-content-end">
+                            <div class="bg-primary text-white rounded-3 p-3" style="max-width: 75%;">
+                                <p class="mb-0">Merhaba, tabii ki. Sorularınızı yanıtlamak için buradayım. Ne sormak istersiniz?</p>
+                                <small class="text-white-50 mt-1 d-block">10:32</small>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle align-self-start ms-3" width="35" height="35" alt="Doctor">
+                        </div>
+                        <div class="d-flex mb-3">
+                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle align-self-start me-3" width="35" height="35" alt="Patient">
+                            <div class="bg-light rounded-3 p-3" style="max-width: 75%;">
+                                <p class="mb-0">Protein alımını biraz artırmamı önermiştiniz. Vejeteryan olarak hangi protein kaynaklarını önerirsiniz?</p>
+                                <small class="text-muted mt-1 d-block">10:35</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message input -->
+                    <div class="p-3 border-top">
+                        <form id="messageForm" class="d-flex align-items-center">
+                            <button type="button" class="btn btn-light rounded-circle me-2" title="Emoji">
+                                <i class="bi bi-emoji-smile"></i>
+                            </button>
+                            <button type="button" class="btn btn-light rounded-circle me-2" title="Dosya Ekle">
+                                <i class="bi bi-paperclip"></i>
+                            </button>
+                            <input type="text" class="form-control me-2" placeholder="Mesajınızı yazın..." id="messageInput">
+                            <button type="submit" class="btn btn-primary rounded-circle">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentContactId = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Message form submit
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) {
+                messageForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const messageInput = document.getElementById('messageInput');
+                    const message = messageInput.value.trim();
+                    
+                    if (message && currentContactId) {
+                        // Add message to UI
+                        const messagesContainer = document.getElementById('messagesContainer');
+                        const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        
+                        const messageHtml = `
+                            <div class="d-flex mb-3 justify-content-end">
+                                <div class="bg-primary text-white rounded-3 p-3" style="max-width: 75%;">
+                                    <p class="mb-0">${message}</p>
+                                    <small class="text-white-50 mt-1 d-block">${currentTime}</small>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle align-self-start ms-3" width="35" height="35" alt="Doctor">
+                            </div>
+                        `;
+                        
+                        messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        
+                        // Clear input
+                        messageInput.value = '';
+                    }
+                });
+            }
+            
+            // Search contacts
+            const searchContact = document.getElementById('searchContact');
+            if (searchContact) {
+                searchContact.addEventListener('keyup', function() {
+                    const searchValue = this.value.toLowerCase();
+                    const contactItems = document.querySelectorAll('.contact-item');
+                    
+                    contactItems.forEach(item => {
+                        const contactName = item.querySelector('h6').textContent.toLowerCase();
+                        
+                        if (contactName.includes(searchValue)) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+        
+        // Select contact function
+        function selectContact(id, name) {
+            currentContactId = id;
+            
+            // Update UI
+            document.getElementById('emptyState').classList.add('d-none');
+            document.getElementById('chatArea').classList.remove('d-none');
+            
+            // Update chat header
+            document.getElementById('chatHeaderName').textContent = name;
+            
+            // Highlight selected contact
+            const contactItems = document.querySelectorAll('.contact-item');
+            contactItems.forEach(item => {
+                if (item.dataset.id === id) {
+                    item.classList.add('bg-light');
+                } else {
+                    item.classList.remove('bg-light');
+                }
+            });
+            
+            // Scroll to bottom of messages
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Focus input
+            document.getElementById('messageInput').focus();
+        }
+    </script>
+} 

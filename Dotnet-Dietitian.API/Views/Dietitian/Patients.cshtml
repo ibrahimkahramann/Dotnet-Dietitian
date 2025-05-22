@@ -1,0 +1,242 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Hastalarım - DijetUP";
+    Layout = "_DietitianLayout";
+    var hastalar = ViewBag.Hastalar as List<GetHastaQueryResult> ?? new List<GetHastaQueryResult>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Hastalarım</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+        <i class="bi bi-plus-circle me-2"></i> Yeni Hasta Ekle
+    </button>
+</div>
+
+<!-- Patient Search and Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchPatient" class="form-control border-0 bg-light" placeholder="Hasta ara...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select bg-light border-0" id="filterDietPlan">
+                    <option value="">Tüm Diyet Planları</option>
+                    <option value="active">Aktif Diyet Planları</option>
+                    <option value="inactive">Pasif Diyet Planları</option>
+                    <option value="none">Diyet Planı Olmayanlar</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select bg-light border-0" id="sortPatients">
+                    <option value="name">İsme Göre Sırala (A-Z)</option>
+                    <option value="name-desc">İsme Göre Sırala (Z-A)</option>
+                    <option value="date">Katılım Tarihine Göre</option>
+                    <option value="last-appointment">Son Randevu Tarihine Göre</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patients List -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Hasta</th>
+                        <th>İletişim Bilgileri</th>
+                        <th>Diyet Programı</th>
+                        <th>Son Randevu</th>
+                        <th class="text-end pe-4">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (hastalar.Any())
+                    {
+                        @foreach (var hasta in hastalar)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                        <div>
+                                            <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                            <small class="text-muted">ID: #@hasta.Id.ToString().Substring(0, 5)</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div><i class="bi bi-envelope me-2 text-muted"></i>@hasta.Email</div>
+                                    @if (!string.IsNullOrEmpty(hasta.Telefon))
+                                    {
+                                        <div><i class="bi bi-telephone me-2 text-muted"></i>@hasta.Telefon</div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                    {
+                                        <span class="badge bg-success">@hasta.DiyetProgramiAdi</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Program Yok</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div>Henüz randevu yok</div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-chat-dots"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#"><i class="bi bi-clipboard2-plus me-2"></i>Diyet Planı Ata</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <p class="text-muted mb-0">Henüz hasta kaydınız bulunmuyor.</p>
+                                <button class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                                    <i class="bi bi-plus-circle me-1"></i> Yeni Hasta Ekle
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Patient Modal -->
+<div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPatientModalLabel">Yeni Hasta Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addPatientForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Ad</label>
+                            <input type="text" class="form-control" name="firstName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Soyad</label>
+                            <input type="text" class="form-control" name="lastName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">E-posta</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">TC Kimlik No</label>
+                            <input type="text" class="form-control" name="identityNumber" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Doğum Tarihi</label>
+                            <input type="date" class="form-control" name="birthDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Cinsiyet</label>
+                            <select class="form-select" name="gender">
+                                <option value="" selected disabled>Seçiniz</option>
+                                <option value="Erkek">Erkek</option>
+                                <option value="Kadın">Kadın</option>
+                                <option value="Diğer">Diğer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Diyet Programı</label>
+                            <select class="form-select" name="dietProgramId">
+                                <option value="" selected>Diyet Programı Seçin</option>
+                                <!-- Diyet programları buraya gelecek -->
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-success" id="savePatientBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Patient search functionality
+            const searchPatient = document.getElementById('searchPatient');
+            if (searchPatient) {
+                searchPatient.addEventListener('keyup', function () {
+                    const searchValue = this.value.toLowerCase();
+                    const patientRows = document.querySelectorAll('tbody tr');
+                    
+                    patientRows.forEach(row => {
+                        const patientName = row.querySelector('h6')?.textContent.toLowerCase() || '';
+                        if (patientName.includes(searchValue)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Save patient button click handler
+            const savePatientBtn = document.getElementById('savePatientBtn');
+            if (savePatientBtn) {
+                savePatientBtn.addEventListener('click', function () {
+                    // Form validation
+                    const form = document.getElementById('addPatientForm');
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+                    
+                    // Submit form logic would go here
+                    alert('Hasta kaydı başarıyla oluşturuldu.');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addPatientModal'));
+                    modal.hide();
+                });
+            }
+        });
+    </script>
+} 

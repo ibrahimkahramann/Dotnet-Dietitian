@@ -1,0 +1,254 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Diyet Planları - DijetUP";
+    Layout = "_DietitianLayout";
+    var diyetProgramlari = ViewBag.DiyetProgramlari as List<GetDiyetProgramiQueryResult> ?? new List<GetDiyetProgramiQueryResult>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Diyet Planları</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDietPlanModal">
+        <i class="bi bi-plus-circle me-2"></i> Yeni Diyet Planı
+    </button>
+</div>
+
+<!-- Diet Plan Search and Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchDietPlan" class="form-control border-0 bg-light" placeholder="Diyet planı ara...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select bg-light border-0" id="filterStatus">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="active">Aktif</option>
+                    <option value="inactive">Pasif</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select bg-light border-0" id="sortDietPlans">
+                    <option value="name">İsme Göre Sırala (A-Z)</option>
+                    <option value="name-desc">İsme Göre Sırala (Z-A)</option>
+                    <option value="date-created">Oluşturma Tarihine Göre</option>
+                    <option value="patients-count">Hasta Sayısına Göre</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Diet Plans List -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    @if (diyetProgramlari.Any())
+    {
+        foreach (var plan in diyetProgramlari)
+        {
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">@plan.Ad</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-people me-2"></i>Atanan Hastalar</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-clipboard-plus me-2"></i>Hastaya Ata</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p class="text-muted mb-0">@(string.IsNullOrEmpty(plan.Aciklama) ? "Açıklama bulunmuyor" : plan.Aciklama)</p>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-calendar-check text-success me-2"></i>
+                                <span class="fw-medium">Tarih Aralığı:</span>
+                            </div>
+                            <p class="ms-4 mb-0">
+                                @if (plan.BaslangicTarihi.HasValue && plan.BitisTarihi.HasValue)
+                                {
+                                    <span>@plan.BaslangicTarihi.Value.ToShortDateString() - @plan.BitisTarihi.Value.ToShortDateString()</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Belirtilmemiş</span>
+                                }
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-bar-chart-fill text-primary me-2"></i>
+                                <span class="fw-medium">Besin Değerleri:</span>
+                            </div>
+                            <div class="row ms-3">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Protein</small>
+                                    <span class="fw-bold">@plan.ProteinGram g</span>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Karbonhidrat</small>
+                                    <span class="fw-bold">@plan.KarbonhidratGram g</span>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Yağ</small>
+                                    <span class="fw-bold">@plan.YagGram g</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-people-fill text-info me-2"></i>
+                                <span class="fw-medium">Atanan Hastalar:</span>
+                            </div>
+                            <p class="ms-4 mb-0">Toplam <span class="fw-bold">0</span> hasta</p>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-top-0 py-3">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewDietPlan('@plan.Id')">
+                                <i class="bi bi-eye me-1"></i> Görüntüle
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" onclick="assignDietPlan('@plan.Id')">
+                                <i class="bi bi-people me-1"></i> Hastaya Ata
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-clipboard2-x text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h4>Henüz Diyet Planı Oluşturmadınız</h4>
+            <p class="text-muted mb-4">Hastalarınız için diyet planları oluşturarak takiplerini kolayca yapabilirsiniz.</p>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDietPlanModal">
+                <i class="bi bi-plus-circle me-2"></i> Yeni Diyet Planı Oluştur
+            </button>
+        </div>
+    }
+</div>
+
+<!-- Create Diet Plan Modal -->
+<div class="modal fade" id="createDietPlanModal" tabindex="-1" aria-labelledby="createDietPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createDietPlanModalLabel">Yeni Diyet Planı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="dietPlanForm">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Diyet Planı Adı</label>
+                            <input type="text" class="form-control" name="ad" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Açıklama</label>
+                            <textarea class="form-control" name="aciklama" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" class="form-control" name="baslangicTarihi">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Bitiş Tarihi</label>
+                            <input type="date" class="form-control" name="bitisTarihi">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Protein (gram)</label>
+                            <input type="number" class="form-control" name="proteinGram" min="0" step="0.1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Karbonhidrat (gram)</label>
+                            <input type="number" class="form-control" name="karbonhidratGram" min="0" step="0.1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Yağ (gram)</label>
+                            <input type="number" class="form-control" name="yagGram" min="0" step="0.1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Günlük Adım Hedefi</label>
+                            <input type="number" class="form-control" name="gunlukAdimHedefi" min="0">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-success" id="saveDietPlanBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchDietPlan = document.getElementById('searchDietPlan');
+            if (searchDietPlan) {
+                searchDietPlan.addEventListener('keyup', function() {
+                    const searchValue = this.value.toLowerCase();
+                    const dietPlanCards = document.querySelectorAll('.card h5');
+                    
+                    dietPlanCards.forEach(card => {
+                        const planName = card.textContent.toLowerCase();
+                        const planCard = card.closest('.col');
+                        
+                        if (planName.includes(searchValue)) {
+                            planCard.style.display = '';
+                        } else {
+                            planCard.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Save diet plan button click handler
+            const saveDietPlanBtn = document.getElementById('saveDietPlanBtn');
+            if (saveDietPlanBtn) {
+                saveDietPlanBtn.addEventListener('click', function() {
+                    // Form validation
+                    const form = document.getElementById('dietPlanForm');
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+                    
+                    // Submit form logic would go here
+                    alert('Diyet planı başarıyla oluşturuldu.');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createDietPlanModal'));
+                    modal.hide();
+                });
+            }
+        });
+        
+        // View diet plan details
+        function viewDietPlan(id) {
+            alert('Diyet planı detayları görüntüleniyor: ' + id);
+        }
+        
+        // Assign diet plan to patient
+        function assignDietPlan(id) {
+            alert('Diyet planı hasta atama ekranı: ' + id);
+        }
+    </script>
+} 

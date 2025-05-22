@@ -1,0 +1,225 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Diyetisyen Paneli - DijetUP";
+    Layout = "_DietitianLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Ana Panel</h2>
+    <div>
+        <span class="text-muted me-2">Bugün:</span>
+        <span class="fw-bold" id="current-date">@DateTime.Now.ToString("dd MMMM yyyy")</span>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded text-primary me-3">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Toplam Hasta</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">@(Model.Hastalar?.Count ?? 0)</h3>
+                <div class="d-flex align-items-center mt-3">
+                    <span class="badge bg-success me-2">
+                        <i class="bi bi-arrow-up me-1"></i>5.7%
+                    </span>
+                    <small class="text-muted">Bu ay</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                        <i class="bi bi-calendar-check fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Bugünkü Randevular</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">5</h3>
+                <div class="d-flex align-items-center mt-3">
+                    <span class="badge bg-success me-2">
+                        <i class="bi bi-arrow-up me-1"></i>2
+                    </span>
+                    <small class="text-muted">Dünden</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info bg-opacity-10 p-3 rounded text-info me-3">
+                        <i class="bi bi-clipboard2-pulse fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Aktif Diyet Planları</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">32</h3>
+                <div class="d-flex align-items-center mt-3">
+                    <span class="badge bg-success me-2">
+                        <i class="bi bi-arrow-up me-1"></i>3
+                    </span>
+                    <small class="text-muted">Bu hafta</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded text-warning me-3">
+                        <i class="bi bi-chat-dots fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Okunmamış Mesajlar</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">3</h3>
+                <div class="d-flex align-items-center mt-3">
+                    <span class="badge bg-danger me-2">
+                        <i class="bi bi-arrow-up me-1"></i>2
+                    </span>
+                    <small class="text-muted">Bugün</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Appointments & Notifications Sections -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Yaklaşan Randevular</h5>
+                    <a asp-controller="Dietitian" asp-action="Appointments" class="btn btn-sm btn-outline-success">Tümünü Gör</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Hasta</th>
+                                <th>Tarih & Saat</th>
+                                <th>Durum</th>
+                                <th class="text-end pe-4">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Hastalar != null && Model.Hastalar.Any())
+                            {
+                                @foreach (var hasta in Model.Hastalar.Take(3))
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                                <div>
+                                                    <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                                    <small class="text-muted">ID: #@hasta.Id.ToString().Substring(0, 5)</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>@DateTime.Now.AddDays(1).ToString("dd MMMM yyyy")</div>
+                                            <small class="text-muted">14:00 - 14:30</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">Onaylandı</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <p class="text-muted mb-0">Yaklaşan randevunuz bulunmuyor.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Son Bildirimler</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                        <div class="d-flex w-100 justify-content-between mb-1">
+                            <h6 class="mb-0">Yeni randevu talebi</h6>
+                            <small class="text-muted">3 saat önce</small>
+                        </div>
+                        <p class="mb-0 text-muted small">Mehmet Aydın 18 Haziran için randevu talep etti.</p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                        <div class="d-flex w-100 justify-content-between mb-1">
+                            <h6 class="mb-0">Yeni mesaj</h6>
+                            <small class="text-muted">5 saat önce</small>
+                        </div>
+                        <p class="mb-0 text-muted small">Zeynep Kaya: "Diyet planım hakkında bir sorum vardı..."</p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                        <div class="d-flex w-100 justify-content-between mb-1">
+                            <h6 class="mb-0">İptal edilen randevu</h6>
+                            <small class="text-muted">Dün</small>
+                        </div>
+                        <p class="mb-0 text-muted small">Ahmet Yılmaz bugünkü randevusunu iptal etti.</p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                        <div class="d-flex w-100 justify-content-between mb-1">
+                            <h6 class="mb-0">Yeni hasta kaydı</h6>
+                            <small class="text-muted">2 gün önce</small>
+                        </div>
+                        <p class="mb-0 text-muted small">Selin Demir uygulamaya kaydoldu ve sizinle çalışmak istiyor.</p>
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 text-center">
+                <a href="#" class="btn btn-sm btn-outline-secondary w-100">Tüm Bildirimleri Gör</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Current date
+        document.addEventListener('DOMContentLoaded', function() {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const currentDate = new Date().toLocaleDateString('tr-TR', options);
+            document.getElementById('current-date').textContent = currentDate;
+        });
+    </script>
+} 
