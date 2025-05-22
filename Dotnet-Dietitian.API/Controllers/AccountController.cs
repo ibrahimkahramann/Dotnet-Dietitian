@@ -209,6 +209,44 @@ namespace Dotnet_Dietitian.API.Controllers
             return RedirectToAction("Index", "Home");
         }
         
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View(new ForgotPasswordCommand());
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordCommand command)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(command);
+            }
+            
+            try
+            {
+                // CQRS ile şifre sıfırlama işlemi
+                var result = await _mediator.Send(command);
+                
+                if (result)
+                {
+                    // Başarı durumunda kullanıcıya bilgi ver
+                    // Not: Gerçekte e-posta gönderimi yapılacak, burada simüle ediyoruz
+                    TempData["SuccessMessage"] = "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.";
+                    return View("ForgotPasswordConfirmation");
+                }
+                
+                // E-posta bulunamadı
+                ModelState.AddModelError(string.Empty, "Bu e-posta adresi ile kayıtlı bir hesap bulunamadı.");
+                return View(command);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"Şifre sıfırlama işlemi sırasında bir hata oluştu: {ex.Message}");
+                return View(command);
+            }
+        }
+        
         // Şifre hash fonksiyonu
         private string HashPassword(string password)
         {
