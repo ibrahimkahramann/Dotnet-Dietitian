@@ -5,131 +5,296 @@
     Layout = "_PatientLayout";
 }
 
-<div class="content-section">
+<div class="profile-content">
     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
     {
         <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Profilim</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div>
-            <button class="btn btn-success">
-                <i class="bi bi-pencil-square me-2"></i>Profili Düzenle
-            </button>
+            <h2 class="fw-bold mb-0">Profilim</h2>
+            <p class="text-muted">Kişisel bilgilerinizi düzenleyin</p>
         </div>
     </div>
     
+    <!-- Profile Alert Placeholder -->
+    <div id="profileUpdateAlert"></div>
+
     <div class="row">
+        <!-- Profile Info Card -->
         <div class="col-lg-4 mb-4">
-            <div class="card border-0 shadow-sm text-center">
-                <div class="card-body p-4">
-                    <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle mb-3" width="120" height="120">
-                    <h4 class="fw-bold">@Model.Ad @Model.Soyad</h4>
-                    <p class="text-muted mb-3">@Model.Email</p>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <div class="position-relative d-inline-block mb-4">
+                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=300&h=300&fit=crop&auto=format" class="rounded-circle img-thumbnail" width="150" height="150" alt="Profile Picture">
+                        <button class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle" title="Profil Fotoğrafını Değiştir">
+                            <i class="bi bi-camera"></i>
+                        </button>
+                    </div>
+                    <h4 class="fw-bold mb-1">@Model.Ad @Model.Soyad</h4>
+                    <p class="text-muted mb-3">Hasta</p>
                     <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary">
-                            <i class="bi bi-camera me-2"></i>Fotoğraf Değiştir
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="bi bi-key me-2"></i> Şifre Değiştir
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Kişisel Bilgiler</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">Ad</label>
-                                <p class="mb-0 fw-medium fs-5">@Model.Ad</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">Soyad</label>
-                                <p class="mb-0 fw-medium fs-5">@Model.Soyad</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">E-posta</label>
-                                <p class="mb-0 fw-medium">@Model.Email</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">Telefon</label>
-                                <p class="mb-0 fw-medium">@Model.Telefon</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">TC Kimlik Numarası</label>
-                                <p class="mb-0 fw-medium">@Model.TcKimlikNumarasi</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">Yaş</label>
-                                <p class="mb-0 fw-medium">@Model.Yas</p>
-                            </div>
-                        </div>
+                <div class="card-footer bg-white p-4 border-top-0">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted"><i class="bi bi-envelope me-2"></i> E-posta</span>
+                        <span>@Model.Email</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted"><i class="bi bi-telephone me-2"></i> Telefon</span>
+                        <span>@Model.Telefon</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-0">
+                        <span class="text-muted"><i class="bi bi-person-vcard me-2"></i> TC Kimlik</span>
+                        <span>@Model.TcKimlikNumarasi</span>
                     </div>
                 </div>
             </div>
             
-            <div class="card border-0 shadow-sm">
+            <!-- Health Summary Card -->
+            <div class="card border-0 shadow-sm mt-4">
                 <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Sağlık Bilgileri</h5>
+                    <h5 class="card-title mb-0 fw-bold">Sağlık Özeti</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted small">Boy</label>
-                                <p class="mb-0 fw-medium fs-5">@(Model.Boy.HasValue ? $"{Model.Boy} cm" : "-")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted small">Kilo</label>
-                                <p class="mb-0 fw-medium fs-5">@(Model.Kilo.HasValue ? $"{Model.Kilo} kg" : "-")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted small">Vücut Kitle İndeksi</label>
-                                @{
-                                    string vki = "-";
-                                    if (Model.Boy.HasValue && Model.Kilo.HasValue && Model.Boy > 0)
-                                    {
-                                        float boyMetre = Model.Boy.Value / 100;
-                                        float vkiHesap = Model.Kilo.Value / (boyMetre * boyMetre);
-                                        vki = vkiHesap.ToString("0.0");
-                                    }
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                            <span class="text-muted">Boy</span>
+                            <span class="fw-medium">@(Model.Boy.HasValue ? $"{Model.Boy} cm" : "-")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                            <span class="text-muted">Kilo</span>
+                            <span class="fw-medium">@(Model.Kilo.HasValue ? $"{Model.Kilo} kg" : "-")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                            <span class="text-muted">Vücut Kitle İndeksi (BMI)</span>
+                            @{
+                                string vki = "-";
+                                if (Model.Boy.HasValue && Model.Kilo.HasValue && Model.Boy > 0)
+                                {
+                                    float boyMetre = Model.Boy.Value / 100;
+                                    float vkiHesap = Model.Kilo.Value / (boyMetre * boyMetre);
+                                    vki = vkiHesap.ToString("0.0");
                                 }
-                                <p class="mb-0 fw-medium fs-5">@vki</p>
+                            }
+                            <span class="fw-medium">@vki</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                            <span class="text-muted">Diyetisyen</span>
+                            <span class="fw-medium">@(Model.DiyetisyenAdi ?? "-")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                            <span class="text-muted">Diyet Programı</span>
+                            <span class="fw-medium">@(Model.DiyetProgramiAdi ?? "-")</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Edit Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold">Kişisel Bilgiler</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form id="profileUpdateForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">Ad</label>
+                                <input type="text" class="form-control" id="firstName" value="@Model.Ad">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Soyad</label>
+                                <input type="text" class="form-control" id="lastName" value="@Model.Soyad">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">Diyetisyen</label>
-                                <p class="mb-0 fw-medium">@(Model.DiyetisyenAdi ?? "-")</p>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">E-posta</label>
+                                <input type="email" class="form-control" id="email" value="@Model.Email">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Telefon</label>
+                                <input type="tel" class="form-control" id="phone" value="@Model.Telefon">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="text-muted small">Diyet Programı</label>
-                                <p class="mb-0 fw-medium">@(Model.DiyetProgramiAdi ?? "-")</p>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="birthDate" class="form-label">Doğum Tarihi</label>
+                                @* <input type="date" class="form-control" id="birthDate" value="@(Model.DogumTarihi.HasValue ? Model.DogumTarihi.Value.ToString("yyyy-MM-dd") : "")"> *@
+                            </div>
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Cinsiyet</label>
+                                <select class="form-select" id="gender">
+                                    <option>Seçiniz</option>
+                                @*     <option value="female" selected="@(Model.Cinsiyet == "Kadın")">Kadın</option> *@
+                                @*     <option value="male" selected="@(Model.Cinsiyet == "Erkek")">Erkek</option> *@
+                                @*     <option value="other" selected="@(Model.Cinsiyet != "Kadın" && Model.Cinsiyet != "Erkek")">Diğer</option> *@
+                                 </select> 
                             </div>
                         </div>
-                    </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Adres</label>
+                            @* <textarea class="form-control" id="address" rows="3">@Model.Adres</textarea> *@
+                        </div>
+                        <hr class="my-4">
+                        <h6 class="mb-3">Sağlık Bilgileri</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="height" class="form-label">Boy (cm)</label>
+                                <input type="number" class="form-control" id="height" value="@Model.Boy">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="weight" class="form-label">Kilo (kg)</label>
+                                <input type="number" class="form-control" id="weight" value="@Model.Kilo">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="bloodType" class="form-label">Kan Grubu</label>
+                                <select class="form-select" id="bloodType">
+                                    <option value="" disabled>Seçiniz</option>
+                                    @* <option value="A+" selected="@(Model.KanGrubu == "A+")">A Rh+</option> *@
+                                    @* <option value="A-" selected="@(Model.KanGrubu == "A-")">A Rh-</option> *@
+                                    @* <option value="B+" selected="@(Model.KanGrubu == "B+")">B Rh+</option> *@
+                                    @* <option value="B-" selected="@(Model.KanGrubu == "B-")">B Rh-</option> *@
+                                    @* <option value="AB+" selected="@(Model.KanGrubu == "AB+")">AB Rh+</option> *@
+                                    @* <option value="AB-" selected="@(Model.KanGrubu == "AB-")">AB Rh-</option> *@
+                                    @* <option value="O+" selected="@(Model.KanGrubu == "O+")">0 Rh+</option> *@
+                                    @* <option value="O-" selected="@(Model.KanGrubu == "O-")">0 Rh-</option> *@
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="allergies" class="form-label">Alerjiler (Varsa)</label>
+                            @* <input type="text" class="form-control" id="allergies" value="@Model.Alerjiler"> *@
+                        </div>
+                        <div class="mb-3">
+                            <label for="medicalConditions" class="form-label">Sağlık Durumları (Varsa)</label>
+                            @* <input type="text" class="form-control" id="medicalConditions" value="@Model.KronikHastaliklar"> *@
+                        </div>
+                        <div class="mb-3">
+                            <label for="medications" class="form-label">Kullanılan İlaçlar (Varsa)</label>
+                            @* <input type="text" class="form-control" id="medications" value="@Model.KullanilanIlaclar"> *@
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                @* <input class="form-check-input" type="checkbox" id="shareHealthInfo" @(Model.SaglikBilgisiPaylasimiIzni ? "checked" : "")> *@
+                                <label class="form-check-label" for="shareHealthInfo">
+                                    Sağlık bilgilerimi diyetisyenimle paylaşmayı kabul ediyorum
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Bilgileri Güncelle</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Şifre Değiştir</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Mevcut Şifre</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Yeni Şifre</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                        <div class="form-text">Şifreniz en az 8 karakter uzunluğunda olmalı ve harf, rakam ve özel karakter içermelidir.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Yeni Şifre (Tekrar)</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="submit" form="changePasswordForm" class="btn btn-success">Şifreyi Değiştir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profile update form submission
+            const profileForm = document.getElementById('profileUpdateForm');
+            if (profileForm) {
+                profileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show success message
+                    const alertPlaceholder = document.getElementById('profileUpdateAlert');
+                    if (alertPlaceholder) {
+                        alertPlaceholder.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                Profil bilgileriniz başarıyla güncellendi.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                    }
+                    
+                    // Scroll to top to see the success message
+                    window.scrollTo(0, 0);
+                });
+            }
+            
+            // Password change form submission
+            const passwordForm = document.getElementById('changePasswordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        alert('Şifreler eşleşmiyor. Lütfen tekrar deneyin.');
+                        return;
+                    }
+                    
+                    alert('Şifreniz başarıyla değiştirildi.');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    modal.hide();
+                });
+            }
+            
+            // Calculate BMI when height or weight changes
+            const heightInput = document.getElementById('height');
+            const weightInput = document.getElementById('weight');
+            
+            if (heightInput && weightInput) {
+                const calculateBMI = function() {
+                    const height = parseFloat(heightInput.value) / 100; // Convert cm to m
+                    const weight = parseFloat(weightInput.value);
+                    
+                    if (height > 0 && weight > 0) {
+                        const bmi = (weight / (height * height)).toFixed(1);
+                        // In a real app, this would update the BMI value in the health summary card
+                        console.log('BMI:', bmi);
+                    }
+                };
+                
+                heightInput.addEventListener('change', calculateBMI);
+                weightInput.addEventListener('change', calculateBMI);
+            }
+        });
+    </script>
+} 
