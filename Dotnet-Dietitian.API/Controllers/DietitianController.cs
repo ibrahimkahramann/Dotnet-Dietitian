@@ -128,6 +128,8 @@ namespace Dotnet_Dietitian.API.Controllers
             }
         }
         
+        [HttpGet]
+        [Route("DietPlans")]
         public async Task<IActionResult> DietPlans()
         {
             try
@@ -142,12 +144,17 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Diyetisyen verilerini getir
                 var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
                 
-                // Diyet programlarını getir
+                // Diyet programlarını getir (Template şablonları olarak kullanılacak)
                 var diyetProgramlari = await _mediator.Send(new GetDiyetProgramiQuery());
-                // Diyetisyene ait olanları filtrele
-                var diyetisyenProgramlari = diyetProgramlari.Where(d => d.OlusturanDiyetisyenId == diyetisyenId).ToList();
                 
-                ViewBag.DiyetProgramlari = diyetisyenProgramlari;
+                // Diyetisyene ait olanları şablon olarak filtrele
+                var sablonlar = diyetProgramlari.Where(d => d.OlusturanDiyetisyenId == diyetisyenId).ToList();
+                
+                // Atanmış planlar (hasta ile ilişkili olanlar)
+                var atanmisPlanlar = diyetProgramlari.Where(d => d.OlusturanDiyetisyenId == diyetisyenId).ToList();
+                
+                ViewBag.Sablonlar = sablonlar;
+                ViewBag.AtanmisPlanlar = atanmisPlanlar;
                 return View(diyetisyenModel);
             }
             catch (Exception ex)
@@ -441,4 +448,4 @@ namespace Dotnet_Dietitian.API.Controllers
             }
         }
     }
-} 
+}

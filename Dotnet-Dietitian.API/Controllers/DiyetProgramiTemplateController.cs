@@ -3,14 +3,17 @@ using Dotnet_Dietitian.Application.Interfaces;
 using Dotnet_Dietitian.Application.TemplatePattern;
 using Dotnet_Dietitian.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // Authorization ekleyin
     public class DiyetProgramiTemplateController : ControllerBase
     {
         private readonly DiyetProgramOlusturucuFactory _programFactory;
@@ -64,6 +67,34 @@ namespace Dotnet_Dietitian.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Program oluşturulurken hata oluştu: {ex.Message}");
+            }
+        }
+
+        [HttpPost("sablon-olustur")]
+        public async Task<IActionResult> SablonOlustur([FromBody] CreateDiyetProgramiCommand command)
+        {
+            try
+            {
+                // Kullanıcı ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Unauthorized("Geçersiz kullanıcı");
+                }
+
+                command.OlusturanDiyetisyenId = diyetisyenId;
+                
+                await _mediator.Send(command);
+                
+                return Ok(new
+                {
+                    message = "Diyet plan şablonu başarıyla oluşturuldu",
+                    planAdi = command.Ad
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Şablon oluşturulurken hata oluştu: {ex.Message}");
             }
         }
     }
