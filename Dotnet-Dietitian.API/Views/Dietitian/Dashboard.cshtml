@@ -1,8 +1,20 @@
 @using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.RandevuResults
 @model GetDiyetisyenByIdQueryResult
 @{
     ViewData["Title"] = "Diyetisyen Paneli - DijetUP";
     Layout = "_DietitianLayout";
+    
+    // Randevuları al (ViewBag.Randevular'dan)
+    var randevular = ViewBag.Randevular as List<GetRandevuQueryResult> ?? new List<GetRandevuQueryResult>();
+    var bugunRandevular = randevular.Where(r => r.RandevuBaslangicTarihi.Date == DateTime.Today).ToList();
+    var gelecekRandevular = randevular.Where(r => r.RandevuBaslangicTarihi > DateTime.Now).OrderBy(r => r.RandevuBaslangicTarihi).Take(3).ToList();
+    
+    // Aktif diyet planları sayısı
+    var aktifDiyetPlanlariSayisi = ViewBag.AktifDiyetPlanlariSayisi ?? 0;
+    
+    // Okunmamış mesajlar (şu anda sahte veri)
+    var okunmamisMesajSayisi = ViewBag.OkunmamisMesajSayisi ?? 0;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -28,9 +40,19 @@
                 </div>
                 <h3 class="fw-bold mb-0">@(Model.Hastalar?.Count ?? 0)</h3>
                 <div class="d-flex align-items-center mt-3">
-                    <span class="badge bg-success me-2">
-                        <i class="bi bi-arrow-up me-1"></i>5.7%
-                    </span>
+                    @if (ViewBag.HastalardakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.HastalardakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-success" : "bg-danger") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)%
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success me-2">
+                            <i class="bi bi-arrow-up me-1"></i>5.7%
+                        </span>
+                    }
                     <small class="text-muted">Bu ay</small>
                 </div>
             </div>
@@ -47,11 +69,21 @@
                         <h6 class="card-title mb-0 text-muted">Bugünkü Randevular</h6>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-0">5</h3>
+                <h3 class="fw-bold mb-0">@bugunRandevular.Count</h3>
                 <div class="d-flex align-items-center mt-3">
-                    <span class="badge bg-success me-2">
-                        <i class="bi bi-arrow-up me-1"></i>2
-                    </span>
+                    @if (ViewBag.RandevulardakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.RandevulardakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-success" : "bg-danger") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success me-2">
+                            <i class="bi bi-arrow-up me-1"></i>2
+                        </span>
+                    }
                     <small class="text-muted">Dünden</small>
                 </div>
             </div>
@@ -68,11 +100,21 @@
                         <h6 class="card-title mb-0 text-muted">Aktif Diyet Planları</h6>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-0">32</h3>
+                <h3 class="fw-bold mb-0">@aktifDiyetPlanlariSayisi</h3>
                 <div class="d-flex align-items-center mt-3">
-                    <span class="badge bg-success me-2">
-                        <i class="bi bi-arrow-up me-1"></i>3
-                    </span>
+                    @if (ViewBag.DiyetPlanlarindakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.DiyetPlanlarindakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-success" : "bg-danger") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success me-2">
+                            <i class="bi bi-arrow-up me-1"></i>3
+                        </span>
+                    }
                     <small class="text-muted">Bu hafta</small>
                 </div>
             </div>
@@ -89,11 +131,21 @@
                         <h6 class="card-title mb-0 text-muted">Okunmamış Mesajlar</h6>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-0">3</h3>
+                <h3 class="fw-bold mb-0">@okunmamisMesajSayisi</h3>
                 <div class="d-flex align-items-center mt-3">
-                    <span class="badge bg-danger me-2">
-                        <i class="bi bi-arrow-up me-1"></i>2
-                    </span>
+                    @if (ViewBag.MesajlardakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.MesajlardakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-danger" : "bg-success") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger me-2">
+                            <i class="bi bi-arrow-up me-1"></i>2
+                        </span>
+                    }
                     <small class="text-muted">Bugün</small>
                 </div>
             </div>
@@ -123,32 +175,47 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (Model.Hastalar != null && Model.Hastalar.Any())
+                            @if (gelecekRandevular.Any())
                             {
-                                @foreach (var hasta in Model.Hastalar.Take(3))
+                                @foreach (var randevu in gelecekRandevular)
                                 {
                                     <tr>
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center">
                                                 <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
                                                 <div>
-                                                    <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
-                                                    <small class="text-muted">ID: #@hasta.Id.ToString().Substring(0, 5)</small>
+                                                    <h6 class="mb-0">@randevu.HastaAdSoyad</h6>
+                                                    <small class="text-muted">ID: #@randevu.HastaId.ToString().Substring(0, 5)</small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div>@DateTime.Now.AddDays(1).ToString("dd MMMM yyyy")</div>
-                                            <small class="text-muted">14:00 - 14:30</small>
+                                            <div>@randevu.RandevuBaslangicTarihi.ToString("dd MMMM yyyy")</div>
+                                            <small class="text-muted">@randevu.RandevuBaslangicTarihi.ToString("HH:mm") - @randevu.RandevuBitisTarihi.ToString("HH:mm")</small>
                                         </td>
                                         <td>
-                                            <span class="badge bg-success">Onaylandı</span>
+                                            @{
+                                                string badgeClass = "bg-secondary";
+                                                switch (randevu.Durum)
+                                                {
+                                                    case "Onaylandı":
+                                                        badgeClass = "bg-success";
+                                                        break;
+                                                    case "Bekliyor":
+                                                        badgeClass = "bg-warning";
+                                                        break;
+                                                    case "İptal Edildi":
+                                                        badgeClass = "bg-danger";
+                                                        break;
+                                                }
+                                            }
+                                            <span class="badge @badgeClass">@randevu.Durum</span>
                                         </td>
                                         <td class="text-end pe-4">
-                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewAppointmentDetails('@randevu.Id')">
                                                 <i class="bi bi-eye"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-secondary">
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="editAppointment('@randevu.Id')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                         </td>
@@ -176,34 +243,50 @@
             </div>
             <div class="card-body p-0">
                 <div class="list-group list-group-flush">
-                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
-                        <div class="d-flex w-100 justify-content-between mb-1">
-                            <h6 class="mb-0">Yeni randevu talebi</h6>
-                            <small class="text-muted">3 saat önce</small>
-                        </div>
-                        <p class="mb-0 text-muted small">Mehmet Aydın 18 Haziran için randevu talep etti.</p>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
-                        <div class="d-flex w-100 justify-content-between mb-1">
-                            <h6 class="mb-0">Yeni mesaj</h6>
-                            <small class="text-muted">5 saat önce</small>
-                        </div>
-                        <p class="mb-0 text-muted small">Zeynep Kaya: "Diyet planım hakkında bir sorum vardı..."</p>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
-                        <div class="d-flex w-100 justify-content-between mb-1">
-                            <h6 class="mb-0">İptal edilen randevu</h6>
-                            <small class="text-muted">Dün</small>
-                        </div>
-                        <p class="mb-0 text-muted small">Ahmet Yılmaz bugünkü randevusunu iptal etti.</p>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action px-4 py-3">
-                        <div class="d-flex w-100 justify-content-between mb-1">
-                            <h6 class="mb-0">Yeni hasta kaydı</h6>
-                            <small class="text-muted">2 gün önce</small>
-                        </div>
-                        <p class="mb-0 text-muted small">Selin Demir uygulamaya kaydoldu ve sizinle çalışmak istiyor.</p>
-                    </a>
+                    @if (ViewBag.Bildirimler != null && ((List<dynamic>)ViewBag.Bildirimler).Any())
+                    {
+                        foreach (var bildirim in (List<dynamic>)ViewBag.Bildirimler)
+                        {
+                            <a href="@bildirim.Url" class="list-group-item list-group-item-action px-4 py-3">
+                                <div class="d-flex w-100 justify-content-between mb-1">
+                                    <h6 class="mb-0">@bildirim.Baslik</h6>
+                                    <small class="text-muted">@bildirim.ZamanBilgisi</small>
+                                </div>
+                                <p class="mb-0 text-muted small">@bildirim.Icerik</p>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">Yeni randevu talebi</h6>
+                                <small class="text-muted">3 saat önce</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Mehmet Aydın 18 Haziran için randevu talep etti.</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">Yeni mesaj</h6>
+                                <small class="text-muted">5 saat önce</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Zeynep Kaya: "Diyet planım hakkında bir sorum vardı..."</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">İptal edilen randevu</h6>
+                                <small class="text-muted">Dün</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Ahmet Yılmaz bugünkü randevusunu iptal etti.</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">Yeni hasta kaydı</h6>
+                                <small class="text-muted">2 gün önce</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Selin Demir uygulamaya kaydoldu ve sizinle çalışmak istiyor.</p>
+                        </a>
+                    }
                 </div>
             </div>
             <div class="card-footer bg-white border-top-0 text-center">
@@ -221,5 +304,15 @@
             const currentDate = new Date().toLocaleDateString('tr-TR', options);
             document.getElementById('current-date').textContent = currentDate;
         });
+        
+        // View appointment details function
+        function viewAppointmentDetails(appointmentId) {
+            window.location.href = '/Dietitian/GetAppointmentDetails?id=' + appointmentId;
+        }
+        
+        // Edit appointment function
+        function editAppointment(appointmentId) {
+            window.location.href = '/Dietitian/Appointments?editId=' + appointmentId;
+        }
     </script>
-} 
+}

@@ -26,6 +26,14 @@ builder.Services.AddAuthentication(options =>
 {
     options.ForwardDefaultSelector = context =>
     {
+        // If it's an API request but has a CSRF token header, use cookie auth
+        if (context.Request.Path.StartsWithSegments("/api") && 
+            context.Request.Headers.ContainsKey("RequestVerificationToken"))
+        {
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        }
+        
+        // Otherwise follow the normal path-based selection
         // API paths can use both JWT and Cookie authentication
         // First try JWT, and if that fails, try Cookie
         if (context.Request.Path.StartsWithSegments("/api"))
