@@ -500,33 +500,43 @@ namespace Dotnet_Dietitian.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAppointment(CreateRandevuCommand command)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAppointment([FromBody] CreateRandevuCommand command)
         {
             try
             {
+                Console.WriteLine("CreateAppointment metodu çağrıldı");
+                Console.WriteLine($"Alınan veri: HastaId={command.HastaId}, RandevuBaslangicTarihi={command.RandevuBaslangicTarihi}, RandevuBitisTarihi={command.RandevuBitisTarihi}");
+                
                 // Giriş yapmış kullanıcının ID'sini al
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
                 {
+                    Console.WriteLine("Oturum bilgileri geçersiz");
                     return Json(new { success = false, message = "Oturum bilgileriniz geçersiz." });
                 }
 
                 // Güvenlik kontrolü: Sadece kendi adına randevu oluşturabilir
                 command.DiyetisyenId = diyetisyenId;
+                Console.WriteLine($"DiyetisyenId atandı: {diyetisyenId}");
                 
                 // Randevu oluştur
                 await _mediator.Send(command);
+                Console.WriteLine("Randevu başarıyla oluşturuldu");
                 
                 return Json(new { success = true, message = "Randevu başarıyla oluşturuldu." });
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Hata oluştu: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return Json(new { success = false, message = "Randevu oluşturulurken bir hata oluştu: " + ex.Message });
             }
         }
         
         [HttpPost]
-        public async Task<IActionResult> UpdateAppointmentStatus(Guid id, string status)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAppointmentStatus([FromBody] UpdateAppointmentStatusViewModel model)
         {
             try
             {
@@ -538,7 +548,7 @@ namespace Dotnet_Dietitian.API.Controllers
                 }
 
                 // Randevu bilgilerini getir
-                var randevu = await _mediator.Send(new GetRandevuByIdQuery(id));
+                var randevu = await _mediator.Send(new GetRandevuByIdQuery(model.Id));
                 
                 // Güvenlik kontrolü: Sadece kendi randevularını güncelleyebilir
                 if (randevu.DiyetisyenId != diyetisyenId)
@@ -549,14 +559,14 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Randevu durumunu güncelle
                 var updateCommand = new UpdateRandevuCommand
                 {
-                    Id = id,
+                    Id = model.Id,
                     HastaId = randevu.HastaId,
                     DiyetisyenId = randevu.DiyetisyenId,
                     RandevuBaslangicTarihi = randevu.RandevuBaslangicTarihi,
                     RandevuBitisTarihi = randevu.RandevuBitisTarihi,
                     RandevuTuru = randevu.RandevuTuru,
-                    Durum = status,
-                    DiyetisyenOnayi = status == "Onaylandı" ? true : randevu.DiyetisyenOnayi,
+                    Durum = model.Status,
+                    DiyetisyenOnayi = model.Status == "Onaylandı" ? true : randevu.DiyetisyenOnayi,
                     HastaOnayi = randevu.HastaOnayi,
                     Notlar = randevu.Notlar
                 };
@@ -569,6 +579,13 @@ namespace Dotnet_Dietitian.API.Controllers
             {
                 return Json(new { success = false, message = "Randevu durumu güncellenirken bir hata oluştu: " + ex.Message });
             }
+        }
+        
+        // ViewModel for the UpdateAppointmentStatus endpoint
+        public class UpdateAppointmentStatusViewModel
+        {
+            public Guid Id { get; set; }
+            public string Status { get; set; }
         }
 
         [HttpGet]

@@ -215,6 +215,7 @@
             </div>
             <div class="modal-body">
                 <form id="newAppointmentForm">
+                    @Html.AntiForgeryToken()
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Hasta</label>
@@ -330,6 +331,89 @@
                     saveAppointmentBtn.title = "Önce hasta eklemelisiniz";
                 }
             }
+
+            // Randevu kaydetme butonunu temelden yeniden yazalım
+            if (saveAppointmentBtn) {
+                saveAppointmentBtn.onclick = function() {
+                    try {
+                        console.log('Kaydet butonuna tıklandı - yeni işleyici');
+                        
+                        // Form verilerini topla
+                        const patientId = document.getElementById('patientId').value;
+                        const appointmentDate = document.getElementById('appointmentDate').value;
+                        const startTime = document.getElementById('startTime').value;
+                        const endTime = document.getElementById('endTime').value;
+                        const appointmentType = document.getElementById('appointmentType').value;
+                        const status = document.getElementById('status').value;
+                        const notes = document.getElementById('notes').value;
+                        
+                        console.log('Form değerleri:', { patientId, appointmentDate, startTime, endTime, appointmentType, status, notes });
+                        
+                        // Zorunlu alanları kontrol et
+                        if (!patientId || !appointmentDate || !startTime || !endTime) {
+                            alert('Lütfen gerekli alanları doldurun.');
+                            return;
+                        }
+                        
+                        // Tarih ve saatleri oluştur
+                        const startDateTime = new Date(`${appointmentDate}T${startTime}`);
+                        const endDateTime = new Date(`${appointmentDate}T${endTime}`);
+                        
+                        console.log('Tarih ve saat:', { 
+                            startDateTime: startDateTime.toISOString(), 
+                            endDateTime: endDateTime.toISOString() 
+                        });
+                        
+                        // Saatleri kontrol et
+                        if (endDateTime <= startDateTime) {
+                            alert('Bitiş saati başlangıç saatinden sonra olmalıdır.');
+                            return;
+                        }
+                        
+                        // Randevu verilerini oluştur
+                        const appointmentData = {
+                            HastaId: patientId,
+                            RandevuBaslangicTarihi: startDateTime.toISOString(),
+                            RandevuBitisTarihi: endDateTime.toISOString(),
+                            RandevuTuru: appointmentType,
+                            Durum: status,
+                            DiyetisyenOnayi: status === 'Onaylandı',
+                            HastaOnayi: true,
+                            Notlar: notes
+                        };
+                        
+                        console.log('Gönderilecek veri:', appointmentData);
+                        console.log('URL:', '@Url.Action("CreateAppointment", "Dietitian")');
+                        
+                        // AJAX ile verileri gönder
+                        $.ajax({
+                            url: '@Url.Action("CreateAppointment", "Dietitian")',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(appointmentData),
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            success: function(response) {
+                                console.log('Başarılı yanıt:', response);
+                                if (response.success) {
+                                    alert(response.message);
+                                    window.location.reload();
+                                } else {
+                                    alert(response.message || 'İşlem sırasında bir hata oluştu.');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX hatası:', xhr, status, error);
+                                alert('Randevu oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.');
+                            }
+                        });
+                    } catch (error) {
+                        console.error('JavaScript hatası:', error);
+                        alert('Beklenmeyen bir hata oluştu: ' + error.message);
+                    }
+                };
+            }
             
             // Calendar initialization
             const calendarEl = document.getElementById('appointmentsCalendar');
@@ -401,6 +485,30 @@
                 });
             }
             
+            // Sayfa yüklendiğinde bugünün tarihini randevu tarih alanına otomatik doldur
+            const appointmentDateInput = document.getElementById('appointmentDate');
+            if (appointmentDateInput) {
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                appointmentDateInput.value = formattedDate;
+                
+                // Varsayılan saat değerlerini de ayarla
+                const now = new Date();
+                now.setMinutes(Math.ceil(now.getMinutes() / 15) * 15); // En yakın 15 dakikaya yuvarla
+                
+                const startTimeInput = document.getElementById('startTime');
+                if (startTimeInput) {
+                    startTimeInput.value = now.toTimeString().slice(0, 5);
+                }
+                
+                const endTimeInput = document.getElementById('endTime');
+                if (endTimeInput) {
+                    const endTime = new Date(now);
+                    endTime.setMinutes(now.getMinutes() + 30); // 30 dakika sonrası
+                    endTimeInput.value = endTime.toTimeString().slice(0, 5);
+                }
+            }
+            
             // Filter date range change
             const filterDateRange = document.getElementById('filterDateRange');
             if (filterDateRange) {
@@ -456,70 +564,6 @@
                 });
             }
             
-            // Save appointment button click handler
-            const saveAppointmentBtn = document.getElementById('saveAppointmentBtn');
-            if (saveAppointmentBtn) {
-                saveAppointmentBtn.addEventListener('click', function() {
-                    // Form validation
-                    const patientId = document.getElementById('patientId').value;
-                    const appointmentDate = document.getElementById('appointmentDate').value;
-                    const startTime = document.getElementById('startTime').value;
-                    const endTime = document.getElementById('endTime').value;
-                    const appointmentType = document.getElementById('appointmentType').value;
-                    const status = document.getElementById('status').value;
-                    const notes = document.getElementById('notes').value;
-                    
-                    if (!patientId || !appointmentDate || !startTime || !endTime) {
-                        alert('Lütfen gerekli alanları doldurun.');
-                        return;
-                    }
-                    
-                    // Create start and end datetime
-                    const startDateTime = new Date(`${appointmentDate}T${startTime}`);
-                    const endDateTime = new Date(`${appointmentDate}T${endTime}`);
-                    
-                    // Validate times
-                    if (endDateTime <= startDateTime) {
-                        alert('Bitiş saati başlangıç saatinden sonra olmalıdır.');
-                        return;
-                    }
-                    
-                    // Create appointment data
-                    const appointmentData = {
-                        hastaId: patientId,
-                        randevuBaslangicTarihi: startDateTime.toISOString(),
-                        randevuBitisTarihi: endDateTime.toISOString(),
-                        randevuTuru: appointmentType,
-                        durum: status,
-                        diyetisyenOnayi: status === 'Onaylandı',
-                        hastaOnayi: true,
-                        notlar: notes
-                    };
-                    
-                    // Send AJAX request
-                    fetch('@Url.Action("CreateAppointment", "Dietitian")', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                        },
-                        body: JSON.stringify(appointmentData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            window.location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        alert('Bir hata oluştu: ' + error);
-                    });
-                });
-            }
-            
             // Status action buttons
             const statusActions = document.querySelectorAll('.status-action');
             statusActions.forEach(action => {
@@ -538,21 +582,27 @@
                                 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                             },
                             body: JSON.stringify({
-                                id: appointmentId,
-                                status: status
+                                Id: appointmentId,
+                                Status: status
                             })
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Sunucu yanıt vermedi. Lütfen daha sonra tekrar deneyin.');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             if (data.success) {
                                 alert(data.message);
                                 window.location.reload();
                             } else {
-                                alert(data.message);
+                                alert(data.message || 'İşlem sırasında bir hata oluştu.');
                             }
                         })
                         .catch(error => {
-                            alert('Bir hata oluştu: ' + error);
+                            console.error('Hata detayı:', error);
+                            alert('Bir hata oluştu: ' + error.message);
                         });
                     }
                 });
@@ -644,21 +694,27 @@
                                                 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                                             },
                                             body: JSON.stringify({
-                                                id: id,
-                                                status: status
+                                                Id: id,
+                                                Status: status
                                             })
                                         })
-                                        .then(response => response.json())
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('Sunucu yanıt vermedi. Lütfen daha sonra tekrar deneyin.');
+                                            }
+                                            return response.json();
+                                        })
                                         .then(data => {
                                             if (data.success) {
                                                 alert(data.message);
                                                 window.location.reload();
                                             } else {
-                                                alert(data.message);
+                                                alert(data.message || 'İşlem sırasında bir hata oluştu.');
                                             }
                                         })
                                         .catch(error => {
-                                            alert('Bir hata oluştu: ' + error);
+                                            console.error('Hata detayı:', error);
+                                            alert('Bir hata oluştu: ' + error.message);
                                         });
                                     }
                                 });
@@ -674,11 +730,12 @@
                     .catch(error => {
                         document.getElementById('appointmentDetails').innerHTML = `
                             <div class="alert alert-danger">
-                                Bir hata oluştu: ${error}
+                                Bir hata oluştu: ${error.message}
                             </div>
                         `;
                     });
             }
         });
     </script>
-} 
+}
+

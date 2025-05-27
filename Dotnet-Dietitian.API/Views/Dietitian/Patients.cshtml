@@ -1,0 +1,500 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Hastalarım - DijetUP";
+    Layout = "_DietitianLayout";
+    var hastalar = ViewBag.Hastalar as List<GetHastaQueryResult> ?? new List<GetHastaQueryResult>();
+}
+
+<div class="container-fluid p-4">
+    <!-- Patient list content -->
+    <div class="patients-content">
+        <!-- Header and Filters -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+            <div class="mb-3 mb-md-0">
+                <h2 class="fw-bold mb-0">Hastalarım</h2>
+                <p class="text-muted">Toplam @hastalar.Count kayıtlı hasta</p>
+            </div>
+            <div class="d-flex">
+                <div class="input-group me-2">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 ps-0" id="patientSearch" placeholder="Hasta ara...">
+                </div>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                    <i class="bi bi-person-plus-fill me-1"></i> Yeni Hasta
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="mb-4">
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-secondary active filter-btn" data-filter="all">
+                    Tüm Hastalar <span class="badge bg-secondary ms-1">@hastalar.Count</span>
+                </button>
+                <button class="btn btn-sm btn-outline-success filter-btn" data-filter="active">
+                    Aktif <span class="badge bg-success ms-1">@hastalar.Count(h => !string.IsNullOrEmpty(h.DiyetProgramiAdi))</span>
+                </button>
+                <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="pending">
+                    Beklemede <span class="badge bg-warning text-dark ms-1">@hastalar.Count(h => string.IsNullOrEmpty(h.DiyetProgramiAdi))</span>
+                </button>
+                <div class="ms-auto d-flex align-items-center">
+                    <label class="me-2 text-muted small">Sırala:</label>
+                    <select class="form-select form-select-sm" id="sortPatients" style="width: auto;">
+                        <option value="name-asc">İsim (A-Z)</option>
+                        <option value="name-desc">İsim (Z-A)</option>
+                        <option value="date-asc">Katılım (Eskiden Yeniye)</option>
+                        <option value="date-desc" selected>Katılım (Yeniden Eskiye)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient List -->
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Hasta</th>
+                            <th>Durum</th>
+                            <th>Diyet Planı</th>
+                            <th>Son Randevu</th>
+                            <th>İlerleme</th>
+                            <th class="text-end pe-4">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (hastalar.Any())
+                        {
+                            @foreach (var hasta in hastalar)
+                            {
+                                <tr data-patient-id="@hasta.Id" data-patient-status="@(string.IsNullOrEmpty(hasta.DiyetProgramiAdi) ? "pending" : "active")">
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Patient">
+                                            <div>
+                                                <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                                <small class="text-muted">ID: #@hasta.Id.ToString().Substring(0, 5) • @(hasta.Yas.HasValue ? $"{hasta.Yas}y" : "Yaş bilgisi yok")</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                        {
+                                            <span class="badge bg-success">Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Beklemede</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                        {
+                                            <span>@hasta.DiyetProgramiAdi</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Henüz atanmadı</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div>-</div>
+                                        <small class="text-muted">Randevu bilgisi yok</small>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                        {
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="text-muted small">50%</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">Başlamadı</span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-primary view-patient" data-id="@hasta.Id">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success message-patient" data-id="@hasta.Id">
+                                                <i class="bi bi-chat-dots"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item assign-diet-plan" href="#" data-id="@hasta.Id" data-bs-toggle="modal" data-bs-target="#assignDietPlanModal"><i class="bi bi-clipboard2-plus me-2"></i>Diyet Planı Ata</a></li>
+                                                <li><a class="dropdown-item edit-patient" href="#" data-id="@hasta.Id"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
+                                                <li><a class="dropdown-item create-appointment" href="#" data-id="@hasta.Id"><i class="bi bi-calendar-plus me-2"></i>Randevu Oluştur</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger delete-patient" href="#" data-id="@hasta.Id"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <p class="text-muted mb-0">Henüz hasta kaydınız bulunmuyor.</p>
+                                    <button class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                                        <i class="bi bi-plus-circle me-1"></i> Yeni Hasta Ekle
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (hastalar.Count > 10)
+            {
+                <div class="card-footer bg-white p-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Önceki</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Sonraki</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Add Patient Modal -->
+<div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPatientModalLabel">Yeni Hasta Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addPatientForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="patientFirstName" class="form-label">Ad</label>
+                        <input type="text" class="form-control" id="patientFirstName" name="Ad" required>
+                        <div class="invalid-feedback">
+                            Hasta adı gerekli.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="patientLastName" class="form-label">Soyad</label>
+                        <input type="text" class="form-control" id="patientLastName" name="Soyad" required>
+                        <div class="invalid-feedback">
+                            Hasta soyadı gerekli.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="patientEmail" class="form-label">E-posta</label>
+                        <input type="email" class="form-control" id="patientEmail" name="Email" required>
+                        <div class="invalid-feedback">
+                            Geçerli bir e-posta adresi girin.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="patientPhone" class="form-label">Telefon</label>
+                        <input type="tel" class="form-control" id="patientPhone" name="Telefon" required>
+                        <div class="invalid-feedback">
+                            Telefon numarası gerekli.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="patientTcKimlik" class="form-label">TC Kimlik No</label>
+                        <input type="text" class="form-control" id="patientTcKimlik" name="TcKimlikNumarasi" required>
+                        <div class="invalid-feedback">
+                            TC Kimlik numarası gerekli.
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="patientBirthdate" class="form-label">Doğum Tarihi</label>
+                            <input type="date" class="form-control" id="patientBirthdate" name="DogumTarihi">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="patientGender" class="form-label">Cinsiyet</label>
+                            <select class="form-select" id="patientGender" name="Cinsiyet">
+                                <option value="" selected disabled>Seçiniz</option>
+                                <option value="Kadın">Kadın</option>
+                                <option value="Erkek">Erkek</option>
+                                <option value="Diğer">Diğer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" id="diyetisyenId" name="DiyetisyenId" value="@Model.Id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" id="savePatientBtn" class="btn btn-success">Hasta Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Diet Plan Modal -->
+<div class="modal fade" id="assignDietPlanModal" tabindex="-1" aria-labelledby="assignDietPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignDietPlanModalLabel">Diyet Planı Ata</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignDietPlanForm">
+                    <input type="hidden" id="patientId" name="Id">
+                    <div class="mb-3">
+                        <label for="dietPlanSelect" class="form-label">Diyet Planı Seçin</label>
+                        <select class="form-select" id="dietPlanSelect" name="DiyetProgramiId" required>
+                            <option value="" selected disabled>Diyet planı seçin</option>
+                            <!-- Diyet planları AJAX ile doldurulacak -->
+                        </select>
+                        <div class="invalid-feedback">
+                            Lütfen bir diyet planı seçin.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" id="assignDietPlanBtn" class="btn btn-success">Ata</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Patient search functionality
+            const searchPatient = document.getElementById('patientSearch');
+            if (searchPatient) {
+                searchPatient.addEventListener('keyup', function () {
+                    const searchValue = this.value.toLowerCase();
+                    const patientRows = document.querySelectorAll('tbody tr');
+                    
+                    patientRows.forEach(row => {
+                        const patientName = row.querySelector('h6')?.textContent.toLowerCase() || '';
+                        const patientId = row.querySelector('small')?.textContent.toLowerCase() || '';
+                        
+                        if (patientName.includes(searchValue) || patientId.includes(searchValue)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    const rows = document.querySelectorAll('tbody tr');
+                    
+                    rows.forEach(row => {
+                        if (filter === 'all') {
+                            row.style.display = '';
+                        } else {
+                            const status = row.dataset.patientStatus;
+                            row.style.display = (status === filter) ? '' : 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Sort patients
+            const sortSelect = document.getElementById('sortPatients');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    const sortValue = this.value;
+                    const tbody = document.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    
+                    rows.sort((a, b) => {
+                        const nameA = a.querySelector('h6')?.textContent.trim() || '';
+                        const nameB = b.querySelector('h6')?.textContent.trim() || '';
+                        
+                        if (sortValue === 'name-asc') {
+                            return nameA.localeCompare(nameB);
+                        } else if (sortValue === 'name-desc') {
+                            return nameB.localeCompare(nameA);
+                        }
+                        // Diğer sıralama seçenekleri için ek mantık eklenebilir
+                        return 0;
+                    });
+                    
+                    // Sıralanmış satırları DOM'a ekle
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            }
+            
+            // Save new patient
+            const savePatientBtn = document.getElementById('savePatientBtn');
+            if (savePatientBtn) {
+                savePatientBtn.addEventListener('click', function() {
+                    const form = document.getElementById('addPatientForm');
+                    
+                    if (!form.checkValidity()) {
+                        form.classList.add('was-validated');
+                        return;
+                    }
+                    
+                    const formData = new FormData(form);
+                    const patientData = {};
+                    
+                    formData.forEach((value, key) => {
+                        patientData[key] = value;
+                    });
+                    
+                    // AJAX ile hasta ekleme
+                    fetch('/api/Hasta', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(patientData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Hasta eklenirken bir hata oluştu');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        // Başarılı ekleme sonrası modal kapatılır ve sayfa yenilenir
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addPatientModal'));
+                        modal.hide();
+                        
+                        // Sayfayı yenile
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        alert('Hata: ' + error.message);
+                    });
+                });
+            }
+            
+            // Load diet plans for assignment
+            document.querySelectorAll('.assign-diet-plan').forEach(button => {
+                button.addEventListener('click', function() {
+                    const patientId = this.dataset.id;
+                    document.getElementById('patientId').value = patientId;
+                    
+                    // Diyet planlarını getir
+                    fetch('/api/DiyetProgrami')
+                        .then(response => response.json())
+                        .then(data => {
+                            const select = document.getElementById('dietPlanSelect');
+                            select.innerHTML = '<option value="" selected disabled>Diyet planı seçin</option>';
+                            
+                            data.forEach(plan => {
+                                const option = document.createElement('option');
+                                option.value = plan.id;
+                                option.textContent = plan.ad;
+                                select.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Diyet planları yüklenirken hata:', error));
+                });
+            });
+            
+            // Assign diet plan
+            const assignDietPlanBtn = document.getElementById('assignDietPlanBtn');
+            if (assignDietPlanBtn) {
+                assignDietPlanBtn.addEventListener('click', function() {
+                    const form = document.getElementById('assignDietPlanForm');
+                    const patientId = document.getElementById('patientId').value;
+                    const dietPlanId = document.getElementById('dietPlanSelect').value;
+                    
+                    if (!dietPlanId) {
+                        document.getElementById('dietPlanSelect').classList.add('is-invalid');
+                        return;
+                    }
+                    
+                    // Hasta güncelleme isteği
+                    fetch(`/api/Hasta`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Id: patientId,
+                            DiyetProgramiId: dietPlanId
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Diyet planı atanırken bir hata oluştu');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        // Başarılı atama sonrası modal kapatılır ve sayfa yenilenir
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('assignDietPlanModal'));
+                        modal.hide();
+                        
+                        // Sayfayı yenile
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        alert('Hata: ' + error.message);
+                    });
+                });
+            }
+            
+            // Delete patient
+            document.querySelectorAll('.delete-patient').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (confirm('Bu hastayı silmek istediğinizden emin misiniz?')) {
+                        const patientId = this.dataset.id;
+                        
+                        fetch(`/api/Hasta/${patientId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Hasta silinirken bir hata oluştu');
+                            }
+                            return response.text();
+                        })
+                        .then(data => {
+                            // Sayfayı yenile
+                            window.location.reload();
+                        })
+                        .catch(error => {
+                            alert('Hata: ' + error.message);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+} 
