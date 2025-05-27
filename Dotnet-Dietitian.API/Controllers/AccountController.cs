@@ -49,9 +49,46 @@ namespace Dotnet_Dietitian.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string returnUrl = null, string type = null, string authError = null)
         {
+            // Kullanıcı zaten giriş yapmışsa, rolüne göre yönlendir
+            if (User.Identity.IsAuthenticated)
+            {
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                
+                if (userRole == "Diyetisyen")
+                {
+                    return RedirectToAction("Dashboard", "Dietitian");
+                }
+                else if (userRole == "Hasta")
+                {
+                    return RedirectToAction("Dashboard", "Patient");
+                }
+                else if (userRole == "Admin")
+                {
+                    return RedirectToAction("Dashboard", "Admin");
+                }
+            }
+            
             ViewData["ReturnUrl"] = returnUrl;
+            ViewData["UserType"] = type;
+            
+            if (!string.IsNullOrEmpty(authError))
+            {
+                if (authError == "patient")
+                {
+                    ViewData["AuthError"] = "Bu sayfaya erişmek için hasta olarak giriş yapmalısınız.";
+                }
+                else if (authError == "dietitian")
+                {
+                    ViewData["AuthError"] = "Bu sayfaya erişmek için diyetisyen olarak giriş yapmalısınız.";
+                }
+                else if (authError == "admin")
+                {
+                    ViewData["AuthError"] = "Bu sayfaya erişmek için admin olarak giriş yapmalısınız.";
+                }
+            }
+            
             return View(new LoginCommand());
         }
 

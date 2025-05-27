@@ -1,0 +1,504 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Hastalarım - DijetUP";
+    Layout = "_DietitianLayout";
+    var diyetisyenHastalari = ViewBag.DiyetisyenHastalari as List<GetHastaQueryResult> ?? new List<GetHastaQueryResult>();
+    var diyetisyensizHastalar = ViewBag.DiyetisyensizHastalar as List<GetHastaQueryResult> ?? new List<GetHastaQueryResult>();
+    var tumHastalar = ViewBag.TumHastalar as List<GetHastaQueryResult> ?? new List<GetHastaQueryResult>();
+}
+
+<div class="container-fluid p-4">
+    @Html.AntiForgeryToken()
+    
+    <!-- Header and Tabs Navigation -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h2 class="fw-bold mb-0">Hastalarım</h2>
+            <p class="text-muted">Toplam @diyetisyenHastalari.Count hastanız bulunmaktadır</p>
+        </div>
+        <div class="d-flex">
+            <div class="input-group me-2">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-start-0 ps-0" id="patientSearch" placeholder="Hasta ara...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="patientsTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="my-patients-tab" data-bs-toggle="tab" data-bs-target="#my-patients" type="button" role="tab" aria-controls="my-patients" aria-selected="true">
+                <i class="bi bi-people-fill me-2"></i>Hastalarım <span class="badge bg-primary ms-1">@diyetisyenHastalari.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="all-patients-tab" data-bs-toggle="tab" data-bs-target="#all-patients" type="button" role="tab" aria-controls="all-patients" aria-selected="false">
+                <i class="bi bi-people me-2"></i>Tüm Hastalar <span class="badge bg-secondary ms-1">@tumHastalar.Count</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="unassigned-patients-tab" data-bs-toggle="tab" data-bs-target="#unassigned-patients" type="button" role="tab" aria-controls="unassigned-patients" aria-selected="false">
+                <i class="bi bi-person-plus me-2"></i>Diyetisyensiz Hastalar <span class="badge bg-warning text-dark ms-1">@diyetisyensizHastalar.Count</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="patientsTabContent">
+        <!-- My Patients Tab -->
+        <div class="tab-pane fade show active" id="my-patients" role="tabpanel" aria-labelledby="my-patients-tab">
+            @if (diyetisyenHastalari.Any())
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Hasta</th>
+                                    <th>Durum</th>
+                                    <th>Diyet Planı</th>
+                                    <th>Son Randevu</th>
+                                    <th>İlerleme</th>
+                                    <th class="text-end pe-4">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var hasta in diyetisyenHastalari)
+                                {
+                                    <tr data-patient-id="@hasta.Id" data-patient-status="@(string.IsNullOrEmpty(hasta.DiyetProgramiAdi) ? "pending" : "active")">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Patient">
+                                                <div>
+                                                    <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                                    <small class="text-muted">ID: #@hasta.Id.ToString().Substring(0, 5) • @(hasta.Yas.HasValue ? $"{hasta.Yas}y" : "Yaş bilgisi yok")</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                            {
+                                                <span class="badge bg-success">Aktif</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">Beklemede</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                            {
+                                                <span>@hasta.DiyetProgramiAdi</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Henüz atanmadı</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div>-</div>
+                                            <small class="text-muted">Randevu bilgisi yok</small>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                            {
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 6px; width: 100px;">
+                                                        <div class="progress-bar bg-success" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <span class="text-muted small">50%</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">Başlamadı</span>
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary view-patient" data-id="@hasta.Id">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success message-patient" data-id="@hasta.Id">
+                                                    <i class="bi bi-chat-dots"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item assign-diet-plan" href="#" data-id="@hasta.Id" data-bs-toggle="modal" data-bs-target="#assignDietPlanModal"><i class="bi bi-clipboard2-plus me-2"></i>Diyet Planı Ata</a></li>
+                                                    <li><a class="dropdown-item edit-patient" href="#" data-id="@hasta.Id"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
+                                                    <li><a class="dropdown-item create-appointment" href="#" data-id="@hasta.Id"><i class="bi bi-calendar-plus me-2"></i>Randevu Oluştur</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger delete-patient" href="#" data-id="@hasta.Id"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i> Henüz size atanmış hasta bulunmuyor. "Diyetisyensiz Hastalar" sekmesinden hasta ekleyebilirsiniz.
+                </div>
+            }
+        </div>
+
+        <!-- All Patients Tab -->
+        <div class="tab-pane fade" id="all-patients" role="tabpanel" aria-labelledby="all-patients-tab">
+            @if (tumHastalar.Any())
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Hasta</th>
+                                    <th>Durum</th>
+                                    <th>Diyetisyen</th>
+                                    <th>Diyet Planı</th>
+                                    <th class="text-end pe-4">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var hasta in tumHastalar)
+                                {
+                                    <tr data-patient-id="@hasta.Id">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Patient">
+                                                <div>
+                                                    <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                                    <small class="text-muted">ID: #@hasta.Id.ToString().Substring(0, 5) • @(hasta.Yas.HasValue ? $"{hasta.Yas}y" : "Yaş bilgisi yok")</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (hasta.DiyetisyenId.HasValue)
+                                            {
+                                                <span class="badge bg-success">Atanmış</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">Atanmamış</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(hasta.DiyetisyenAdi))
+                                            {
+                                                <span>@hasta.DiyetisyenAdi</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                            {
+                                                <span>@hasta.DiyetProgramiAdi</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary view-patient" data-id="@hasta.Id">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                @if (hasta.DiyetisyenId == Model.Id)
+                                                {
+                                                    <button class="btn btn-sm btn-outline-success message-patient" data-id="@hasta.Id">
+                                                        <i class="bi bi-chat-dots"></i>
+                                                    </button>
+                                                }
+                                                else if (!hasta.DiyetisyenId.HasValue)
+                                                {
+                                                    <button class="btn btn-sm btn-primary assign-to-me" data-id="@hasta.Id">
+                                                        <i class="bi bi-person-plus-fill me-1"></i> Bana Ata
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i> Sistemde kayıtlı hasta bulunmuyor.
+                </div>
+            }
+        </div>
+
+        <!-- Unassigned Patients Tab -->
+        <div class="tab-pane fade" id="unassigned-patients" role="tabpanel" aria-labelledby="unassigned-patients-tab">
+            @if (diyetisyensizHastalar.Any())
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Hasta</th>
+                                    <th>Email</th>
+                                    <th>Telefon</th>
+                                    <th class="text-end pe-4">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var hasta in diyetisyensizHastalar)
+                                {
+                                    <tr data-patient-id="@hasta.Id">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Patient">
+                                                <div>
+                                                    <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                                    <small class="text-muted">ID: #@hasta.Id.ToString().Substring(0, 5) • @(hasta.Yas.HasValue ? $"{hasta.Yas}y" : "Yaş bilgisi yok")</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@hasta.Email</td>
+                                        <td>@(string.IsNullOrEmpty(hasta.Telefon) ? "-" : hasta.Telefon)</td>
+                                        <td class="text-end pe-4">
+                                            <button class="btn btn-sm btn-primary assign-to-me" data-id="@hasta.Id">
+                                                <i class="bi bi-person-plus-fill me-1"></i> Bana Ata
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i> Diyetisyene atanmamış hasta bulunmuyor.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Assign Diet Plan Modal -->
+<div class="modal fade" id="assignDietPlanModal" tabindex="-1" aria-labelledby="assignDietPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignDietPlanModalLabel">Diyet Planı Ata</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignDietPlanForm">
+                    <input type="hidden" id="patientId" name="Id">
+                    <div class="mb-3">
+                        <label for="dietPlanSelect" class="form-label">Diyet Planı Seçin</label>
+                        <select class="form-select" id="dietPlanSelect" name="DiyetProgramiId" required>
+                            <option value="" selected disabled>Diyet planı seçin</option>
+                            <!-- Diyet planları AJAX ile doldurulacak -->
+                        </select>
+                        <div class="invalid-feedback">
+                            Lütfen bir diyet planı seçin.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" id="assignDietPlanBtn" class="btn btn-success">Ata</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Patient search functionality
+            const searchPatient = document.getElementById('patientSearch');
+            if (searchPatient) {
+                searchPatient.addEventListener('keyup', function () {
+                    const searchValue = this.value.toLowerCase();
+                    const activeTab = document.querySelector('.tab-pane.active');
+                    const patientRows = activeTab.querySelectorAll('tbody tr');
+                    
+                    patientRows.forEach(row => {
+                        const patientName = row.querySelector('h6')?.textContent.toLowerCase() || '';
+                        const patientId = row.querySelector('small')?.textContent.toLowerCase() || '';
+                        
+                        if (patientName.includes(searchValue) || patientId.includes(searchValue)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Assign patient to dietitian functionality
+            document.querySelectorAll('.assign-to-me').forEach(button => {
+                button.addEventListener('click', function() {
+                    const hastaId = this.dataset.id;
+                    const button = this;
+                    
+                    console.log('Hasta ID:', hastaId); // Debug log to check the ID
+                    
+                    // Button loading state
+                    button.disabled = true;
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Atanıyor...';
+                    
+                    // Get the CSRF token from the form
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    
+                    // API call to assign patient
+                    fetch('/Dietitian/AssignPatientToDietitian', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({ hastaId: hastaId })
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status); // Debug log
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data); // Debug log
+                        if (data.success) {
+                            // Show success message and refresh page
+                            alert(data.message);
+                            window.location.reload();
+                        } else {
+                            // Show error message
+                            alert(data.message);
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Hasta atama işlemi sırasında bir hata oluştu.');
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    });
+                });
+            });
+            
+            // Load diet plans for assignment
+            document.querySelectorAll('.assign-diet-plan').forEach(button => {
+                button.addEventListener('click', function() {
+                    const patientId = this.dataset.id;
+                    document.getElementById('patientId').value = patientId;
+                    
+                    // Diyet planlarını getir
+                    fetch('/api/DiyetProgrami')
+                        .then(response => response.json())
+                        .then(data => {
+                            const select = document.getElementById('dietPlanSelect');
+                            select.innerHTML = '<option value="" selected disabled>Diyet planı seçin</option>';
+                            
+                            data.forEach(plan => {
+                                const option = document.createElement('option');
+                                option.value = plan.id;
+                                option.textContent = plan.ad;
+                                select.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Diyet planları yüklenirken hata:', error));
+                });
+            });
+            
+            // Assign diet plan
+            const assignDietPlanBtn = document.getElementById('assignDietPlanBtn');
+            if (assignDietPlanBtn) {
+                assignDietPlanBtn.addEventListener('click', function() {
+                    const form = document.getElementById('assignDietPlanForm');
+                    const patientId = document.getElementById('patientId').value;
+                    const dietPlanId = document.getElementById('dietPlanSelect').value;
+                    
+                    if (!dietPlanId) {
+                        document.getElementById('dietPlanSelect').classList.add('is-invalid');
+                        return;
+                    }
+                    
+                    // Hasta güncelleme isteği
+                    fetch(`/api/Hasta`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Id: patientId,
+                            DiyetProgramiId: dietPlanId
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Diyet planı atanırken bir hata oluştu');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        // Başarılı atama sonrası modal kapatılır ve sayfa yenilenir
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('assignDietPlanModal'));
+                        modal.hide();
+                        
+                        // Sayfayı yenile
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        alert('Hata: ' + error.message);
+                    });
+                });
+            }
+            
+            // Delete patient
+            document.querySelectorAll('.delete-patient').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (confirm('Bu hastayı silmek istediğinizden emin misiniz?')) {
+                        const patientId = this.dataset.id;
+                        
+                        fetch(`/api/Hasta/${patientId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Hasta silinirken bir hata oluştu');
+                            }
+                            return response.text();
+                        })
+                        .then(data => {
+                            // Sayfayı yenile
+                            window.location.reload();
+                        })
+                        .catch(error => {
+                            alert('Hata: ' + error.message);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+} 

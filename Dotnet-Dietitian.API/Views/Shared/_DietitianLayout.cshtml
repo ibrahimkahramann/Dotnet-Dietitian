@@ -25,7 +25,7 @@
                 <a asp-controller="Dietitian" asp-action="Dashboard" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "") py-3 px-4" id="dashboard-link">
                     <i class="bi bi-speedometer2 me-2"></i> Ana Panel
                 </a>
-                <a asp-controller="Dietitian" asp-action="Patients" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Patients" ? "active" : "") py-3 px-4" id="patients-link">
+                <a asp-controller="Dietitian" asp-action="DietitianPatients" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "DietitianPatients" ? "active" : "") py-3 px-4" id="patients-link">
                     <i class="bi bi-people me-2"></i> Hastalarım
                 </a>
                 <a asp-controller="Dietitian" asp-action="Appointments" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Appointments" ? "active" : "") py-3 px-4" id="appointments-link">
