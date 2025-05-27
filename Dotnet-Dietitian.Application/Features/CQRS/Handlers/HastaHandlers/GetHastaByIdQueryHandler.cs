@@ -97,13 +97,22 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.HastaHandlers
             var randevular = await _randevuRepository.GetAsync(r => r.HastaId == hasta.Id);
             if (randevular.Any())
             {
+                // Diyetisyen bilgilerini önce yükle
+                var diyetisyenIds = randevular.Select(r => r.DiyetisyenId).Distinct().ToList();
+                var diyetisyenler = await _diyetisyenRepository.GetAsync(d => diyetisyenIds.Contains(d.Id));
+                var diyetisyenDict = diyetisyenler.ToDictionary(d => d.Id);
+
                 result.Randevular = randevular.Select(r => new RandevuDto
                 {
                     Id = r.Id,
                     RandevuBaslangicTarihi = r.RandevuBaslangicTarihi,
                     RandevuBitisTarihi = r.RandevuBitisTarihi,
                     RandevuTuru = r.RandevuTuru,
-                    Durum = r.Durum
+                    Durum = r.Durum,
+                    DiyetisyenId = r.DiyetisyenId,
+                    DiyetisyenAd = diyetisyenDict.TryGetValue(r.DiyetisyenId, out var diyetisyen) ? diyetisyen.Ad : null,
+                    DiyetisyenSoyad = diyetisyenDict.TryGetValue(r.DiyetisyenId, out var d) ? d.Soyad : null,
+                    DiyetisyenUnvan = diyetisyenDict.TryGetValue(r.DiyetisyenId, out var dy) ? dy.Unvan : null
                 }).ToList();
             }
 

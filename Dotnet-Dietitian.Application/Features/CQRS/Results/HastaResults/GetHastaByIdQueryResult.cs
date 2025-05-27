@@ -46,5 +46,9 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
         public DateTime RandevuBitisTarihi { get; set; }
         public string? RandevuTuru { get; set; }
         public string? Durum { get; set; }
+        public Guid DiyetisyenId { get; set; }
+        public string? DiyetisyenAd { get; set; }
+        public string? DiyetisyenSoyad { get; set; }
+        public string? DiyetisyenUnvan { get; set; }
     }
 }
