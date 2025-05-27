@@ -251,8 +251,7 @@ namespace Dotnet_Dietitian.API.Controllers
                 return RedirectToAction("Appointments");
             }
         }
-        
-        public async Task<IActionResult> Messages()
+          public async Task<IActionResult> Messages()
         {
             try
             {
@@ -263,8 +262,8 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Hasta verilerini getir
-                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                // Hasta verilerini diyetisyen bilgileriyle birlikte getir
+                var hastaModel = await _mediator.Send(new GetHastaWithDiyetProgramiQuery(hastaId));
                 
                 // Mesajları getirmek için sorgu yapılabilir
                 // var mesajlar = await _mediator.Send(new GetMesajlarByHastaIdQuery(hastaId));

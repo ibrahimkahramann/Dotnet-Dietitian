@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test - Message Debug</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+</head>
+<body>
+    <h1>Message API Debug Test</h1>
+    
+    <div id="auth-test">
+        <h2>Authentication Test</h2>
+        <button onclick="testAuth()">Test Auth Status</button>
+        <div id="auth-result"></div>
+    </div>
+    
+    <div id="api-test">
+        <h2>API Endpoints Test</h2>
+        <button onclick="testMessageAPI()">Test Message API</button>
+        <div id="api-result"></div>
+    </div>
+    
+    <div id="signalr-test">
+        <h2>SignalR Test</h2>
+        <button onclick="testSignalR()">Test SignalR Connection</button>
+        <div id="signalr-result"></div>
+    </div>
+    
+    <div id="patient-data">
+        <h2>Patient/Dietitian Data Test</h2>
+        <button onclick="testUserData()">Test User Data Access</button>
+        <div id="userdata-result"></div>
+    </div>
+    
+    <script>
+        async function testAuth() {
+            const result = document.getElementById('auth-result');
+            try {
+                const response = await fetch('/api/auth/status', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    result.innerHTML = `<span style="color: red;">Auth failed: ${response.status} ${response.statusText}</span>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span style="color: red;">Auth error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testMessageAPI() {
+            const result = document.getElementById('api-result');
+            
+            // Test getting conversation (should return empty or error if not authenticated)
+            try {
+                const response = await fetch('/api/Mesaj/conversation?user1Id=00000000-0000-0000-0000-000000000000&user1Type=Hasta&user2Id=00000000-0000-0000-0000-000000000000&user2Type=Diyetisyen&count=10', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `<strong>Message API Response:</strong><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    result.innerHTML = `<span style="color: red;">API failed: ${response.status} ${response.statusText}</span>`;
+                    const errorText = await response.text();
+                    result.innerHTML += `<br><small>${errorText}</small>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span style="color: red;">API error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testSignalR() {
+            const result = document.getElementById('signalr-result');
+            
+            try {
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/mesajlasmahub")
+                    .withAutomaticReconnect()
+                    .build();
+                
+                connection.onreconnecting(() => {
+                    result.innerHTML += "<br>Reconnecting...";
+                });
+                
+                connection.onreconnected(() => {
+                    result.innerHTML += "<br>Reconnected!";
+                });
+                
+                connection.onclose(() => {
+                    result.innerHTML += "<br>Connection closed.";
+                });
+                
+                await connection.start();
+                result.innerHTML = "<span style='color: green;'>SignalR connected successfully!</span>";
+                
+                // Test sending a test message to the hub
+                connection.on("ReceiveMessage", (message) => {
+                    result.innerHTML += `<br>Received message: ${JSON.stringify(message)}`;
+                });
+                
+                setTimeout(() => {
+                    connection.stop();
+                }, 5000);
+                
+            } catch (error) {
+                result.innerHTML = `<span style="color: red;">SignalR error: ${error.message}</span>`;
+            }
+        }
+        
+        async function testUserData() {
+            const result = document.getElementById('userdata-result');
+            
+            try {
+                // Test accessing patient data
+                const patientResponse = await fetch('/Patient/GetCurrentPatient', {
+                    credentials: 'include'
+                });
+                
+                if (patientResponse.ok) {
+                    const patientData = await patientResponse.json();
+                    result.innerHTML = `<strong>Patient Data:</strong><pre>${JSON.stringify(patientData, null, 2)}</pre>`;
+                } else {
+                    result.innerHTML = `Patient endpoint: ${patientResponse.status} ${patientResponse.statusText}<br>`;
+                }
+                
+                // Test accessing dietitian data
+                const dietitianResponse = await fetch('/Dietitian/GetCurrentDietitian', {
+                    credentials: 'include'
+                });
+                
+                if (dietitianResponse.ok) {
+                    const dietitianData = await dietitianResponse.json();
+                    result.innerHTML += `<strong>Dietitian Data:</strong><pre>${JSON.stringify(dietitianData, null, 2)}</pre>`;
+                } else {
+                    result.innerHTML += `Dietitian endpoint: ${dietitianResponse.status} ${dietitianResponse.statusText}`;
+                }
+                
+            } catch (error) {
+                result.innerHTML = `<span style="color: red;">User data error: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

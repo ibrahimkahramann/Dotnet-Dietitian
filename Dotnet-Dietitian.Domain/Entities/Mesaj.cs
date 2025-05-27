@@ -12,13 +12,5 @@ namespace Dotnet_Dietitian.Domain.Entities
         public DateTime GonderimZamani { get; set; } = DateTime.Now;
         public bool Okundu { get; set; } = false;
         public DateTime? OkunmaZamani { get; set; }
-        
-        // Gönderen navigation properties
-        public virtual Diyetisyen? GonderenDiyetisyen { get; set; }
-        public virtual Hasta? GonderenHasta { get; set; }
-        
-        // Alıcı navigation properties
-        public virtual Diyetisyen? AliciDiyetisyen { get; set; }
-        public virtual Hasta? AliciHasta { get; set; }
     }
 }

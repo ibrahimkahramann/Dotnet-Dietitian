@@ -125,8 +125,7 @@ public class ApplicationDbContext : DbContext
                     .HasForeignKey(du => du.DiyetisyenId)
                     .OnDelete(DeleteBehavior.Cascade);
         });
-        
-        // Mesaj yapılandırması
+          // Mesaj yapılandırması
         modelBuilder.Entity<Mesaj>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -135,37 +134,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.AliciId).IsRequired();
             entity.Property(e => e.AliciTipi).HasMaxLength(20).IsRequired();
             entity.Property(e => e.Icerik).IsRequired();
-            entity.Property(e => e.GonderimZamani).IsRequired();
-            entity.Property(e => e.Okundu).HasDefaultValue(false);
-            
-            // İlişkilerin tanımlanması
-            entity.HasOne(m => m.GonderenDiyetisyen)
-                .WithMany(d => d.GonderilenMesajlar)
-                .HasForeignKey(m => m.GonderenId)
-                .HasPrincipalKey(d => d.Id)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
-            
-            entity.HasOne(m => m.GonderenHasta)
-                .WithMany(h => h.GonderilenMesajlar)
-                .HasForeignKey(m => m.GonderenId)
-                .HasPrincipalKey(h => h.Id)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
-            
-            entity.HasOne(m => m.AliciDiyetisyen)
-                .WithMany(d => d.AlinanMesajlar)
-                .HasForeignKey(m => m.AliciId) 
-                .HasPrincipalKey(d => d.Id)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
-            
-            entity.HasOne(m => m.AliciHasta)
-                .WithMany(h => h.AlinanMesajlar)
-                .HasForeignKey(m => m.AliciId)
-                .HasPrincipalKey(h => h.Id)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired(false);
+            entity.Property(e => e.GonderimZamani).IsRequired();            entity.Property(e => e.Okundu).HasDefaultValue(false);
         });
         
         base.OnModelCreating(modelBuilder);

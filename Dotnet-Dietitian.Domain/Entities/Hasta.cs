@@ -23,12 +23,9 @@ public class Hasta : BaseEntity
     public string? KronikHastaliklar { get; set; }
     public string? KullanilanIlaclar { get; set; }
     public bool SaglikBilgisiPaylasimiIzni { get; set; }
-    
-    // Navigation properties
+      // Navigation properties
     public virtual Diyetisyen? Diyetisyen { get; set; }
     public virtual DiyetProgrami? DiyetProgrami { get; set; }
     public virtual ICollection<OdemeBilgisi> Odemeler { get; set; }
     public virtual ICollection<Randevu> Randevular { get; set; }
-    public virtual ICollection<Mesaj> GonderilenMesajlar { get; set; } = new List<Mesaj>();
-    public virtual ICollection<Mesaj> AlinanMesajlar { get; set; } = new List<Mesaj>();
 }

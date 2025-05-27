@@ -10,6 +10,9 @@ using MassTransit;
 using Dotnet_Dietitian.Infrastructure.Consumers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +26,15 @@ builder.Services.AddAuthentication(options =>
 {
     options.ForwardDefaultSelector = context =>
     {
+        // API paths can use both JWT and Cookie authentication
+        // First try JWT, and if that fails, try Cookie
         if (context.Request.Path.StartsWithSegments("/api"))
-            return JwtBearerDefaults.AuthenticationScheme;
+        {
+            var authorization = context.Request.Headers["Authorization"].FirstOrDefault();
+            return !string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer ") 
+                ? JwtBearerDefaults.AuthenticationScheme 
+                : CookieAuthenticationDefaults.AuthenticationScheme;
+        }
         
         return CookieAuthenticationDefaults.AuthenticationScheme;
     };
@@ -49,6 +59,23 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
     };
+    
+    // This is important - allow cookies to be sent with JWT bearer token requests
+    opt.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Check for the JWT token in the cookie if it's not in the Authorization header
+            if (string.IsNullOrEmpty(context.Token))
+            {
+                if (context.Request.Cookies.TryGetValue("jwt_token", out string? token) && token != null)
+                {
+                    context.Token = token;
+                }
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 // Add services to the container
 builder.Services.AddControllersWithViews()
@@ -64,7 +91,16 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // SignalR ekleyin
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options => 
+{
+    // Increase timeout values for better reconnection experience
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+});
+
+// Configure SignalR user identification
+builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
 // MassTransit yapılandırma işlemleri - sadece production'da çalışsın
 if (!builder.Environment.IsDevelopment())
