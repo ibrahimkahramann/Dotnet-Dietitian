@@ -1,12 +1,32 @@
 @using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults
 @model GetDiyetisyenByIdQueryResult
 @{
     ViewData["Title"] = "Diyet Planları";
     Layout = "_DietitianLayout";
+    var sablonlar = ViewBag.Sablonlar as List<GetDiyetProgramiQueryResult> ?? new List<GetDiyetProgramiQueryResult>();
+    var atanmisPlanlar = ViewBag.AtanmisPlanlar as List<GetDiyetProgramiQueryResult> ?? new List<GetDiyetProgramiQueryResult>();
 }
 
 <div class="container-fluid p-4">
     <div class="diet-plans-content">
+        <!-- Success and Error Messages -->
+        @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-check-circle me-2"></i> @ViewBag.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i> @ViewBag.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        
         <!-- Header and Filters -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
             <div class="mb-3 mb-md-0">
@@ -33,7 +53,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="false">
-                    Atanmış Planlar <span class="badge bg-success ms-1">@(ViewBag.AtanmisPlanlar?.Count ?? 0)</span>
+                    Atanmış Planlar <span class="badge bg-success ms-1">@atanmisPlanlar.Count</span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -46,9 +66,9 @@
             <!-- Plan Templates -->
             <div class="tab-pane fade show active" id="templates" role="tabpanel" aria-labelledby="templates-tab">
                 <div class="row g-4" id="templatesContainer">
-                    @if (ViewBag.Sablonlar != null)
+                    @if (sablonlar.Any())
                     {
-                        @foreach (var sablon in ViewBag.Sablonlar)
+                        foreach (var sablon in sablonlar)
                         {
                             <div class="col-md-6 col-lg-4">
                                 <div class="card border-0 shadow-sm h-100">
@@ -62,7 +82,7 @@
                                                 <p class="text-muted mb-0 small">Şablon</p>
                                             </div>
                                         </div>
-                                        <p class="card-text text-muted">@sablon.Aciklama</p>
+                                        <p class="card-text text-muted">@(sablon.Aciklama ?? "Açıklama bulunmuyor")</p>
                                         <div>
                                             <span class="badge bg-light text-dark me-1">@sablon.ProteinGram g Protein</span>
                                             <span class="badge bg-light text-dark me-1">@sablon.KarbonhidratGram g Karbonhidrat</span>
@@ -71,13 +91,13 @@
                                     </div>
                                     <div class="card-footer bg-white p-4 border-top-0">
                                         <div class="d-flex">
-                                            <a href="#" class="btn btn-sm btn-outline-success me-2">
+                                            <a href="/Dietitian/ViewDietPlan/@sablon.Id" class="btn btn-sm btn-outline-success me-2">
                                                 <i class="bi bi-eye me-1"></i> Görüntüle
                                             </a>
-                                            <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                                            <a href="/Dietitian/EditDietPlan/@sablon.Id" class="btn btn-sm btn-outline-primary me-2">
                                                 <i class="bi bi-pencil me-1"></i> Düzenle
                                             </a>
-                                            <a href="#" class="btn btn-sm btn-primary ms-auto">
+                                            <a href="/Dietitian/AssignDietPlan/@sablon.Id" class="btn btn-sm btn-primary ms-auto">
                                                 <i class="bi bi-person-plus me-1"></i> Ata
                                             </a>
                                         </div>
@@ -85,6 +105,14 @@
                                 </div>
                             </div>
                         }
+                    }
+                    else
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i> Henüz oluşturulmuş diyet planı şablonu bulunmamaktadır.
+                            </div>
+                        </div>
                     }
 
                     <!-- Create New Template Card -->
@@ -107,21 +135,21 @@
 
             <!-- Active Plans -->
             <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>Plan Adı</th>
-                                <th>Başlangıç</th>
-                                <th>Bitiş</th>
-                                <th>Hasta Sayısı</th>
-                                <th class="text-end">İşlemler</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (ViewBag.AtanmisPlanlar != null)
-                            {
-                                @foreach (var program in ViewBag.AtanmisPlanlar)
+                @if (atanmisPlanlar.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Plan Adı</th>
+                                    <th>Başlangıç</th>
+                                    <th>Bitiş</th>
+                                    <th>Hasta Sayısı</th>
+                                    <th class="text-end">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var program in atanmisPlanlar)
                                 {
                                     <tr>
                                         <td>
@@ -131,32 +159,50 @@
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0">@program.Ad</h6>
-                                                    <small class="text-muted">@program.Aciklama</small>
+                                                    <small class="text-muted">@(program.Aciklama?.Substring(0, Math.Min(program.Aciklama.Length, 50)) ?? "")</small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>@program.BaslangicTarihi?.ToString("dd.MM.yyyy")</td>
                                         <td>@program.BitisTarihi?.ToString("dd.MM.yyyy")</td>
                                         <td>
-                                            <span class="badge bg-primary">-</span>
+                                            <span class="badge bg-primary">@(program.DiyetisyenAdi != null ? "1" : "0")</span>
                                         </td>
                                         <td class="text-end">
-                                            <button class="btn btn-sm btn-outline-success me-1">
+                                            <a href="/Dietitian/ViewDietPlan/@program.Id" class="btn btn-sm btn-outline-success me-1">
                                                 <i class="bi bi-eye"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-primary me-1">
+                                            </a>
+                                            <a href="/Dietitian/EditDietPlan/@program.Id" class="btn btn-sm btn-outline-primary me-1">
                                                 <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-secondary">
-                                                <i class="bi bi-three-dots"></i>
-                                            </button>
+                                            </a>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="/Dietitian/AssignDietPlan/@program.Id"><i class="bi bi-person-plus me-2"></i>Hastaya Ata</a></li>
+                                                    <li><a class="dropdown-item" href="/Dietitian/ArchiveDietPlan/@program.Id"><i class="bi bi-archive me-2"></i>Arşivle</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deletePlanModal" data-plan-id="@program.Id"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-clipboard-x text-muted fs-1"></i>
+                        </div>
+                        <h5>Atanmış Plan Bulunamadı</h5>
+                        <p class="text-muted">Henüz hiçbir diyet planı hastalara atanmamıştır.</p>
+                    </div>
+                }
             </div>
 
             <!-- Archive Plans -->
@@ -182,8 +228,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                @Html.AntiForgeryToken()
                 <form id="createPlanForm">
+                    @Html.AntiForgeryToken()
                     <div class="mb-3">
                         <label for="planName" class="form-label">Plan Adı</label>
                         <input type="text" class="form-control" id="planName" placeholder="Örn: Kilo Verme Planı" required>
@@ -194,13 +240,24 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
+                            <label for="planCategory" class="form-label">Kategori</label>
+                            <select class="form-select" id="planCategory">
+                                <option value="kilo-verme" selected>Kilo Verme</option>
+                                <option value="kilo-alma">Kilo Alma</option>
+                                <option value="kas-kazanma">Kas Kazanma</option>
+                                <option value="dengeli-beslenme">Dengeli Beslenme</option>
+                                <option value="akdeniz-diyeti">Akdeniz Diyeti</option>
+                                <option value="diyabet">Diyabet Dostu</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
                             <label for="planDuration" class="form-label">Süre (Gün)</label>
                             <input type="number" class="form-control" id="planDuration" min="1" max="365" value="90" required>
                         </div>
-                        <div class="col-md-6">
-                            <label for="dailySteps" class="form-label">Günlük Adım Hedefi</label>
-                            <input type="number" class="form-control" id="dailySteps" min="1000" max="20000" value="8000">
-                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dailySteps" class="form-label">Günlük Adım Hedefi</label>
+                        <input type="number" class="form-control" id="dailySteps" min="1000" max="20000" value="8000">
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
@@ -221,6 +278,29 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
                 <button type="button" class="btn btn-success" id="createPlanBtn">Plan Oluştur</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Plan Confirmation Modal -->
+<div class="modal fade" id="deletePlanModal" tabindex="-1" aria-labelledby="deletePlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePlanModalLabel">Diyet Planını Sil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bu diyet planını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+                <form id="deletePlanForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="deletePlanId" value="">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Sil</button>
             </div>
         </div>
     </div>
@@ -250,6 +330,90 @@
                 });
             }
 
+            // Handle delete plan modal
+            const deletePlanModal = document.getElementById('deletePlanModal');
+            if (deletePlanModal) {
+                deletePlanModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const planId = button.getAttribute('data-plan-id');
+                    document.getElementById('deletePlanId').value = planId;
+                });
+            }
+
+            // Function to get JWT token from cookie
+            function getJwtToken() {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('jwt_token=')) {
+                        return cookie.substring('jwt_token='.length, cookie.length);
+                    }
+                }
+                return null;
+            }
+
+            // Handle delete plan confirmation
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', async function () {
+                    const planId = document.getElementById('deletePlanId').value;
+                    if (!planId) return;
+
+                    try {
+                        const token = document.querySelector('#deletePlanForm input[name="__RequestVerificationToken"]').value;
+                        const jwtToken = getJwtToken();
+                        
+                        const headers = {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        };
+                        
+                        // Add JWT token if available
+                        if (jwtToken) {
+                            headers['Authorization'] = `Bearer ${jwtToken}`;
+                        }
+                        
+                        const response = await fetch(`/api/DiyetProgrami/${planId}`, {
+                            method: 'DELETE',
+                            headers: headers,
+                            credentials: 'include'
+                        });
+
+                        if (response.ok) {
+                            const modal = bootstrap.Modal.getInstance(deletePlanModal);
+                            modal.hide();
+                            location.reload();
+                        } else {
+                            let errorMessage = `HTTP ${response.status}: `;
+                            
+                            try {
+                                const errorData = await response.json();
+                                errorMessage += errorData.message || errorData.title || 'Bir hata oluştu';
+                                
+                                // Kimlik doğrulama hatası için özel mesaj
+                                if (response.status === 401) {
+                                    console.error('Kimlik doğrulama hatası:', errorData);
+                                    alert('Oturum süreniz dolmuş olabilir. Lütfen sayfayı yenileyip tekrar giriş yapın.');
+                                    // Kullanıcıyı giriş sayfasına yönlendir
+                                    setTimeout(() => {
+                                        window.location.href = '/Account/Login?returnUrl=/Dietitian/DietPlans';
+                                    }, 1000);
+                                    return;
+                                }
+                            } catch (parseError) {
+                                console.error('Response parsing error:', parseError);
+                                errorMessage += 'İstek işlenirken bir hata oluştu';
+                            }
+                            
+                            throw new Error(errorMessage);
+                        }
+                    } catch (error) {
+                        console.error('Error deleting diet plan:', error);
+                        alert('Diyet planı silinirken bir hata oluştu: ' + error.message);
+                    }
+                });
+            }
+
             // Handle form submission for creating a new diet plan
             const createPlanBtn = document.getElementById('createPlanBtn');
             if (createPlanBtn) {
@@ -275,14 +439,28 @@
                     };
 
                     try {
-                        // Mevcut DiyetProgramiController API endpoint'ini kullan
+                        // CSRF token'ı al
+                        const token = document.querySelector('#createPlanForm input[name="__RequestVerificationToken"]').value;
+                        // JWT token'ı al
+                        const jwtToken = getJwtToken();
+                        
+                        // Headers oluştur
+                        const headers = { 
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        };
+                        
+                        // JWT token varsa ekle
+                        if (jwtToken) {
+                            headers['Authorization'] = `Bearer ${jwtToken}`;
+                        }
+
+                        // API çağrısı yap
                         const response = await fetch('/api/DiyetProgrami', {
                             method: 'POST',
-                            headers: { 
-                                'Content-Type': 'application/json'
-                            },
+                            headers: headers,
                             body: JSON.stringify(planData),
-                            credentials: 'same-origin' // Cookie authentication için
+                            credentials: 'include'
                         });
 
                         if (response.ok) {
@@ -291,8 +469,30 @@
                             modal.hide();
                             location.reload();
                         } else {
-                            const errorText = await response.text();
-                            throw new Error(`HTTP ${response.status}: ${errorText}`);
+                            let errorMessage = `HTTP ${response.status}: `;
+                            
+                            try {
+                                // Yanıtı JSON olarak okumayı dene
+                                const errorData = await response.json();
+                                errorMessage += errorData.message || errorData.title || 'Bir hata oluştu';
+                                
+                                // Kimlik doğrulama hatası için özel mesaj
+                                if (response.status === 401) {
+                                    console.error('Kimlik doğrulama hatası:', errorData);
+                                    alert('Oturum süreniz dolmuş olabilir. Lütfen sayfayı yenileyip tekrar giriş yapın.');
+                                    // Kullanıcıyı giriş sayfasına yönlendir
+                                    setTimeout(() => {
+                                        window.location.href = '/Account/Login?returnUrl=/Dietitian/DietPlans';
+                                    }, 1000);
+                                    return;
+                                }
+                            } catch (parseError) {
+                                // JSON olarak okunamazsa genel bir hata mesajı
+                                console.error('Response parsing error:', parseError);
+                                errorMessage += 'İstek işlenirken bir hata oluştu';
+                            }
+                            
+                            throw new Error(errorMessage);
                         }
                         
                     } catch (error) {

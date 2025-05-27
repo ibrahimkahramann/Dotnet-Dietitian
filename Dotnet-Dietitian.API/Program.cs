@@ -23,6 +23,14 @@ builder.Services.AddAuthentication(options =>
 {
     options.ForwardDefaultSelector = context =>
     {
+        // If it's an API request but has a CSRF token header, use cookie auth
+        if (context.Request.Path.StartsWithSegments("/api") && 
+            context.Request.Headers.ContainsKey("RequestVerificationToken"))
+        {
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        }
+        
+        // Otherwise follow the normal path-based selection
         if (context.Request.Path.StartsWithSegments("/api"))
             return JwtBearerDefaults.AuthenticationScheme;
         
@@ -53,6 +61,16 @@ builder.Services.AddAuthentication(options =>
 // Add services to the container
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation(); // Hot reload
+
+// Antiforgery ayarları
+builder.Services.AddAntiforgery(options => {
+    options.HeaderName = "RequestVerificationToken";
+    options.SuppressXFrameOptionsHeader = false;
+    // Cookie'yi SameSiteStrict olarak ayarla - CSRF saldırılarına karşı ek koruma
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    // Cookie güvenliğini artır
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
 
 builder.Services.AddApplicationServices(builder.Configuration);
 
@@ -100,18 +118,20 @@ else
 
 var app = builder.Build();
 
+// Middleware sıralaması kritiktir!
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dotnet-Dietitian API v1"));
 }
 
-//exception handler
+//exception handler - en üstte olmalı!
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseHttpsRedirection();
+// Kimlik doğrulama ve yetkilendirme middleware'leri sırasıyla çalışmalı
 app.UseAuthentication();
 app.UseAuthorization();
 

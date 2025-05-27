@@ -1,0 +1,283 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@{
+    ViewData["Title"] = "Diyet Planı Ata";
+    Layout = "_DietitianLayout";
+    var diyetProgrami = ViewBag.DiyetProgrami;
+    var hastalar = ViewBag.Hastalar as List<GetHastaQueryResult> ?? new List<GetHastaQueryResult>();
+}
+
+<div class="container-fluid p-4">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h2 class="fw-bold mb-0">Diyet Planı Ata</h2>
+            <p class="text-muted">@diyetProgrami.Ad planını bir hastaya atayın</p>
+        </div>
+        <div>
+            <a href="/Dietitian/DietPlans" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Geri Dön
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4 mb-lg-0">
+            <!-- Plan Özeti -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Plan Bilgileri</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                            <i class="bi bi-clipboard2-pulse fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">@diyetProgrami.Ad</h5>
+                            <p class="text-muted mb-0 small">Diyet Planı</p>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted">@(string.IsNullOrEmpty(diyetProgrami.Aciklama) ? "Açıklama bulunmuyor" : diyetProgrami.Aciklama)</p>
+                    <div>
+                        <span class="badge bg-light text-dark me-1">@diyetProgrami.ProteinGram g Protein</span>
+                        <span class="badge bg-light text-dark me-1">@diyetProgrami.KarbonhidratGram g Karbonhidrat</span>
+                        <span class="badge bg-light text-dark">@diyetProgrami.YagGram g Yağ</span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-primary me-1">@(diyetProgrami.BaslangicTarihi?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş")</span> - 
+                        <span class="badge bg-primary">@(diyetProgrami.BitisTarihi?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Hasta Seçimi -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Hasta Seçimi</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (hastalar.Any())
+                    {
+                        <form asp-controller="Dietitian" asp-action="AssignDietPlan" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="diyetProgramiId" value="@diyetProgrami.Id">
+
+                            <div class="mb-3">
+                                <label for="hastaFilter" class="form-label">Hasta Ara</label>
+                                <input type="text" class="form-control" id="hastaFilter" placeholder="Hasta adı, soyadı veya TC kimlik no ile arayın...">
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th style="width: 50px;"></th>
+                                            <th>Hasta Bilgileri</th>
+                                            <th>TC Kimlik No</th>
+                                            <th>Mevcut Plan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="hastaListesi">
+                                        @foreach (var hasta in hastalar)
+                                        {
+                                            <tr class="hasta-item">
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="hastaId" value="@hasta.Id" id="hasta_@hasta.Id" required>
+                                                        <label class="form-check-label" for="hasta_@hasta.Id"></label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-success bg-opacity-10 p-2 rounded text-success me-3">
+                                                            <i class="bi bi-person"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                                            <small class="text-muted">@hasta.Yas yaş, @hasta.Boy cm, @hasta.Kilo kg</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>@hasta.TcKimlikNumarasi</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(hasta.DiyetProgramiAdi))
+                                                    {
+                                                        <span class="badge bg-warning">@hasta.DiyetProgramiAdi</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">Plan Yok</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="alert alert-warning mt-3" id="planDegisimUyari" style="display: none;">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Seçtiğiniz hastanın zaten bir diyet planı var. Bu işlem mevcut planı değiştirecektir.
+                            </div>
+
+                            <div class="text-end mt-4">
+                                <button type="button" class="btn btn-outline-secondary me-2" onclick="history.back()">İptal</button>
+                                <button type="submit" class="btn btn-success">Planı Ata</button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="bi bi-people text-muted fs-1"></i>
+                            </div>
+                            <h5>Hasta Bulunamadı</h5>
+                            <p class="text-muted">Henüz kayıtlı bir hastanız bulunmamaktadır.</p>
+                            <a href="/Dietitian/AddPatient" class="btn btn-success mt-2">
+                                <i class="bi bi-person-plus me-1"></i> Yeni Hasta Ekle
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to get JWT token from cookie
+            function getJwtToken() {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('jwt_token=')) {
+                        return cookie.substring('jwt_token='.length, cookie.length);
+                    }
+                }
+                return null;
+            }
+            
+            // Hasta arama filtresi
+            const hastaFilter = document.getElementById('hastaFilter');
+            if (hastaFilter) {
+                hastaFilter.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase();
+                    const hastaItems = document.querySelectorAll('.hasta-item');
+
+                    hastaItems.forEach(item => {
+                        const hastaText = item.textContent.toLowerCase();
+                        if (hastaText.includes(searchTerm)) {
+                            item.style.display = 'table-row';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Plan değişim uyarısı
+            const radioButtons = document.querySelectorAll('input[name="hastaId"]');
+            const planDegisimUyari = document.getElementById('planDegisimUyari');
+
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const row = this.closest('tr');
+                    const planCell = row.querySelector('td:last-child');
+                    
+                    if (planCell.textContent.trim() !== 'Plan Yok') {
+                        planDegisimUyari.style.display = 'block';
+                    } else {
+                        planDegisimUyari.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Form gönderimi
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    // Seçili hasta kontrolü
+                    const selectedHasta = document.querySelector('input[name="hastaId"]:checked');
+                    if (!selectedHasta) {
+                        alert('Lütfen bir hasta seçin.');
+                        return;
+                    }
+                    
+                    const hastaId = selectedHasta.value;
+                    const diyetProgramiId = document.querySelector('input[name="diyetProgramiId"]').value;
+                    
+                    try {
+                        // CSRF token'ı al
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        // JWT token'ı al
+                        const jwtToken = getJwtToken();
+                        
+                        // Headers oluştur
+                        const headers = { 
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        };
+                        
+                        // JWT token varsa ekle
+                        if (jwtToken) {
+                            headers['Authorization'] = `Bearer ${jwtToken}`;
+                        }
+                        
+                        // API çağrısı yerine controller action'a post yapalım
+                        const response = await fetch('/Dietitian/AssignDietPlan', {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify({
+                                hastaId: hastaId,
+                                diyetProgramiId: diyetProgramiId
+                            }),
+                            credentials: 'include'
+                        });
+                        
+                        if (response.ok) {
+                            alert('Diyet planı hastaya başarıyla atandı!');
+                            window.location.href = '/Dietitian/DietPlans';
+                        } else {
+                            let errorMessage = `HTTP ${response.status}: `;
+                            
+                            try {
+                                const errorData = await response.json();
+                                errorMessage += errorData.message || errorData.title || 'Bir hata oluştu';
+                                
+                                // Kimlik doğrulama hatası için özel mesaj
+                                if (response.status === 401) {
+                                    console.error('Kimlik doğrulama hatası:', errorData);
+                                    alert('Oturum süreniz dolmuş olabilir. Lütfen sayfayı yenileyip tekrar giriş yapın.');
+                                    // Kullanıcıyı giriş sayfasına yönlendir
+                                    setTimeout(() => {
+                                        window.location.href = '/Account/Login?returnUrl=/Dietitian/AssignDietPlan/@diyetProgrami.Id';
+                                    }, 1000);
+                                    return;
+                                }
+                            } catch (parseError) {
+                                console.error('Response parsing error:', parseError);
+                                errorMessage += 'İstek işlenirken bir hata oluştu';
+                            }
+                            
+                            alert('Atama sırasında bir hata oluştu: ' + errorMessage);
+                        }
+                    } catch (error) {
+                        console.error('Error assigning diet plan:', error);
+                        alert('Diyet planı atanırken bir hata oluştu: ' + error.message);
+                    }
+                });
+            }
+        });
+    </script>
+} 

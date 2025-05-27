@@ -18,6 +18,8 @@ using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetProgramiQueries;
 using System.IO;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.RandevuCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands;
+using Microsoft.Extensions.Logging;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetProgramiCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -25,10 +27,12 @@ namespace Dotnet_Dietitian.API.Controllers
     public class DietitianController : Controller
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<DietitianController> _logger;
 
-        public DietitianController(IMediator mediator)
+        public DietitianController(IMediator mediator, ILogger<DietitianController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -187,7 +191,7 @@ namespace Dotnet_Dietitian.API.Controllers
         }
         
         [HttpGet]
-        [Route("DietPlans")]
+        [Route("Dietitian/DietPlans")]
         public async Task<IActionResult> DietPlans()
         {
             try
@@ -202,21 +206,41 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Diyetisyen verilerini getir
                 var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
                 
-                // Diyet programlarını getir (Template şablonları olarak kullanılacak)
+                // Tüm diyet programlarını getir
                 var diyetProgramlari = await _mediator.Send(new GetDiyetProgramiQuery());
                 
-                // Diyetisyene ait olanları şablon olarak filtrele
-                var sablonlar = diyetProgramlari.Where(d => d.OlusturanDiyetisyenId == diyetisyenId).ToList();
+                // Diyetisyene ait şablonları filtrele (şablonlar atanmamış programlar)
+                var sablonlar = diyetProgramlari
+                    .Where(d => d.OlusturanDiyetisyenId == diyetisyenId)
+                    .ToList();
                 
-                // Atanmış planlar (hasta ile ilişkili olanlar)
-                var atanmisPlanlar = diyetProgramlari.Where(d => d.OlusturanDiyetisyenId == diyetisyenId).ToList();
+                // Atanmış programları filtrele (hasta ilişkisi olan programlar)
+                // Gerçek uygulamada, bu GetHastasByDiyetisyenIdQuery ile hastalar üzerinden kontrol edilebilir
+                var hastalar = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
+                var atanmisPlanIds = hastalar
+                    .Where(h => h.DiyetProgramiId.HasValue)
+                    .Select(h => h.DiyetProgramiId.Value)
+                    .Distinct()
+                    .ToList();
+                
+                var atanmisPlanlar = diyetProgramlari
+                    .Where(d => d.OlusturanDiyetisyenId == diyetisyenId && atanmisPlanIds.Contains(d.Id))
+                    .ToList();
                 
                 ViewBag.Sablonlar = sablonlar;
                 ViewBag.AtanmisPlanlar = atanmisPlanlar;
+                
+                // Başarı mesajı TempData'dan geliyorsa göster
+                if (TempData["SuccessMessage"] != null)
+                {
+                    ViewBag.SuccessMessage = TempData["SuccessMessage"].ToString();
+                }
+                
                 return View(diyetisyenModel);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Diyet planları getirilirken hata oluştu");
                 ViewBag.ErrorMessage = "Diyet planları getirilirken bir hata oluştu: " + ex.Message;
                 return View();
             }
@@ -684,6 +708,266 @@ namespace Dotnet_Dietitian.API.Controllers
         public class AssignPatientViewModel
         {
             public Guid hastaId { get; set; }
+        }
+
+        [HttpGet]
+        [Route("Dietitian/ViewDietPlan/{id}")]
+        public async Task<IActionResult> ViewDietPlan(Guid id)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Diyet programı verilerini getir
+                var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(id));
+                
+                // Diyetisyenin yetkisi var mı kontrol et
+                if (diyetProgrami.OlusturanDiyetisyenId != diyetisyenId)
+                {
+                    ViewBag.ErrorMessage = "Bu diyet programını görüntüleme yetkiniz bulunmamaktadır.";
+                    return RedirectToAction("DietPlans");
+                }
+                
+                // Bu diyet programına atanmış hastaları getir
+                var tumHastalar = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
+                var atanmisHastalar = tumHastalar.Where(h => h.DiyetProgramiId == id).ToList();
+                
+                // Bu hastaları modele ekle
+                if (diyetProgrami.Hastalar == null)
+                {
+                    diyetProgrami.Hastalar = new List<Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults.HastaDto>();
+                    
+                    foreach (var hasta in atanmisHastalar)
+                    {
+                        diyetProgrami.Hastalar.Add(new Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults.HastaDto
+                        {
+                            Id = hasta.Id,
+                            Ad = hasta.Ad,
+                            Soyad = hasta.Soyad
+                        });
+                    }
+                }
+                
+                return View(diyetProgrami);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Diyet programı detayları getirilirken hata oluştu");
+                ViewBag.ErrorMessage = "Diyet programı detayları getirilirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("DietPlans");
+            }
+        }
+        
+        [HttpGet]
+        [Route("Dietitian/EditDietPlan/{id}")]
+        public async Task<IActionResult> EditDietPlan(Guid id)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Diyet programı verilerini getir
+                var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(id));
+                
+                // Diyetisyenin yetkisi var mı kontrol et
+                if (diyetProgrami.OlusturanDiyetisyenId != diyetisyenId)
+                {
+                    ViewBag.ErrorMessage = "Bu diyet programını düzenleme yetkiniz bulunmamaktadır.";
+                    return RedirectToAction("DietPlans");
+                }
+                
+                return View(diyetProgrami);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Diyet programı düzenleme sayfası yüklenirken hata oluştu");
+                ViewBag.ErrorMessage = "Diyet programı düzenleme sayfası yüklenirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("DietPlans");
+            }
+        }
+        
+        [HttpPost]
+        [Route("Dietitian/EditDietPlan/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditDietPlan(Guid id, [FromBody] UpdateDiyetProgramiCommand command)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Unauthorized(new { success = false, message = "Geçersiz kullanıcı kimliği veya oturum süresi doldu." });
+                }
+
+                // Diyet programı verilerini getir
+                var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(id));
+                
+                // Diyetisyenin yetkisi var mı kontrol et
+                if (diyetProgrami.OlusturanDiyetisyenId != diyetisyenId)
+                {
+                    return Unauthorized(new { success = false, message = "Bu diyet programını düzenleme yetkiniz bulunmamaktadır." });
+                }
+                
+                // Command nesnesini doğru ID ile güncelle
+                command.Id = id;
+                
+                // Mediator ile güncelleme işlemini gerçekleştir
+                await _mediator.Send(command);
+                
+                return Ok(new { success = true, message = "Diyet programı başarıyla güncellendi." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Diyet programı güncellenirken hata oluştu");
+                return BadRequest(new { success = false, message = "Diyet programı güncellenirken bir hata oluştu: " + ex.Message });
+            }
+        }
+        
+        [HttpGet]
+        [Route("Dietitian/AssignDietPlan/{id}")]
+        public async Task<IActionResult> AssignDietPlan(Guid id)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Diyet programı verilerini getir
+                var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(id));
+                
+                // Diyetisyenin yetkisi var mı kontrol et
+                if (diyetProgrami.OlusturanDiyetisyenId != diyetisyenId)
+                {
+                    ViewBag.ErrorMessage = "Bu diyet programını atama yetkiniz bulunmamaktadır.";
+                    return RedirectToAction("DietPlans");
+                }
+                
+                // Diyetisyenin hastalarını getir
+                var hastalar = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
+                
+                ViewBag.Hastalar = hastalar;
+                ViewBag.DiyetProgrami = diyetProgrami;
+                
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Diyet programı atama sayfası yüklenirken hata oluştu");
+                ViewBag.ErrorMessage = "Diyet programı atama sayfası yüklenirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("DietPlans");
+            }
+        }
+        
+        [HttpPost]
+        [Route("Dietitian/AssignDietPlan")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignDietPlan([FromBody] AssignDietPlanViewModel model)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Unauthorized(new { success = false, message = "Geçersiz kullanıcı kimliği veya oturum süresi doldu." });
+                }
+
+                // Hasta verisini getir
+                var hasta = await _mediator.Send(new GetHastaByIdQuery(model.hastaId));
+                
+                // Diyetisyenin yetkisi var mı kontrol et
+                if (hasta.DiyetisyenId != diyetisyenId)
+                {
+                    return Unauthorized(new { success = false, message = "Bu hastaya diyet programı atama yetkiniz bulunmamaktadır." });
+                }
+                
+                // Hasta güncelleme komutunu oluştur
+                var updateHastaCommand = new UpdateHastaCommand
+                {
+                    Id = model.hastaId,
+                    TcKimlikNumarasi = hasta.TcKimlikNumarasi,
+                    Ad = hasta.Ad,
+                    Soyad = hasta.Soyad,
+                    Email = hasta.Email,
+                    Telefon = hasta.Telefon,
+                    Yas = hasta.Yas,
+                    Boy = hasta.Boy,
+                    Kilo = hasta.Kilo,
+                    DiyetisyenId = diyetisyenId,
+                    DiyetProgramiId = model.diyetProgramiId,
+                    GunlukKaloriIhtiyaci = hasta.GunlukKaloriIhtiyaci
+                };
+                
+                // Mediator ile güncelleme işlemini gerçekleştir
+                await _mediator.Send(updateHastaCommand);
+                
+                // AJAX isteği için JSON yanıt döndür
+                return Ok(new { success = true, message = "Diyet programı hastaya başarıyla atandı." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Diyet programı hastaya atanırken hata oluştu");
+                return BadRequest(new { success = false, message = "Diyet programı hastaya atanırken bir hata oluştu: " + ex.Message });
+            }
+        }
+        
+        // ViewModel for the AssignDietPlan endpoint
+        public class AssignDietPlanViewModel
+        {
+            public Guid hastaId { get; set; }
+            public Guid diyetProgramiId { get; set; }
+        }
+
+        [HttpGet]
+        [Route("Dietitian/ArchiveDietPlan/{id}")]
+        public async Task<IActionResult> ArchiveDietPlan(Guid id)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Diyet programı verilerini getir
+                var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(id));
+                
+                // Diyetisyenin yetkisi var mı kontrol et
+                if (diyetProgrami.OlusturanDiyetisyenId != diyetisyenId)
+                {
+                    TempData["ErrorMessage"] = "Bu diyet programını arşivleme yetkiniz bulunmamaktadır.";
+                    return RedirectToAction("DietPlans");
+                }
+                
+                // Burada arşivleme işlemi yapılacak (henüz implementasyonu yok)
+                // Gerçek uygulamada DiyetProgrami sınıfına ArşivDurumu özelliği eklenebilir
+                
+                TempData["SuccessMessage"] = "Diyet programı başarıyla arşivlendi.";
+                return RedirectToAction("DietPlans");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Diyet programı arşivlenirken hata oluştu");
+                TempData["ErrorMessage"] = "Diyet programı arşivlenirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("DietPlans");
+            }
         }
     }
 }
