@@ -82,13 +82,109 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // GetDiyetisyenByIdQuery ile diyetisyen verilerini getir
-                var model = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
-                return View(model);
+                // GetDiyetisyenWithHastalarQuery ile diyetisyen verilerini ve hastalarını getir
+                var diyetisyenModel = await _mediator.Send(new GetDiyetisyenWithHastalarQuery(diyetisyenId));
+                
+                // Diyetisyenin randevularını getir
+                var randevular = await _mediator.Send(new GetRandevuByDiyetisyenIdQuery(diyetisyenId));
+                ViewBag.Randevular = randevular;
+                
+                // Bugünkü randevuların sayısını hesapla
+                var bugunRandevular = randevular.Where(r => r.RandevuBaslangicTarihi.Date == DateTime.Today).ToList();
+                var dunRandevular = randevular.Where(r => r.RandevuBaslangicTarihi.Date == DateTime.Today.AddDays(-1)).ToList();
+                
+                // Randevulardaki artış oranını hesapla (dünden bugüne)
+                var randevuArtisOrani = dunRandevular.Count > 0 
+                    ? bugunRandevular.Count - dunRandevular.Count 
+                    : bugunRandevular.Count;
+                ViewBag.RandevulardakiArtisOrani = randevuArtisOrani;
+                
+                // Diyet programlarını getir
+                var diyetProgramlari = await _mediator.Send(new GetDiyetProgramiQuery());
+                var diyetisyenProgramlari = diyetProgramlari
+                    .Where(d => d.OlusturanDiyetisyenId == diyetisyenId)
+                    .ToList();
+                
+                // Aktif diyet planlarını sayısı - Diyetisyenin oluşturduğu ve hastalara atanmış programlar
+                var hastalar = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
+                var atanmisPlanIds = hastalar
+                    .Where(h => h.DiyetProgramiId.HasValue)
+                    .Select(h => h.DiyetProgramiId.Value)
+                    .Distinct()
+                    .ToList();
+                    
+                var aktifDiyetPlanlariSayisi = atanmisPlanIds.Count;
+                ViewBag.AktifDiyetPlanlariSayisi = aktifDiyetPlanlariSayisi;
+                
+                // Bir önceki haftaya göre aktif diyet planlarındaki artış oranını hesapla
+                // Gerçek uygulamada geçmiş hafta verisi veritabanından çekilebilir
+                // Şimdilik sabit değer kullanalım
+                ViewBag.DiyetPlanlarindakiArtisOrani = 3;
+                
+                // Hastalardaki artış oranını hesapla (Bu ay vs önceki ay)
+                // Gerçek uygulamada veritabanından çekilebilir
+                // Şimdilik sabit değer kullanalım
+                ViewBag.HastalardakiArtisOrani = 5.7;
+                
+                // Okunmamış mesaj sayısı - Gerçek uygulamada veritabanından çekilebilir
+                // Şimdilik sabit değer kullanalım
+                ViewBag.OkunmamisMesajSayisi = 3;
+                ViewBag.MesajlardakiArtisOrani = 2;
+                
+                // Bildirimler - Gerçek uygulamada veritabanından çekilebilir
+                // Şimdilik örnek veriler oluşturalım
+                var bildirimler = new List<dynamic>();
+                
+                // Hastalar listenin içinde olmayabilir, bu durumu kontrol edelim
+                if (diyetisyenModel.Hastalar != null && diyetisyenModel.Hastalar.Any())
+                {
+                    bildirimler.Add(new {
+                        Baslik = "Yeni randevu talebi",
+                        ZamanBilgisi = "3 saat önce",
+                        Icerik = $"{diyetisyenModel.Hastalar.FirstOrDefault()?.Ad} {diyetisyenModel.Hastalar.FirstOrDefault()?.Soyad} yarın için randevu talep etti.",
+                        Url = "/Dietitian/Appointments"
+                    });
+                    
+                    if (diyetisyenModel.Hastalar.Count > 1)
+                    {
+                        bildirimler.Add(new {
+                            Baslik = "Yeni mesaj",
+                            ZamanBilgisi = "5 saat önce",
+                            Icerik = $"{diyetisyenModel.Hastalar.ElementAtOrDefault(1)?.Ad} {diyetisyenModel.Hastalar.ElementAtOrDefault(1)?.Soyad}: \"Diyet planım hakkında bir sorum vardı...\"",
+                            Url = "/Dietitian/Messages"
+                        });
+                    }
+                    
+                    if (diyetisyenModel.Hastalar.Count > 2)
+                    {
+                        bildirimler.Add(new {
+                            Baslik = "İptal edilen randevu",
+                            ZamanBilgisi = "Dün",
+                            Icerik = $"{diyetisyenModel.Hastalar.ElementAtOrDefault(2)?.Ad} {diyetisyenModel.Hastalar.ElementAtOrDefault(2)?.Soyad} bugünkü randevusunu iptal etti.",
+                            Url = "/Dietitian/Appointments?showPast=true"
+                        });
+                    }
+                }
+                
+                // En azından bir bildirim ekleyelim
+                bildirimler.Add(new {
+                    Baslik = "Yeni hasta kaydı",
+                    ZamanBilgisi = "2 gün önce",
+                    Icerik = "Yeni bir hasta uygulamaya kaydoldu ve sizinle çalışmak istiyor.",
+                    Url = "/Dietitian/DietitianPatients"
+                });
+                
+                ViewBag.Bildirimler = bildirimler;
+                
+                // Debug için hasta sayısını logla
+                _logger.LogInformation($"Diyetisyen ID: {diyetisyenId}, Hasta Sayısı: {diyetisyenModel.Hastalar?.Count ?? 0}");
+                
+                return View(diyetisyenModel);
             }
             catch (Exception ex)
             {
-                // Hata durumunda loglama yapılabilir
+                // Hata durumunda loglama yap
+                _logger.LogError(ex, "Dashboard sayfası yüklenirken hata oluştu");
                 ViewBag.ErrorMessage = "Diyetisyen bilgileri getirilirken bir hata oluştu: " + ex.Message;
                 return View(new GetDiyetisyenByIdQueryResult());
             }
