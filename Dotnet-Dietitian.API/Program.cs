@@ -66,25 +66,37 @@ builder.Services.AddSwaggerGen(c =>
 // SignalR ekleyin
 builder.Services.AddSignalR();
 
-// MassTransit yapılandırma işlemleri
-builder.Services.AddMassTransit(config =>
+// MassTransit yapılandırma işlemleri - sadece production'da çalışsın
+if (!builder.Environment.IsDevelopment())
 {
-    // Consumer'ları ekle
-    config.AddConsumer<MesajGonderildiConsumer>();
-    config.AddConsumer<MesajOkunduConsumer>();
-    
-    // RabbitMQ yapılandırması
-    config.UsingRabbitMq((context, cfg) =>
+    builder.Services.AddMassTransit(config =>
     {
-        cfg.Host("localhost", "/", h =>
-        {
-            h.Username("guest");
-            h.Password("guest");
-        });
+        config.AddConsumer<MesajGonderildiConsumer>();
+        config.AddConsumer<MesajOkunduConsumer>();
         
-        cfg.ConfigureEndpoints(context);
+        config.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host("localhost", "/", h =>
+            {
+                h.Username("guest");
+                h.Password("guest");
+            });
+            
+            cfg.ConfigureEndpoints(context);
+        });
     });
-});
+}
+else
+{
+    // Development ortamında boş bir MassTransit yapılandırması
+    builder.Services.AddMassTransit(config =>
+    {
+        config.UsingInMemory((context, cfg) =>
+        {
+            cfg.ConfigureEndpoints(context);
+        });
+    });
+}
 
 
 var app = builder.Build();
