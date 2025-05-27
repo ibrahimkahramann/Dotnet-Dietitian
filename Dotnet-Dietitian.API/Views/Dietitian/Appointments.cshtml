@@ -8,11 +8,26 @@
     var showPast = ViewData["ShowPast"] as bool? ?? false;
 }
 
+@* CSRF koruması için token *@
+@Html.AntiForgeryToken()
+
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold">Randevular</h2>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
-        <i class="bi bi-plus-circle me-2"></i> Yeni Randevu
-    </button>
+    <div>
+        <h2 class="fw-bold mb-0">Randevular</h2>
+        <p class="text-muted">Yaklaşan ve geçmiş randevularınızı yönetin</p>
+    </div>
+    @if (Model.Hastalar != null && Model.Hastalar.Any())
+    {
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
+            <i class="bi bi-plus-circle me-2"></i> Yeni Randevu
+        </button>
+    }
+    else
+    {
+        <button class="btn btn-success" disabled title="Önce hasta eklemelisiniz">
+            <i class="bi bi-plus-circle me-2"></i> Yeni Randevu
+        </button>
+    }
 </div>
 
 <!-- Calendar and Appointments Tabs -->
@@ -85,18 +100,20 @@
                                 <th class="text-end pe-4">İşlemler</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="appointmentsTableBody">
                             @if (randevular.Any())
                             {
                                 @foreach (var randevu in randevular)
                                 {
-                                    <tr>
+                                    <tr data-id="@randevu.Id" data-status="@randevu.Durum">
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center">
-                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px">
+                                                    <i class="bi bi-person text-secondary"></i>
+                                                </div>
                                                 <div>
                                                     <h6 class="mb-0">@randevu.HastaAdSoyad</h6>
-                                                    <small class="text-muted">ID: #@randevu.HastaId.ToString().Substring(0, 5)</small>
+                                                    <small class="text-muted">ID: @randevu.HastaId.ToString().Substring(0, 5)...</small>
                                                 </div>
                                             </div>
                                         </td>
@@ -139,9 +156,9 @@
                                                     <i class="bi bi-three-dots"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-check-circle me-2"></i>Onayla</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-check2-all me-2"></i>Tamamlandı</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i>İptal Et</a></li>
+                                                    <li><a class="dropdown-item status-action" href="#" data-id="@randevu.Id" data-status="Onaylandı"><i class="bi bi-check-circle me-2"></i>Onayla</a></li>
+                                                    <li><a class="dropdown-item status-action" href="#" data-id="@randevu.Id" data-status="Tamamlandı"><i class="bi bi-check2-all me-2"></i>Tamamlandı</a></li>
+                                                    <li><a class="dropdown-item text-danger status-action" href="#" data-id="@randevu.Id" data-status="İptal Edildi"><i class="bi bi-x-circle me-2"></i>İptal Et</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -155,9 +172,19 @@
                                         <p class="text-muted mb-0">
                                             @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
                                         </p>
-                                        <button class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
-                                            <i class="bi bi-plus-circle me-1"></i> Yeni Randevu
-                                        </button>
+                                        @if (Model.Hastalar != null && Model.Hastalar.Any())
+                                        {
+                                            <button class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
+                                                <i class="bi bi-plus-circle me-1"></i> Yeni Randevu
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-success mt-2" disabled title="Önce hasta eklemelisiniz">
+                                                <i class="bi bi-plus-circle me-1"></i> Yeni Randevu
+                                            </button>
+                                            <p class="text-danger small mt-2">Henüz kayıtlı hastanız bulunmuyor. Önce hasta eklemelisiniz.</p>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -188,35 +215,44 @@
             </div>
             <div class="modal-body">
                 <form id="newAppointmentForm">
+                    @Html.AntiForgeryToken()
                     <div class="row g-3">
                         <div class="col-md-12">
                             <label class="form-label">Hasta</label>
-                            <select class="form-select" name="patientId" required>
+                            <select class="form-select" id="patientId" name="hastaId" required>
                                 <option value="" selected disabled>Hasta Seçin</option>
-                                @if (Model.Hastalar != null)
+                                @if (Model.Hastalar != null && Model.Hastalar.Any())
                                 {
                                     @foreach (var hasta in Model.Hastalar)
                                     {
                                         <option value="@hasta.Id">@hasta.Ad @hasta.Soyad</option>
                                     }
                                 }
+                                else
+                                {
+                                    <option value="" disabled>Hasta bulunamadı</option>
+                                }
                             </select>
+                            @if (Model.Hastalar == null || !Model.Hastalar.Any())
+                            {
+                                <small class="text-danger">Henüz kayıtlı hastanız bulunmuyor. Önce hasta eklemelisiniz.</small>
+                            }
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Randevu Tarihi</label>
-                            <input type="date" class="form-control" name="appointmentDate" required>
+                            <input type="date" class="form-control" id="appointmentDate" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Başlangıç Saati</label>
-                            <input type="time" class="form-control" name="startTime" required>
+                            <input type="time" class="form-control" id="startTime" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Bitiş Saati</label>
-                            <input type="time" class="form-control" name="endTime" required>
+                            <input type="time" class="form-control" id="endTime" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Randevu Türü</label>
-                            <select class="form-select" name="appointmentType">
+                            <select class="form-select" id="appointmentType" name="randevuTuru">
                                 <option value="">Seçiniz</option>
                                 <option value="İlk Görüşme">İlk Görüşme</option>
                                 <option value="Kontrol">Kontrol</option>
@@ -226,14 +262,14 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Durum</label>
-                            <select class="form-select" name="status" required>
+                            <select class="form-select" id="status" name="durum" required>
                                 <option value="Beklemede">Beklemede</option>
                                 <option value="Onaylandı">Onaylandı</option>
                             </select>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Notlar</label>
-                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                            <textarea class="form-control" id="notes" name="notlar" rows="3"></textarea>
                         </div>
                     </div>
                 </form>
@@ -241,6 +277,33 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
                 <button type="button" class="btn btn-success" id="saveAppointmentBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View/Edit Appointment Modal -->
+<div class="modal fade" id="viewAppointmentModal" tabindex="-1" aria-labelledby="viewAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewAppointmentModalLabel">Randevu Detayları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    <!-- Appointment details will be loaded here -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-2">Randevu detayları yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="editAppointmentBtn">Düzenle</button>
             </div>
         </div>
     </div>
@@ -255,6 +318,103 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.0/locales/tr.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Hasta listesi kontrolü
+            const patientSelect = document.getElementById('patientId');
+            const saveAppointmentBtn = document.getElementById('saveAppointmentBtn');
+            
+            // Eğer hasta listesi boşsa randevu oluşturma butonunu devre dışı bırak
+            if (patientSelect && saveAppointmentBtn) {
+                const hasPatients = patientSelect.options.length > 1; // İlk option "Hasta Seçin" olduğu için 1'den büyük olmalı
+                
+                if (!hasPatients) {
+                    saveAppointmentBtn.disabled = true;
+                    saveAppointmentBtn.title = "Önce hasta eklemelisiniz";
+                }
+            }
+
+            // Randevu kaydetme butonunu temelden yeniden yazalım
+            if (saveAppointmentBtn) {
+                saveAppointmentBtn.onclick = function() {
+                    try {
+                        console.log('Kaydet butonuna tıklandı - yeni işleyici');
+                        
+                        // Form verilerini topla
+                        const patientId = document.getElementById('patientId').value;
+                        const appointmentDate = document.getElementById('appointmentDate').value;
+                        const startTime = document.getElementById('startTime').value;
+                        const endTime = document.getElementById('endTime').value;
+                        const appointmentType = document.getElementById('appointmentType').value;
+                        const status = document.getElementById('status').value;
+                        const notes = document.getElementById('notes').value;
+                        
+                        console.log('Form değerleri:', { patientId, appointmentDate, startTime, endTime, appointmentType, status, notes });
+                        
+                        // Zorunlu alanları kontrol et
+                        if (!patientId || !appointmentDate || !startTime || !endTime) {
+                            alert('Lütfen gerekli alanları doldurun.');
+                            return;
+                        }
+                        
+                        // Tarih ve saatleri oluştur
+                        const startDateTime = new Date(`${appointmentDate}T${startTime}`);
+                        const endDateTime = new Date(`${appointmentDate}T${endTime}`);
+                        
+                        console.log('Tarih ve saat:', { 
+                            startDateTime: startDateTime.toISOString(), 
+                            endDateTime: endDateTime.toISOString() 
+                        });
+                        
+                        // Saatleri kontrol et
+                        if (endDateTime <= startDateTime) {
+                            alert('Bitiş saati başlangıç saatinden sonra olmalıdır.');
+                            return;
+                        }
+                        
+                        // Randevu verilerini oluştur
+                        const appointmentData = {
+                            HastaId: patientId,
+                            RandevuBaslangicTarihi: startDateTime.toISOString(),
+                            RandevuBitisTarihi: endDateTime.toISOString(),
+                            RandevuTuru: appointmentType,
+                            Durum: status,
+                            DiyetisyenOnayi: status === 'Onaylandı',
+                            HastaOnayi: true,
+                            Notlar: notes
+                        };
+                        
+                        console.log('Gönderilecek veri:', appointmentData);
+                        console.log('URL:', '@Url.Action("CreateAppointment", "Dietitian")');
+                        
+                        // AJAX ile verileri gönder
+                        $.ajax({
+                            url: '@Url.Action("CreateAppointment", "Dietitian")',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(appointmentData),
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            success: function(response) {
+                                console.log('Başarılı yanıt:', response);
+                                if (response.success) {
+                                    alert(response.message);
+                                    window.location.reload();
+                                } else {
+                                    alert(response.message || 'İşlem sırasında bir hata oluştu.');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX hatası:', xhr, status, error);
+                                alert('Randevu oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.');
+                            }
+                        });
+                    } catch (error) {
+                        console.error('JavaScript hatası:', error);
+                        alert('Beklenmeyen bir hata oluştu: ' + error.message);
+                    }
+                };
+            }
+            
             // Calendar initialization
             const calendarEl = document.getElementById('appointmentsCalendar');
             if (calendarEl) {
@@ -273,7 +433,7 @@
                         day: 'Gün'
                     },
                     events: [
-                        // Randevu verileri buraya gelecek
+                        // Randevu verileri
                         @if (randevular.Any())
                         {
                             foreach (var randevu in randevular)
@@ -306,12 +466,13 @@
                     ],
                     eventClick: function(info) {
                         // Tıklanan randevu detaylarını göster
-                        alert('Randevu: ' + info.event.title);
+                        const appointmentId = info.event.extendedProps.id;
+                        showAppointmentDetails(appointmentId);
                     },
                     dateClick: function(info) {
                         // Yeni randevu oluştur
                         const modal = new bootstrap.Modal(document.getElementById('newAppointmentModal'));
-                        document.querySelector('input[name="appointmentDate"]').value = info.dateStr;
+                        document.getElementById('appointmentDate').value = info.dateStr;
                         modal.show();
                     }
                 });
@@ -322,6 +483,30 @@
                 document.getElementById('calendar-tab').addEventListener('shown.bs.tab', function() {
                     calendar.updateSize();
                 });
+            }
+            
+            // Sayfa yüklendiğinde bugünün tarihini randevu tarih alanına otomatik doldur
+            const appointmentDateInput = document.getElementById('appointmentDate');
+            if (appointmentDateInput) {
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                appointmentDateInput.value = formattedDate;
+                
+                // Varsayılan saat değerlerini de ayarla
+                const now = new Date();
+                now.setMinutes(Math.ceil(now.getMinutes() / 15) * 15); // En yakın 15 dakikaya yuvarla
+                
+                const startTimeInput = document.getElementById('startTime');
+                if (startTimeInput) {
+                    startTimeInput.value = now.toTimeString().slice(0, 5);
+                }
+                
+                const endTimeInput = document.getElementById('endTime');
+                if (endTimeInput) {
+                    const endTime = new Date(now);
+                    endTime.setMinutes(now.getMinutes() + 30); // 30 dakika sonrası
+                    endTimeInput.value = endTime.toTimeString().slice(0, 5);
+                }
             }
             
             // Filter date range change
@@ -336,25 +521,221 @@
                 });
             }
             
-            // Save appointment button click handler
-            const saveAppointmentBtn = document.getElementById('saveAppointmentBtn');
-            if (saveAppointmentBtn) {
-                saveAppointmentBtn.addEventListener('click', function() {
-                    // Form validation
-                    const form = document.getElementById('newAppointmentForm');
-                    if (!form.checkValidity()) {
-                        form.reportValidity();
-                        return;
-                    }
+            // Search appointments
+            const searchAppointment = document.getElementById('searchAppointment');
+            if (searchAppointment) {
+                searchAppointment.addEventListener('keyup', function() {
+                    const searchValue = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#appointmentsTableBody tr');
                     
-                    // Submit form logic would go here
-                    alert('Randevu başarıyla oluşturuldu.');
-                    
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('newAppointmentModal'));
-                    modal.hide();
+                    rows.forEach(row => {
+                        const patientName = row.querySelector('h6')?.innerText.toLowerCase() || '';
+                        if (patientName.includes(searchValue)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
                 });
+            }
+            
+            // Filter by status
+            const filterStatus = document.getElementById('filterStatus');
+            if (filterStatus) {
+                filterStatus.addEventListener('change', function() {
+                    const statusValue = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#appointmentsTableBody tr');
+                    
+                    rows.forEach(row => {
+                        if (!statusValue || row.dataset.status.toLowerCase() === statusValue) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Refresh button
+            const refreshAppointments = document.getElementById('refreshAppointments');
+            if (refreshAppointments) {
+                refreshAppointments.addEventListener('click', function() {
+                    window.location.reload();
+                });
+            }
+            
+            // Status action buttons
+            const statusActions = document.querySelectorAll('.status-action');
+            statusActions.forEach(action => {
+                action.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const appointmentId = this.dataset.id;
+                    const status = this.dataset.status;
+                    
+                    if (confirm(`Randevu durumunu "${status}" olarak değiştirmek istediğinize emin misiniz?`)) {
+                        // Send AJAX request
+                        fetch('@Url.Action("UpdateAppointmentStatus", "Dietitian")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            },
+                            body: JSON.stringify({
+                                Id: appointmentId,
+                                Status: status
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Sunucu yanıt vermedi. Lütfen daha sonra tekrar deneyin.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                window.location.reload();
+                            } else {
+                                alert(data.message || 'İşlem sırasında bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Hata detayı:', error);
+                            alert('Bir hata oluştu: ' + error.message);
+                        });
+                    }
+                });
+            });
+            
+            // View appointment buttons
+            const viewAppointmentBtns = document.querySelectorAll('.view-appointment-btn');
+            viewAppointmentBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    showAppointmentDetails(appointmentId);
+                });
+            });
+            
+            // Function to show appointment details
+            function showAppointmentDetails(appointmentId) {
+                const modal = new bootstrap.Modal(document.getElementById('viewAppointmentModal'));
+                modal.show();
+                
+                // Randevu detaylarını getir
+                fetch(`@Url.Action("GetAppointmentDetails", "Dietitian")?id=${appointmentId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const randevu = data.data;
+                            const startDate = new Date(randevu.randevuBaslangicTarihi);
+                            const endDate = new Date(randevu.randevuBitisTarihi);
+                            
+                            // Durum sınıfını belirle
+                            const statusClass = {
+                                'Onaylandı': 'success',
+                                'Beklemede': 'warning',
+                                'İptal Edildi': 'danger',
+                                'Tamamlandı': 'primary'
+                            }[randevu.durum] || 'secondary';
+                            
+                            // Detayları HTML olarak oluştur
+                            document.getElementById('appointmentDetails').innerHTML = `
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="fw-bold mb-3">Hasta Bilgileri</h6>
+                                        <p class="mb-1"><strong>Ad Soyad:</strong> ${randevu.hastaAdSoyad}</p>
+                                        <p class="mb-3"><strong>ID:</strong> ${randevu.hastaId}</p>
+                                        
+                                        <h6 class="fw-bold mb-3">Randevu Bilgileri</h6>
+                                        <p class="mb-1"><strong>Tarih:</strong> ${startDate.toLocaleDateString()}</p>
+                                        <p class="mb-1"><strong>Saat:</strong> ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                        <p class="mb-1"><strong>Tür:</strong> ${randevu.randevuTuru || 'Belirtilmemiş'}</p>
+                                        <p class="mb-1"><strong>Durum:</strong> <span class="badge bg-${statusClass}">${randevu.durum}</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="fw-bold mb-3">Onay Durumu</h6>
+                                        <p class="mb-1"><strong>Diyetisyen Onayı:</strong> ${randevu.diyetisyenOnayi ? '<span class="text-success">Onaylandı</span>' : '<span class="text-warning">Beklemede</span>'}</p>
+                                        <p class="mb-3"><strong>Hasta Onayı:</strong> ${randevu.hastaOnayi ? '<span class="text-success">Onaylandı</span>' : '<span class="text-warning">Beklemede</span>'}</p>
+                                        
+                                        <h6 class="fw-bold mb-3">Notlar</h6>
+                                        <div class="p-3 bg-light rounded">
+                                            ${randevu.notlar || 'Not bulunmuyor.'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">Oluşturulma Tarihi: ${new Date(randevu.yaratilmaTarihi).toLocaleString()}</small>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-success status-action-modal" data-id="${randevu.id}" data-status="Onaylandı">
+                                                <i class="bi bi-check-circle me-1"></i> Onayla
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger status-action-modal" data-id="${randevu.id}" data-status="İptal Edildi">
+                                                <i class="bi bi-x-circle me-1"></i> İptal Et
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Modal içindeki durum değiştirme butonlarına event listener ekle
+                            document.querySelectorAll('.status-action-modal').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const id = this.dataset.id;
+                                    const status = this.dataset.status;
+                                    
+                                    if (confirm(`Randevu durumunu "${status}" olarak değiştirmek istediğinize emin misiniz?`)) {
+                                        // Send AJAX request
+                                        fetch('@Url.Action("UpdateAppointmentStatus", "Dietitian")', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                                            },
+                                            body: JSON.stringify({
+                                                Id: id,
+                                                Status: status
+                                            })
+                                        })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('Sunucu yanıt vermedi. Lütfen daha sonra tekrar deneyin.');
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(data => {
+                                            if (data.success) {
+                                                alert(data.message);
+                                                window.location.reload();
+                                            } else {
+                                                alert(data.message || 'İşlem sırasında bir hata oluştu.');
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Hata detayı:', error);
+                                            alert('Bir hata oluştu: ' + error.message);
+                                        });
+                                    }
+                                });
+                            });
+                        } else {
+                            document.getElementById('appointmentDetails').innerHTML = `
+                                <div class="alert alert-danger">
+                                    ${data.message}
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('appointmentDetails').innerHTML = `
+                            <div class="alert alert-danger">
+                                Bir hata oluştu: ${error.message}
+                            </div>
+                        `;
+                    });
             }
         });
     </script>
-} 
+}
+

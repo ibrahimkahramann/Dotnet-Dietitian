@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/style.css">
     <link rel="stylesheet" href="~/css/dashboard.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dietitian.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -25,7 +29,7 @@
                 <a asp-controller="Dietitian" asp-action="Dashboard" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "") py-3 px-4" id="dashboard-link">
                     <i class="bi bi-speedometer2 me-2"></i> Ana Panel
                 </a>
-                <a asp-controller="Dietitian" asp-action="Patients" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Patients" ? "active" : "") py-3 px-4" id="patients-link">
+                <a asp-controller="Dietitian" asp-action="DietitianPatients" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "DietitianPatients" ? "active" : "") py-3 px-4" id="patients-link">
                     <i class="bi bi-people me-2"></i> Hastalarım
                 </a>
                 <a asp-controller="Dietitian" asp-action="Appointments" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Appointments" ? "active" : "") py-3 px-4" id="appointments-link">
@@ -126,7 +130,7 @@
 
     <!-- Core JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     
     <!-- App JavaScript -->
     <script src="~/js/script.js"></script>

@@ -16,6 +16,8 @@ using Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetisyenCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetProgramiQueries;
 using System.IO;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.RandevuCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -50,6 +52,21 @@ namespace Dotnet_Dietitian.API.Controllers
             await base.OnActionExecutionAsync(context, next);
         }
 
+        // Yetkilendirme durumunu kontrol etmek için action metodu
+        public IActionResult CheckAuth()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+            
+            return Json(new { 
+                IsAuthenticated = User.Identity?.IsAuthenticated ?? false,
+                UserId = userId,
+                UserRole = userRole,
+                Claims = claims
+            });
+        }
+
         public async Task<IActionResult> Dashboard()
         {
             try
@@ -73,7 +90,7 @@ namespace Dotnet_Dietitian.API.Controllers
             }
         }
         
-        public async Task<IActionResult> Patients()
+        public async Task<IActionResult> DietitianPatients()
         {
             try
             {
@@ -84,13 +101,22 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Diyetisyen verilerini getir
-                var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
+                // Diyetisyen verilerini getir (hastaları dahil)
+                var diyetisyenModel = await _mediator.Send(new GetDiyetisyenWithHastalarQuery(diyetisyenId));
                 
-                // Hastaları getirmek için sorgu yap
-                var hastalar = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
+                // Diyetisyenin hastalarını getir
+                var diyetisyenHastalari = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
                 
-                ViewBag.Hastalar = hastalar;
+                // Tüm hastaları getir
+                var tumHastalar = await _mediator.Send(new GetHastaQuery());
+                
+                // Diyetisyene ait olmayan hastaları filtrele
+                var diyetisyensizHastalar = tumHastalar.Where(h => h.DiyetisyenId == null).ToList();
+                
+                ViewBag.DiyetisyenHastalari = diyetisyenHastalari;
+                ViewBag.DiyetisyensizHastalar = diyetisyensizHastalar;
+                ViewBag.TumHastalar = tumHastalar;
+                
                 return View(diyetisyenModel);
             }
             catch (Exception ex)
@@ -114,8 +140,40 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Diyetisyen verilerini getir
                 var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
                 
+                // Hastaları getirmek için sorgu yap
+                var hastalar = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
+                
+                // Hastaları diyetisyen modeline ekle
+                if (diyetisyenModel.Hastalar == null)
+                {
+                    diyetisyenModel.Hastalar = new List<HastaDto>();
+                }
+                
+                // Eğer model içindeki hasta listesi boşsa, GetHastasByDiyetisyenIdQuery sonucunu kullan
+                if (!diyetisyenModel.Hastalar.Any())
+                {
+                    diyetisyenModel.Hastalar = hastalar.Select(h => new HastaDto
+                    {
+                        Id = h.Id,
+                        Ad = h.Ad,
+                        Soyad = h.Soyad,
+                        Email = h.Email
+                    }).ToList();
+                }
+                
                 // Randevuları getirmek için sorgu yap
                 var randevular = await _mediator.Send(new GetRandevuByDiyetisyenIdQuery(diyetisyenId));
+                
+                // Geçmiş veya gelecek randevular için filtreleme
+                DateTime now = DateTime.Now;
+                if (showPast)
+                {
+                    randevular = randevular.Where(r => r.RandevuBaslangicTarihi < now).ToList();
+                }
+                else
+                {
+                    randevular = randevular.Where(r => r.RandevuBaslangicTarihi >= now).ToList();
+                }
                 
                 ViewBag.Randevular = randevular;
                 ViewData["ShowPast"] = showPast;
@@ -446,6 +504,186 @@ namespace Dotnet_Dietitian.API.Controllers
                 TempData["ErrorMessage"] = "Ayarlar güncellenirken bir hata oluştu: " + ex.Message;
                 return RedirectToAction("Settings", new { tab = settingType });
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAppointment([FromBody] CreateRandevuCommand command)
+        {
+            try
+            {
+                Console.WriteLine("CreateAppointment metodu çağrıldı");
+                Console.WriteLine($"Alınan veri: HastaId={command.HastaId}, RandevuBaslangicTarihi={command.RandevuBaslangicTarihi}, RandevuBitisTarihi={command.RandevuBitisTarihi}");
+                
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    Console.WriteLine("Oturum bilgileri geçersiz");
+                    return Json(new { success = false, message = "Oturum bilgileriniz geçersiz." });
+                }
+
+                // Güvenlik kontrolü: Sadece kendi adına randevu oluşturabilir
+                command.DiyetisyenId = diyetisyenId;
+                Console.WriteLine($"DiyetisyenId atandı: {diyetisyenId}");
+                
+                // Randevu oluştur
+                await _mediator.Send(command);
+                Console.WriteLine("Randevu başarıyla oluşturuldu");
+                
+                return Json(new { success = true, message = "Randevu başarıyla oluşturuldu." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hata oluştu: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return Json(new { success = false, message = "Randevu oluşturulurken bir hata oluştu: " + ex.Message });
+            }
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAppointmentStatus([FromBody] UpdateAppointmentStatusViewModel model)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Json(new { success = false, message = "Oturum bilgileriniz geçersiz." });
+                }
+
+                // Randevu bilgilerini getir
+                var randevu = await _mediator.Send(new GetRandevuByIdQuery(model.Id));
+                
+                // Güvenlik kontrolü: Sadece kendi randevularını güncelleyebilir
+                if (randevu.DiyetisyenId != diyetisyenId)
+                {
+                    return Json(new { success = false, message = "Bu randevuyu güncelleme yetkiniz yok." });
+                }
+                
+                // Randevu durumunu güncelle
+                var updateCommand = new UpdateRandevuCommand
+                {
+                    Id = model.Id,
+                    HastaId = randevu.HastaId,
+                    DiyetisyenId = randevu.DiyetisyenId,
+                    RandevuBaslangicTarihi = randevu.RandevuBaslangicTarihi,
+                    RandevuBitisTarihi = randevu.RandevuBitisTarihi,
+                    RandevuTuru = randevu.RandevuTuru,
+                    Durum = model.Status,
+                    DiyetisyenOnayi = model.Status == "Onaylandı" ? true : randevu.DiyetisyenOnayi,
+                    HastaOnayi = randevu.HastaOnayi,
+                    Notlar = randevu.Notlar
+                };
+                
+                await _mediator.Send(updateCommand);
+                
+                return Json(new { success = true, message = "Randevu durumu başarıyla güncellendi." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Randevu durumu güncellenirken bir hata oluştu: " + ex.Message });
+            }
+        }
+        
+        // ViewModel for the UpdateAppointmentStatus endpoint
+        public class UpdateAppointmentStatusViewModel
+        {
+            public Guid Id { get; set; }
+            public string Status { get; set; }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAppointmentDetails(Guid id)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Json(new { success = false, message = "Oturum bilgileriniz geçersiz." });
+                }
+
+                // Randevu bilgilerini getir
+                var randevu = await _mediator.Send(new GetRandevuByIdQuery(id));
+                
+                // Güvenlik kontrolü: Sadece kendi randevularını görüntüleyebilir
+                if (randevu.DiyetisyenId != diyetisyenId)
+                {
+                    return Json(new { success = false, message = "Bu randevuyu görüntüleme yetkiniz yok." });
+                }
+                
+                return Json(new { success = true, data = randevu });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Randevu detayları getirilirken bir hata oluştu: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignPatientToDietitian([FromBody] AssignPatientViewModel model)
+        {
+            try
+            {
+                // Model geçerlilik kontrolü
+                if (model == null || model.hastaId == Guid.Empty)
+                {
+                    return Json(new { success = false, message = "Geçersiz hasta ID'si. Lütfen tekrar deneyiniz." });
+                }
+
+                var hastaId = model.hastaId;
+                
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Json(new { success = false, message = "Oturum bilgileriniz geçersiz." });
+                }
+
+                // Önce mevcut hastayı getir
+                var hasta = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                if (hasta == null)
+                {
+                    return Json(new { success = false, message = $"ID:{hastaId} olan hasta bulunamadı" });
+                }
+
+                // Hasta güncelleme komutu oluştur - tüm gerekli alanları kopyala
+                var updateCommand = new UpdateHastaCommand
+                {
+                    Id = hastaId,
+                    TcKimlikNumarasi = hasta.TcKimlikNumarasi,
+                    Ad = hasta.Ad,
+                    Soyad = hasta.Soyad,
+                    Yas = hasta.Yas,
+                    Boy = hasta.Boy,
+                    Kilo = hasta.Kilo,
+                    Email = hasta.Email,
+                    Telefon = hasta.Telefon,
+                    DiyetisyenId = diyetisyenId, // Yeni diyetisyen ID'si
+                    DiyetProgramiId = hasta.DiyetProgramiId,
+                    GunlukKaloriIhtiyaci = hasta.GunlukKaloriIhtiyaci
+                };
+                
+                // Hastayı güncelle
+                await _mediator.Send(updateCommand);
+                
+                return Json(new { success = true, message = "Hasta başarıyla size atandı." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Hasta atama işlemi sırasında bir hata oluştu: {ex.Message}" });
+            }
+        }
+        
+        // ViewModel for the AssignPatientToDietitian endpoint
+        public class AssignPatientViewModel
+        {
+            public Guid hastaId { get; set; }
         }
     }
 }
