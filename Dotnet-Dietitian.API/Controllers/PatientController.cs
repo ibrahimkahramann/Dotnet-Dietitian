@@ -39,9 +39,57 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // GetHastaByIdQuery ile hasta verilerini getir
-                var model = await _mediator.Send(new GetHastaByIdQuery(hastaId));
-                return View(model);
+                // GetHastaWithDiyetProgramiQuery ile hasta verilerini ve diyet programını getir
+                var hastaModel = await _mediator.Send(new GetHastaWithDiyetProgramiQuery(hastaId));
+                
+                // Su tüketimi - Günlük - Hedef verisi - Örnek değerler (Veritabanından gelebilir)
+                ViewBag.SuTuketimi = new { Gunluk = 1.2, Hedef = 2.5 };
+                
+                // Adım sayısı - Günlük - Hedef verisi - Örnek değerler (Veritabanından gelebilir)
+                ViewBag.AdimSayisi = new { Gunluk = 4526, Hedef = 10000 };
+                
+                // Kalori tüketimi - Günlük - Hedef verisi - Örnek değerler (Veritabanından gelebilir)
+                ViewBag.KaloriTuketimi = new { Gunluk = 1250, Hedef = hastaModel.GunlukKaloriIhtiyaci ?? 1800 };
+                
+                // İlerleme takibi verileri - Örnek değerler (Veritabanından gelebilir)
+                ViewBag.IlerlemeVerileri = new {
+                    KiloHedefi = new { Deger = hastaModel.Kilo ?? 0, Hedef = 75, YuzdeTamamlanma = 66 },
+                    EgzersizPlani = new { Deger = 3, Hedef = 5, YuzdeTamamlanma = 60 },
+                    DiyetUyumu = new { YuzdeTamamlanma = 80 },
+                    SonGuncelleme = DateTime.Now.AddDays(-2)
+                };
+                
+                // Yaklaşan randevular (ilk 2 randevu)
+                var yaklaşanRandevular = hastaModel.Randevular?
+                    .Where(r => r.RandevuBaslangicTarihi > DateTime.Now)
+                    .OrderBy(r => r.RandevuBaslangicTarihi)
+                    .Take(2)
+                    .ToList() ?? new List<Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults.RandevuDto>();
+                    
+                ViewBag.YaklasanRandevular = yaklaşanRandevular;
+                
+                // Diyet programı detayları - örnek veriler (Gerçek veritabanı verisi ile değiştirilmeli)
+                if (hastaModel.DiyetProgramiId.HasValue)
+                {
+                    ViewBag.DiyetProgramiDetaylari = new {
+                        Kahvalti = new List<string>
+                        {
+                            "1 dilim tam tahıllı ekmek",
+                            "2 yemek kaşığı peynir",
+                            "1 adet haşlanmış yumurta",
+                            "1 bardak süt"
+                        },
+                        OgleYemegi = new List<string>
+                        {
+                            "1 kase sebze çorbası",
+                            "120g ızgara tavuk",
+                            "1 kase salata",
+                            "1 dilim tam tahıllı ekmek"
+                        }
+                    };
+                }
+                
+                return View(hastaModel);
             }
             catch (Exception ex)
             {
@@ -62,15 +110,80 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // GetHastaByIdQuery ile hasta verilerini getir
-                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                // GetHastaWithDiyetProgramiQuery ile hasta verilerini ve diyet programını getir
+                var hastaModel = await _mediator.Send(new GetHastaWithDiyetProgramiQuery(hastaId));
                 
                 // Eğer hastanın bir diyet programı varsa, diyet programı detaylarını getir
                 if (hastaModel.DiyetProgramiId.HasValue)
                 {
-                    // Burada diyet programı detaylarını getirecek bir query eklenebilir
-                    // var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(hastaModel.DiyetProgramiId.Value));
-                    // return View(diyetProgrami);
+                    // Diyet programının tüm detaylarını getir
+                    var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(hastaModel.DiyetProgramiId.Value));
+                    
+                    // ViewBag üzerinden diyet programı detaylarını gönder
+                    ViewBag.DiyetProgrami = diyetProgrami;
+                    
+                    // Örnek öğünler - Bu veriler gerçek verilerle değiştirilmelidir
+                    ViewBag.Ogunler = new
+                    {
+                        Kahvalti = new List<string>
+                        {
+                            "1 dilim tam tahıllı ekmek",
+                            "2 yemek kaşığı lor peyniri",
+                            "1 adet haşlanmış yumurta",
+                            "5-6 adet zeytin",
+                            "Domates, salatalık",
+                            "1 bardak süt veya ayran"
+                        },
+                        AraOgun1 = new List<string>
+                        {
+                            "1 adet orta boy meyve",
+                            "5-6 adet badem veya fındık"
+                        },
+                        OgleYemegi = new List<string>
+                        {
+                            "1 kase sebze çorbası",
+                            "120g ızgara tavuk göğsü",
+                            "1 kase salata (zeytinyağı ve limon ile)",
+                            "1/2 su bardağı bulgur pilavı"
+                        },
+                        AraOgun2 = new List<string>
+                        {
+                            "1 adet yoğurt",
+                            "1 tatlı kaşığı bal"
+                        },
+                        AksamYemegi = new List<string>
+                        {
+                            "150g ızgara balık",
+                            "1 porsiyon haşlanmış sebze",
+                            "1 dilim tam tahıllı ekmek"
+                        }
+                    };
+                    
+                    // Haftalık program özeti
+                    ViewBag.HaftalikProgramOzeti = new
+                    {
+                        HaftalikHedef = "1-2 kg kilo kaybı",
+                        SuTuketimHedefi = "Günlük 2.5 litre",
+                        EgzersizHedefi = "Haftada 3 gün, 30 dakika yürüyüş",
+                        KaloriHedefi = diyetProgrami.KarbonhidratGram.HasValue && diyetProgrami.ProteinGram.HasValue && diyetProgrami.YagGram.HasValue
+                            ? (diyetProgrami.KarbonhidratGram.Value * 4 + diyetProgrami.ProteinGram.Value * 4 + diyetProgrami.YagGram.Value * 9).ToString("0") + " kcal"
+                            : hastaModel.GunlukKaloriIhtiyaci.HasValue ? hastaModel.GunlukKaloriIhtiyaci.Value.ToString() + " kcal" : "1800 kcal"
+                    };
+                    
+                    // Diyetisyen notları
+                    ViewBag.DiyetisyenNotlari = new List<object>
+                    {
+                        new
+                        {
+                            Tarih = DateTime.Now.AddDays(-5),
+                            Not = "Programın ilk haftasında su tüketimine dikkat edin. Egzersiz yoğunluğunu kademeli olarak artırın."
+                        },
+                        new
+                        {
+                            Tarih = DateTime.Now.AddDays(-2),
+                            Not = "Şeker ve tuz alımınızı sınırlandırmaya özen gösterin. Beslenmede düzenli olarak yeşil yapraklı sebzelere yer verin."
+                        }
+                    };
                 }
                 
                 return View(hastaModel);
@@ -78,7 +191,7 @@ namespace Dotnet_Dietitian.API.Controllers
             catch (Exception ex)
             {
                 ViewBag.ErrorMessage = "Diyet programı bilgileri getirilirken bir hata oluştu: " + ex.Message;
-                return View();
+                return View(new GetHastaByIdQueryResult());
             }
         }
         

@@ -1,8 +1,15 @@
 @using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults
 @model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "Diyet Planım - DijetUP";
     Layout = "_PatientLayout";
+    
+    // ViewBag'den diyet programı bilgilerini al
+    var diyetProgrami = ViewBag.DiyetProgrami as GetDiyetProgramiByIdQueryResult;
+    var ogunler = ViewBag.Ogunler;
+    var haftalikProgramOzeti = ViewBag.HaftalikProgramOzeti;
+    var diyetisyenNotlari = ViewBag.DiyetisyenNotlari as List<object>;
 }
 
 <div class="content-section">
@@ -13,37 +20,393 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Diyet Planım</h2>
-        @if (!string.IsNullOrEmpty(Model?.DiyetProgramiAdi))
+        @if (diyetProgrami != null)
         {
             <div>
-                <span class="badge bg-success p-2">Aktif Plan: @Model.DiyetProgramiAdi</span>
+                <span class="badge bg-success p-2">Aktif Plan: @diyetProgrami.Ad</span>
             </div>
         }
     </div>
     
     <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Günlük Beslenme Planı</h5>
-                </div>
-                <div class="card-body">
-                    @if (Model?.DiyetProgramiId == null)
-                    {
+        @if (diyetProgrami == null)
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Günlük Beslenme Planı</h5>
+                    </div>
+                    <div class="card-body">
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle-fill me-2"></i>
                             Henüz bir diyet programınız bulunmamaktadır. Diyetisyeniniz ile görüşerek bir diyet programı oluşturabilirsiniz.
                         </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            Diyet programınızın detayları burada görüntülenecek. Şu anda @Model.DiyetProgramiAdi programına kayıtlısınız.
-                        </div>
-                    }
+                    </div>
                 </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <!-- Diyet Programı Bilgileri -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="fw-bold">@diyetProgrami.Ad</h5>
+                                <p class="text-muted mb-0">@(diyetProgrami.DiyetisyenAdi != null ? $"{diyetProgrami.DiyetisyenAdi} tarafından oluşturuldu" : "")</p>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <div class="d-flex justify-content-md-end">
+                                    <button class="btn btn-outline-primary me-2">
+                                        <i class="bi bi-printer me-2"></i> Yazdır
+                                    </button>
+                                    <button class="btn btn-outline-success">
+                                        <i class="bi bi-download me-2"></i> İndir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan Özeti -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold">Plan Özeti</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row mb-4">
+                            <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                                        <i class="bi bi-calendar-week"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Süre</div>
+                                        <div class="fw-bold">
+                                            @if (diyetProgrami.BaslangicTarihi.HasValue && diyetProgrami.BitisTarihi.HasValue)
+                                            {
+                                                var gunFarki = (diyetProgrami.BitisTarihi.Value - diyetProgrami.BaslangicTarihi.Value).Days;
+                                                @($"{gunFarki} Gün")
+                                            }
+                                            else
+                                            {
+                                                @("Belirtilmemiş")
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                                        <i class="bi bi-lightning-charge"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Kalori</div>
+                                        <div class="fw-bold">@haftalikProgramOzeti.KaloriHedefi</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info me-3">
+                                        <i class="bi bi-droplet"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Su</div>
+                                        <div class="fw-bold">@haftalikProgramOzeti.SuTuketimHedefi</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning me-3">
+                                        <i class="bi bi-bullseye"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Hedef</div>
+                                        <div class="fw-bold">@haftalikProgramOzeti.HaftalikHedef</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Makro Besinler</h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="fw-bold text-success">Protein</span>
+                                                <span class="badge bg-success">@(diyetProgrami.ProteinGram.HasValue ? $"{diyetProgrami.ProteinGram} gr" : "Belirtilmemiş")</span>
+                                            </div>
+                                            @if (diyetProgrami.ProteinGram.HasValue)
+                                            {
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="fw-bold text-primary">Karbonhidrat</span>
+                                                <span class="badge bg-primary">@(diyetProgrami.KarbonhidratGram.HasValue ? $"{diyetProgrami.KarbonhidratGram} gr" : "Belirtilmemiş")</span>
+                                            </div>
+                                            @if (diyetProgrami.KarbonhidratGram.HasValue)
+                                            {
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="fw-bold text-warning">Yağ</span>
+                                                <span class="badge bg-warning text-dark">@(diyetProgrami.YagGram.HasValue ? $"{diyetProgrami.YagGram} gr" : "Belirtilmemiş")</span>
+                                            </div>
+                                            @if (diyetProgrami.YagGram.HasValue)
+                                            {
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 100%"></div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Egzersiz Planı</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                                    <i class="bi bi-activity"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Günlük Adım Hedefi</div>
+                                    <div class="fw-bold">@(diyetProgrami.GunlukAdimHedefi.HasValue ? $"{diyetProgrami.GunlukAdimHedefi.Value:N0} adım" : "Belirtilmemiş")</div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <div class="text-muted small">Egzersiz Programı</div>
+                                <div class="fw-bold">@haftalikProgramOzeti.EgzersizHedefi</div>
+                            </div>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(diyetProgrami.Aciklama))
+                        {
+                            <div>
+                                <h6 class="fw-bold mb-3">Notlar</h6>
+                                <p>@diyetProgrami.Aciklama</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Günlük Öğünler -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold">Günlük Öğünler</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="accordion" id="ogunlerAccordion">
+                            <div class="accordion-item border-0">
+                                <h2 class="accordion-header" id="headingKahvalti">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseKahvalti" aria-expanded="true" aria-controls="collapseKahvalti">
+                                        <i class="bi bi-sunrise text-warning me-2"></i> Kahvaltı
+                                    </button>
+                                </h2>
+                                <div id="collapseKahvalti" class="accordion-collapse collapse show" aria-labelledby="headingKahvalti" data-bs-parent="#ogunlerAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var item in ogunler.Kahvalti)
+                                            {
+                                                <li class="list-group-item px-0 d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                    <span>@item</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item border-0">
+                                <h2 class="accordion-header" id="headingAraOgun1">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAraOgun1" aria-expanded="false" aria-controls="collapseAraOgun1">
+                                        <i class="bi bi-cup-hot text-primary me-2"></i> Ara Öğün (Kuşluk)
+                                    </button>
+                                </h2>
+                                <div id="collapseAraOgun1" class="accordion-collapse collapse" aria-labelledby="headingAraOgun1" data-bs-parent="#ogunlerAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var item in ogunler.AraOgun1)
+                                            {
+                                                <li class="list-group-item px-0 d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                    <span>@item</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item border-0">
+                                <h2 class="accordion-header" id="headingOgleYemegi">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOgleYemegi" aria-expanded="false" aria-controls="collapseOgleYemegi">
+                                        <i class="bi bi-sun text-warning me-2"></i> Öğle Yemeği
+                                    </button>
+                                </h2>
+                                <div id="collapseOgleYemegi" class="accordion-collapse collapse" aria-labelledby="headingOgleYemegi" data-bs-parent="#ogunlerAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var item in ogunler.OgleYemegi)
+                                            {
+                                                <li class="list-group-item px-0 d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                    <span>@item</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item border-0">
+                                <h2 class="accordion-header" id="headingAraOgun2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAraOgun2" aria-expanded="false" aria-controls="collapseAraOgun2">
+                                        <i class="bi bi-cup text-success me-2"></i> Ara Öğün (İkindi)
+                                    </button>
+                                </h2>
+                                <div id="collapseAraOgun2" class="accordion-collapse collapse" aria-labelledby="headingAraOgun2" data-bs-parent="#ogunlerAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var item in ogunler.AraOgun2)
+                                            {
+                                                <li class="list-group-item px-0 d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                    <span>@item</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item border-0">
+                                <h2 class="accordion-header" id="headingAksamYemegi">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAksamYemegi" aria-expanded="false" aria-controls="collapseAksamYemegi">
+                                        <i class="bi bi-moon text-primary me-2"></i> Akşam Yemeği
+                                    </button>
+                                </h2>
+                                <div id="collapseAksamYemegi" class="accordion-collapse collapse" aria-labelledby="headingAksamYemegi" data-bs-parent="#ogunlerAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var item in ogunler.AksamYemegi)
+                                            {
+                                                <li class="list-group-item px-0 d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2 small"></i>
+                                                    <span>@item</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diyetisyen Notları -->
+            @if (diyetisyenNotlari != null && diyetisyenNotlari.Any())
+            {
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="card-title mb-0 fw-bold">Diyetisyen Notları</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            @foreach (var not in diyetisyenNotlari)
+                            {
+                                <div class="d-flex @(not != diyetisyenNotlari.Last() ? "mb-4" : "")">
+                                    @if (diyetProgrami.OlusturanDiyetisyenId.HasValue)
+                                    {
+                                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="@diyetProgrami.DiyetisyenAdi">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary bg-opacity-10 p-3 rounded-circle text-secondary me-3">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <h6 class="fw-bold mb-1">@diyetProgrami.DiyetisyenAdi</h6>
+                                        <p class="text-muted small mb-2">@(((dynamic)not).Tarih.ToString("dd MMMM yyyy, HH:mm"))</p>
+                                        <p class="mb-0">@((dynamic)not).Not</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Soru ve Geribildirim -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold">Soru ve Geribildirim</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form>
+                            <div class="mb-3">
+                                <label for="questionFeedback" class="form-label">Diyetisyeninize soru sorun veya geri bildirim gönderin</label>
+                                <textarea class="form-control" id="questionFeedback" rows="3" placeholder="Diyet planınızla ilgili soru veya geri bildiriminizi yazın..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">Gönder</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
-</div> 
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Yazdır butonu
+            const printBtn = document.querySelector('.btn-outline-primary');
+            if (printBtn) {
+                printBtn.addEventListener('click', function() {
+                    window.print();
+                });
+            }
+            
+            // İndir butonu (PDF indirme şeklinde simülasyon)
+            const downloadBtn = document.querySelector('.btn-outline-success');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    alert('Diyet planınız PDF olarak indirilecek');
+                });
+            }
+        });
+    </script>
+} 
