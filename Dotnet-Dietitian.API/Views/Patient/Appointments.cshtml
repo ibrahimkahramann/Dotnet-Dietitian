@@ -6,108 +6,391 @@
     bool showPast = (bool)(ViewData["ShowPast"] ?? false);
 }
 
-<div class="content-section">
-    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-    {
-        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
-    }
+<div class="container-fluid p-4">
+    <!-- Appointments Content -->
+    <div class="appointments-content">
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+        }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Randevularım</h2>
-        <div>
-            <button class="btn btn-success">
-                <i class="bi bi-plus-circle me-2"></i>Yeni Randevu Oluştur
-            </button>
-        </div>
-    </div>
-    
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3 border-bottom">
-            <ul class="nav nav-tabs card-header-tabs">
-                <li class="nav-item">
-                    <a class="nav-link @(!showPast ? "active" : "")" asp-controller="Patient" asp-action="Appointments">
-                        <i class="bi bi-calendar-check me-2"></i>Yaklaşan Randevular
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(showPast ? "active" : "")" asp-controller="Patient" asp-action="Appointments" asp-route-showPast="true">
-                        <i class="bi bi-clock-history me-2"></i>Geçmiş Randevular
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="card-body">
-            @if (Model?.Randevular == null || !Model.Randevular.Any())
-            {
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle-fill me-2"></i>
-                    @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
-                </div>
-            }
-            else
-            {
-                var randevular = showPast 
-                    ? Model.Randevular.Where(r => r.RandevuBaslangicTarihi < DateTime.Now).OrderByDescending(r => r.RandevuBaslangicTarihi)
-                    : Model.Randevular.Where(r => r.RandevuBaslangicTarihi >= DateTime.Now).OrderBy(r => r.RandevuBaslangicTarihi);
-                
-                if (!randevular.Any())
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success mb-4">@TempData["SuccessMessage"]</div>
+        }
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+            <div class="mb-3 mb-md-0">
+                <h2 class="fw-bold mb-0">Randevularım</h2>
+                <p class="text-muted">Geçmiş ve gelecek randevularınızı görüntüleyin</p>
+            </div>
+            <div class="d-flex">
+                @if (Model?.DiyetisyenId.HasValue == true)
                 {
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
-                    </div>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#requestAppointmentModal">
+                        <i class="bi bi-plus-lg me-1"></i> Randevu Talep Et
+                    </button>
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Tarih</th>
-                                    <th>Saat</th>
-                                    <th>Randevu Türü</th>
-                                    <th>Durum</th>
-                                    <th>İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach(var randevu in randevular)
-                                {
-                                    <tr>
-                                        <td>@randevu.RandevuBaslangicTarihi.ToString("dd.MM.yyyy")</td>
-                                        <td>@randevu.RandevuBaslangicTarihi.ToString("HH:mm") - @randevu.RandevuBitisTarihi.ToString("HH:mm")</td>
-                                        <td>@(randevu.RandevuTuru ?? "Muayene")</td>
-                                        <td>
-                                            @if(randevu.Durum == "Onaylandı")
-                                            {
-                                                <span class="badge bg-success">@randevu.Durum</span>
-                                            }
-                                            else if(randevu.Durum == "Bekliyor")
-                                            {
-                                                <span class="badge bg-warning text-dark">@randevu.Durum</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">@randevu.Durum</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if(!showPast)
-                                            {
-                                                <button class="btn btn-sm btn-outline-danger">İptal Et</button>
-                                            }
-                                            else
-                                            {
-                                                <button class="btn btn-sm btn-outline-primary">Detay</button>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                    <button class="btn btn-success" disabled data-bs-toggle="tooltip" data-bs-placement="left" 
+                            title="Randevu oluşturabilmek için önce bir diyetisyen atanmalıdır">
+                        <i class="bi bi-plus-lg me-1"></i> Randevu Talep Et
+                    </button>
                 }
-            }
+            </div>
+        </div>
+        
+        @{
+            var upcomingAppointment = Model?.Randevular?.Where(r => r.RandevuBaslangicTarihi > DateTime.Now)
+                                     .OrderBy(r => r.RandevuBaslangicTarihi)
+                                     .FirstOrDefault();
+        }
+
+        @if (upcomingAppointment != null)
+        {
+            <!-- Upcoming Appointment -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success bg-opacity-10 py-3">
+                    <h5 class="mb-0 text-success">Yaklaşan Randevunuz</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center mb-3 mb-md-0">
+                            <div class="display-4 text-success mb-0">@upcomingAppointment.RandevuBaslangicTarihi.Day</div>
+                            <div class="h5">@upcomingAppointment.RandevuBaslangicTarihi.ToString("MMMM")</div>
+                            <div class="badge bg-light text-dark">@upcomingAppointment.RandevuBaslangicTarihi.ToString("dddd")</div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-3 bg-primary d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-person-circle text-white fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">@(upcomingAppointment.DiyetisyenAd ?? "") @(upcomingAppointment.DiyetisyenSoyad ?? "")</h6>
+                                    <p class="text-muted mb-0 small">@(upcomingAppointment.DiyetisyenUnvan ?? "Diyetisyen")</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">@upcomingAppointment.RandevuBaslangicTarihi.ToString("HH:mm") - @upcomingAppointment.RandevuBitisTarihi.ToString("HH:mm")</h6>
+                                    <p class="text-muted mb-0 small">@(upcomingAppointment.RandevuTuru ?? "Muayene")</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-md-end">
+                            @if(upcomingAppointment.Durum == "Onaylandı")
+                            {
+                                <button class="btn btn-sm btn-outline-success me-2 mb-2 mb-md-0">
+                                    <i class="bi bi-calendar-check me-1"></i> Onaylandı
+                                </button>
+                            }
+                            else if(upcomingAppointment.Durum == "Bekliyor")
+                            {
+                                <button class="btn btn-sm btn-outline-warning me-2 mb-2 mb-md-0">
+                                    <i class="bi bi-clock me-1"></i> Bekliyor
+                                </button>
+                            }
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelAppointmentModal" data-id="@upcomingAppointment.Id">
+                                <i class="bi bi-x-lg me-1"></i> İptal Et
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <!-- Calendar and List View Tabs -->
+        <ul class="nav nav-tabs mb-4" id="appointmentTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link @(!showPast ? "active" : "")" id="upcoming-tab" 
+                   asp-controller="Patient" asp-action="Appointments" role="tab">
+                    <i class="bi bi-calendar-check me-2"></i>Yaklaşan Randevular
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(showPast ? "active" : "")" id="past-tab" 
+                   asp-controller="Patient" asp-action="Appointments" asp-route-showPast="true" role="tab">
+                    <i class="bi bi-clock-history me-2"></i>Geçmiş Randevular
+                </a>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="appointmentTabContent">
+            <div class="tab-pane fade show active" role="tabpanel">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        @if (Model?.Randevular == null || !Model.Randevular.Any())
+                        {
+                            <div class="alert alert-info m-3">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
+                            </div>
+                        }
+                        else
+                        {
+                            var randevular = showPast 
+                                ? Model.Randevular.Where(r => r.RandevuBaslangicTarihi < DateTime.Now).OrderByDescending(r => r.RandevuBaslangicTarihi)
+                                : Model.Randevular.Where(r => r.RandevuBaslangicTarihi >= DateTime.Now).OrderBy(r => r.RandevuBaslangicTarihi);
+                                
+                            if (!randevular.Any())
+                            {
+                                <div class="alert alert-info m-3">
+                                    <i class="bi bi-info-circle-fill me-2"></i>
+                                    @(showPast ? "Geçmiş randevunuz bulunmuyor." : "Yaklaşan randevunuz bulunmuyor.")
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Tarih</th>
+                                                <th>Saat</th>
+                                                <th>Diyetisyen</th>
+                                                <th>Tür</th>
+                                                <th>Durum</th>
+                                                <th class="text-end">İşlemler</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach(var randevu in randevular)
+                                            {
+                                                <tr>
+                                                    <td>@randevu.RandevuBaslangicTarihi.ToString("dd MMMM yyyy")</td>
+                                                    <td>@randevu.RandevuBaslangicTarihi.ToString("HH:mm") - @randevu.RandevuBitisTarihi.ToString("HH:mm")</td>
+                                                    <td>@(randevu.DiyetisyenAd ?? "") @(randevu.DiyetisyenSoyad ?? "")</td>
+                                                    <td>@(randevu.RandevuTuru ?? "Muayene")</td>
+                                                    <td>
+                                                        @if(randevu.Durum == "Onaylandı")
+                                                        {
+                                                            <span class="badge bg-success">@randevu.Durum</span>
+                                                        }
+                                                        else if(randevu.Durum == "Bekliyor")
+                                                        {
+                                                            <span class="badge bg-warning text-dark">@randevu.Durum</span>
+                                                        }
+                                                        else if(randevu.Durum == "Tamamlandı")
+                                                        {
+                                                            <span class="badge bg-secondary">@randevu.Durum</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger">@randevu.Durum</span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-end">
+                                                        @if(!showPast)
+                                                        {
+                                                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelAppointmentModal" data-id="@randevu.Id">
+                                                                <i class="bi bi-x-lg"></i> İptal
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn btn-sm btn-outline-primary">
+                                                                <i class="bi bi-eye"></i> Detaylar
+                                                            </button>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div> 
+</div>
+
+<!-- Request Appointment Modal -->
+<div class="modal fade" id="requestAppointmentModal" tabindex="-1" aria-labelledby="requestAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requestAppointmentModalLabel">Randevu Talep Et</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model?.DiyetisyenId.HasValue == true)
+                {
+                    <form id="requestAppointmentForm" asp-controller="Patient" asp-action="RequestAppointment" method="post">
+                        <div class="mb-3">
+                            <label for="DiyetisyenId" class="form-label">Diyetisyen</label>
+                            <select class="form-select" id="DiyetisyenId" name="DiyetisyenId" required disabled>
+                                @if (ViewBag.Diyetisyenler != null)
+                                {
+                                    @foreach (var diyetisyen in ViewBag.Diyetisyenler)
+                                    {
+                                        <option value="@diyetisyen.Id" selected>@diyetisyen.Ad @diyetisyen.Soyad</option>
+                                    }
+                                }
+                            </select>
+                            <input type="hidden" name="DiyetisyenId" value="@ViewBag.AtananDiyetisyenId" />
+                            <small class="text-muted">Sadece size atanan diyetisyen ile randevu oluşturabilirsiniz.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="RandevuTuru" class="form-label">Randevu Türü</label>
+                            <select class="form-select" id="RandevuTuru" name="RandevuTuru" required>
+                                <option value="" selected disabled>Randevu türü seçin</option>
+                                <option value="Kontrol Randevusu">Kontrol Randevusu</option>
+                                <option value="Diyet Planı Güncellemesi">Diyet Planı Güncellemesi</option>
+                                <option value="Danışma">Danışma</option>
+                                <option value="İlk Görüşme">İlk Görüşme</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="RandevuTarihi" class="form-label">Tercih Ettiğiniz Tarih</label>
+                            <input type="date" class="form-control" id="RandevuTarihi" name="RandevuTarihi" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="RandevuSaati" class="form-label">Başlangıç Saati</label>
+                                <input type="time" class="form-control" id="RandevuSaati" name="RandevuSaati" required>
+                            </div>
+                            <div class="col">
+                                <label for="RandevuBitisSaati" class="form-label">Bitiş Saati</label>
+                                <input type="time" class="form-control" id="RandevuBitisSaati" name="RandevuBitisSaati" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="Notlar" class="form-label">Notlar (İsteğe Bağlı)</label>
+                            <textarea class="form-control" id="Notlar" name="Notlar" rows="3" placeholder="Randevu talebinizle ilgili eklemek istediğiniz notlar..."></textarea>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Henüz size atanmış bir diyetisyen bulunmuyor. Randevu oluşturabilmek için önce bir diyetisyen atanmalıdır.
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                @if (Model?.DiyetisyenId.HasValue == true)
+                {
+                    <button type="submit" form="requestAppointmentForm" class="btn btn-success">Randevu Talep Et</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-success" disabled>Randevu Talep Et</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Appointment Modal -->
+<div class="modal fade" id="cancelAppointmentModal" tabindex="-1" aria-labelledby="cancelAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelAppointmentModalLabel">Randevu İptali</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bu randevuyu iptal etmek istediğinize emin misiniz?</p>
+                <p class="text-danger">Bu işlem geri alınamaz.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <form id="cancelAppointmentForm" asp-controller="Patient" asp-action="CancelAppointment" method="post">
+                    <input type="hidden" id="cancelAppointmentId" name="appointmentId" value="" />
+                    <button type="submit" class="btn btn-danger">Randevuyu İptal Et</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Form validation
+            const form = document.getElementById('requestAppointmentForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!form.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        form.classList.add('was-validated');
+                    }
+                });
+            }
+            
+            // Cancel appointment modal
+            const cancelModal = document.getElementById('cancelAppointmentModal');
+            if (cancelModal) {
+                cancelModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const appointmentId = button.getAttribute('data-id');
+                    document.getElementById('cancelAppointmentId').value = appointmentId;
+                });
+            }
+            
+            // Set minimum time for appointment based on date selection
+            const dateInput = document.getElementById('RandevuTarihi');
+            const timeInput = document.getElementById('RandevuSaati');
+            
+            if (dateInput && timeInput) {
+                dateInput.addEventListener('change', function() {
+                    const selectedDate = new Date(this.value);
+                    const today = new Date();
+                    
+                    // If selected date is today, set minimum time to current time + 1 hour
+                    if (selectedDate.toDateString() === today.toDateString()) {
+                        const currentHour = today.getHours();
+                        const nextHour = (currentHour + 1).toString().padStart(2, '0');
+                        timeInput.setAttribute('min', `${nextHour}:00`);
+                    } else {
+                        // Otherwise, allow any time
+                        timeInput.removeAttribute('min');
+                    }
+                });
+            }
+            
+            // Set bitiş saati automatically to be 30 minutes after başlangıç saati
+            const startTimeInput = document.getElementById('RandevuSaati');
+            const endTimeInput = document.getElementById('RandevuBitisSaati');
+            
+            if (startTimeInput && endTimeInput) {
+                startTimeInput.addEventListener('change', function() {
+                    if (this.value) {
+                        const [hours, minutes] = this.value.split(':').map(Number);
+                        let newMinutes = minutes + 30;
+                        let newHours = hours;
+                        
+                        if (newMinutes >= 60) {
+                            newMinutes -= 60;
+                            newHours += 1;
+                        }
+                        
+                        if (newHours >= 24) {
+                            newHours -= 24;
+                        }
+                        
+                        endTimeInput.value = `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+                    }
+                });
+            }
+        });
+    </script>
+} 

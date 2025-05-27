@@ -9,10 +9,12 @@ using Dotnet_Dietitian.Application.Features.CQRS.Queries.HastaQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetProgramiQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.RandevuQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetisyenQueries;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.RandevuCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -94,8 +96,24 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Hasta verilerini getir
                 var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
                 
-                // Randevuları getirmek için sorgu yapılabilir
-                // var randevular = await _mediator.Send(new GetRandevusByHastaIdQuery(hastaId, showPast));
+                // Hastaya atanmış diyetisyen varsa sadece onu göster
+                if (hastaModel.DiyetisyenId.HasValue)
+                {
+                    var diyetisyen = await _mediator.Send(new GetDiyetisyenByIdQuery(hastaModel.DiyetisyenId.Value));
+                    if (diyetisyen != null)
+                    {
+                        ViewBag.Diyetisyenler = new List<object> { diyetisyen };
+                        ViewBag.AtananDiyetisyenId = hastaModel.DiyetisyenId.Value;
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Atanan diyetisyen bilgilerine erişilemedi.";
+                    }
+                }
+                else
+                {
+                    ViewBag.ErrorMessage = "Henüz size atanmış bir diyetisyen bulunmuyor. Randevu oluşturabilmek için önce bir diyetisyen atanmalıdır.";
+                }
                 
                 ViewData["ShowPast"] = showPast;
                 return View(hastaModel);
@@ -104,6 +122,133 @@ namespace Dotnet_Dietitian.API.Controllers
             {
                 ViewBag.ErrorMessage = "Randevu bilgileri getirilirken bir hata oluştu: " + ex.Message;
                 return View();
+            }
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> RequestAppointment(IFormCollection formData)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+                
+                // Form verilerini al
+                if (!Guid.TryParse(formData["DiyetisyenId"], out var diyetisyenId))
+                {
+                    TempData["ErrorMessage"] = "Geçersiz diyetisyen seçimi.";
+                    return RedirectToAction("Appointments");
+                }
+                
+                string randevuTarihi = formData["RandevuTarihi"];
+                string randevuSaati = formData["RandevuSaati"];
+                string randevuBitisSaati = formData["RandevuBitisSaati"];
+                
+                if (string.IsNullOrEmpty(randevuTarihi) || string.IsNullOrEmpty(randevuSaati) || string.IsNullOrEmpty(randevuBitisSaati))
+                {
+                    TempData["ErrorMessage"] = "Lütfen randevu tarih ve saatlerini doldurun.";
+                    return RedirectToAction("Appointments");
+                }
+                
+                // Tarih ve saatleri birleştirerek DateTime'a çevir
+                DateTime baslangicTarihi, bitisTarihi;
+                
+                try
+                {
+                    baslangicTarihi = DateTime.Parse($"{randevuTarihi} {randevuSaati}");
+                    bitisTarihi = DateTime.Parse($"{randevuTarihi} {randevuBitisSaati}");
+                }
+                catch
+                {
+                    TempData["ErrorMessage"] = "Geçersiz tarih veya saat formatı.";
+                    return RedirectToAction("Appointments");
+                }
+                
+                // Başlangıç tarihi şu andan sonra olmalı
+                if (baslangicTarihi <= DateTime.Now)
+                {
+                    TempData["ErrorMessage"] = "Randevu tarihi şu andan sonra olmalıdır.";
+                    return RedirectToAction("Appointments");
+                }
+                
+                // Bitiş tarihi başlangıç tarihinden sonra olmalı
+                if (bitisTarihi <= baslangicTarihi)
+                {
+                    TempData["ErrorMessage"] = "Bitiş saati başlangıç saatinden sonra olmalıdır.";
+                    return RedirectToAction("Appointments");
+                }
+                
+                // Randevu komutunu oluştur
+                var command = new CreateRandevuCommand
+                {
+                    HastaId = hastaId,
+                    DiyetisyenId = diyetisyenId,
+                    RandevuBaslangicTarihi = baslangicTarihi,
+                    RandevuBitisTarihi = bitisTarihi,
+                    RandevuTuru = formData["RandevuTuru"],
+                    Notlar = formData["Notlar"],
+                    Durum = "Bekliyor",
+                    HastaOnayi = true,
+                    DiyetisyenOnayi = false,
+                    YaratilmaTarihi = DateTime.Now
+                };
+                
+                // Randevu oluştur
+                await _mediator.Send(command);
+                
+                TempData["SuccessMessage"] = "Randevu talebiniz başarıyla alınmıştır. Diyetisyen onayı sonrası aktif olacaktır.";
+                return RedirectToAction("Appointments");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Randevu oluşturulurken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("Appointments");
+            }
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> CancelAppointment(Guid appointmentId)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+                
+                // Randevu bilgilerini getir
+                var randevu = await _mediator.Send(new GetRandevuByIdQuery(appointmentId));
+                
+                // Randevu kullanıcıya ait mi kontrol et
+                if (randevu == null || randevu.HastaId != hastaId)
+                {
+                    TempData["ErrorMessage"] = "Randevu bulunamadı veya iptal etme yetkiniz yok.";
+                    return RedirectToAction("Appointments");
+                }
+                
+                // Geçmiş randevular iptal edilemez
+                if (randevu.RandevuBaslangicTarihi < DateTime.Now)
+                {
+                    TempData["ErrorMessage"] = "Geçmiş randevular iptal edilemez.";
+                    return RedirectToAction("Appointments");
+                }
+                
+                // Randevuyu iptal et
+                await _mediator.Send(new RemoveRandevuCommand(appointmentId));
+                
+                TempData["SuccessMessage"] = "Randevu başarıyla iptal edildi.";
+                return RedirectToAction("Appointments");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Randevu iptal edilirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("Appointments");
             }
         }
         

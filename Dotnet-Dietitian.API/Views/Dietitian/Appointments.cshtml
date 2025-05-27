@@ -61,7 +61,7 @@
                     <div class="col-md-3">
                         <select class="form-select bg-light border-0" id="filterStatus">
                             <option value="">Tüm Durumlar</option>
-                            <option value="Beklemede">Beklemede</option>
+                            <option value="Bekliyor">Beklemede</option>
                             <option value="Onaylandı">Onaylandı</option>
                             <option value="İptal Edildi">İptal Edildi</option>
                             <option value="Tamamlandı">Tamamlandı</option>
@@ -355,13 +355,22 @@
                             return;
                         }
                         
-                        // Tarih ve saatleri oluştur
+                        // Tarih ve saatleri oluştur (zaman dilimi farkını dikkate alarak)
                         const startDateTime = new Date(`${appointmentDate}T${startTime}`);
                         const endDateTime = new Date(`${appointmentDate}T${endTime}`);
                         
+                        // Tarih ve saatleri ISO formatına dönüştürürken zaman dilimi farkını hesaba kat
+                        const timezoneOffset = startDateTime.getTimezoneOffset() * 60000; // Dakika cinsinden offset'i milisaniyeye çevir
+                        
+                        // Zaman dilimi farkını eklenen tarihler oluştur
+                        const startDateTimeUTC = new Date(startDateTime.getTime() - timezoneOffset);
+                        const endDateTimeUTC = new Date(endDateTime.getTime() - timezoneOffset);
+                        
                         console.log('Tarih ve saat:', { 
-                            startDateTime: startDateTime.toISOString(), 
-                            endDateTime: endDateTime.toISOString() 
+                            localStartDateTime: startDateTime,
+                            localEndDateTime: endDateTime,
+                            startDateTimeUTC: startDateTimeUTC.toISOString(), 
+                            endDateTimeUTC: endDateTimeUTC.toISOString() 
                         });
                         
                         // Saatleri kontrol et
@@ -373,8 +382,8 @@
                         // Randevu verilerini oluştur
                         const appointmentData = {
                             HastaId: patientId,
-                            RandevuBaslangicTarihi: startDateTime.toISOString(),
-                            RandevuBitisTarihi: endDateTime.toISOString(),
+                            RandevuBaslangicTarihi: startDateTimeUTC.toISOString(),
+                            RandevuBitisTarihi: endDateTimeUTC.toISOString(),
                             RandevuTuru: appointmentType,
                             Durum: status,
                             DiyetisyenOnayi: status === 'Onaylandı',
