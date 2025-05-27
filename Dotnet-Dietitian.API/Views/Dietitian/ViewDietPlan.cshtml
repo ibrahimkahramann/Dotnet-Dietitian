@@ -1,3 +1,10 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults
+@model GetDiyetProgramiByIdQueryResult
+@{
+    ViewData["Title"] = "Diyet Planı Detayları";
+    Layout = "_DietitianLayout";
+}
+
 <div class="container-fluid p-4">
     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
     {
@@ -10,4 +17,214 @@
     }
 
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h2 class="fw-bold mb-0">@Model.Ad</h2>
+            <p class="text-muted">Diyet Planı Detayları</p>
+        </div>
+        <div>
+            <a href="/Dietitian/DietPlans" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Geri Dön
+            </a>
+            <a href="/Dietitian/EditDietPlan/@Model.Id" class="btn btn-outline-primary me-2">
+                <i class="bi bi-pencil me-1"></i> Düzenle
+            </a>
+            <a href="/Dietitian/AssignDietPlan/@Model.Id" class="btn btn-success">
+                <i class="bi bi-person-plus me-1"></i> Hastaya Ata
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Plan Bilgileri -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Plan Bilgileri</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                                    <i class="bi bi-calendar-check fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Başlangıç Tarihi</h6>
+                                    <p class="text-muted mb-0">@(Model.BaslangicTarihi?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş")</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                                    <i class="bi bi-calendar-x fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Bitiş Tarihi</h6>
+                                    <p class="text-muted mb-0">@(Model.BitisTarihi?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Açıklama</h6>
+                        <p class="text-muted">@(string.IsNullOrEmpty(Model.Aciklama) ? "Açıklama bulunmuyor" : Model.Aciklama)</p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="d-flex flex-column align-items-center p-3 border rounded">
+                                <h6 class="fw-bold mb-2">Protein</h6>
+                                <div class="d-flex align-items-baseline">
+                                    <span class="fs-3 fw-bold text-success">@Model.ProteinGram</span>
+                                    <span class="ms-1">g</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex flex-column align-items-center p-3 border rounded">
+                                <h6 class="fw-bold mb-2">Karbonhidrat</h6>
+                                <div class="d-flex align-items-baseline">
+                                    <span class="fs-3 fw-bold text-success">@Model.KarbonhidratGram</span>
+                                    <span class="ms-1">g</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex flex-column align-items-center p-3 border rounded">
+                                <h6 class="fw-bold mb-2">Yağ</h6>
+                                <div class="d-flex align-items-baseline">
+                                    <span class="fs-3 fw-bold text-success">@Model.YagGram</span>
+                                    <span class="ms-1">g</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex flex-column align-items-center p-3 border rounded">
+                                <h6 class="fw-bold mb-2">Günlük Adım</h6>
+                                <div class="d-flex align-items-baseline">
+                                    <span class="fs-3 fw-bold text-success">@Model.GunlukAdimHedefi</span>
+                                    <span class="ms-1">adım</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="fw-bold mb-3">Besin Değeri Dağılımı</h6>
+                        <div class="progress" style="height: 25px;">
+                            @{
+                                var totalNutrients = (double)(Model.ProteinGram ?? 0) + (double)(Model.KarbonhidratGram ?? 0) + (double)(Model.YagGram ?? 0);
+                                var proteinPercentage = totalNutrients > 0 ? Math.Round((double)(Model.ProteinGram ?? 0) / totalNutrients * 100) : 0;
+                                var carbPercentage = totalNutrients > 0 ? Math.Round((double)(Model.KarbonhidratGram ?? 0) / totalNutrients * 100) : 0;
+                                var fatPercentage = totalNutrients > 0 ? Math.Round((double)(Model.YagGram ?? 0) / totalNutrients * 100) : 0;
+                            }
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @proteinPercentage%" aria-valuenow="@proteinPercentage" aria-valuemin="0" aria-valuemax="100">
+                                Protein @proteinPercentage%
+                            </div>
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: @carbPercentage%" aria-valuenow="@carbPercentage" aria-valuemin="0" aria-valuemax="100">
+                                Karbonhidrat @carbPercentage%
+                            </div>
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: @fatPercentage%" aria-valuenow="@fatPercentage" aria-valuemin="0" aria-valuemax="100">
+                                Yağ @fatPercentage%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Bu Plana Atanmış Hastalar -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Atanmış Hastalar</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (Model.Hastalar != null && Model.Hastalar.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var hasta in Model.Hastalar)
+                            {
+                                <div class="list-group-item list-group-item-action d-flex align-items-center border rounded mb-2">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                                        <i class="bi bi-person text-success"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">@hasta.Ad @hasta.Soyad</h6>
+                                    </div>
+                                    <a href="#" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-people text-muted fs-1"></i>
+                            </div>
+                            <h6>Henüz Hasta Atanmamış</h6>
+                            <p class="text-muted small mb-3">Bu diyet planı şu ana kadar hiçbir hastaya atanmamış.</p>
+                            <a href="/Dietitian/AssignDietPlan/@Model.Id" class="btn btn-success">
+                                <i class="bi bi-person-plus me-1"></i> Hastaya Ata
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Plan Özeti Kartı -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Plan Özeti</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                            <i class="bi bi-clipboard2-pulse fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-0">@Model.Ad</h5>
+                            <p class="text-muted mb-0 small">Diyet Planı</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-light text-dark me-1">@Model.ProteinGram g Protein</span>
+                        <span class="badge bg-light text-dark me-1">@Model.KarbonhidratGram g Karbonhidrat</span>
+                        <span class="badge bg-light text-dark">@Model.YagGram g Yağ</span>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Oluşturulma Tarihi:</span>
+                            <span>@(DateTime.Now.AddDays(-15).ToString("dd.MM.yyyy"))</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Güncellenme Tarihi:</span>
+                            <span>@(DateTime.Now.AddDays(-2).ToString("dd.MM.yyyy"))</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Atanan Hasta Sayısı:</span>
+                            <span>@(Model.Hastalar?.Count ?? 0)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('ViewDietPlan page loaded');
+        });
+    </script>
+}
