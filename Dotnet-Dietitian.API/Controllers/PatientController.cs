@@ -96,9 +96,24 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Hasta verilerini getir
                 var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
                 
-                // Diyetisyen listesini getir (randevu talep modali için)
-                var diyetisyenler = await _mediator.Send(new GetDiyetisyenQuery());
-                ViewBag.Diyetisyenler = diyetisyenler;
+                // Hastaya atanmış diyetisyen varsa sadece onu göster
+                if (hastaModel.DiyetisyenId.HasValue)
+                {
+                    var diyetisyen = await _mediator.Send(new GetDiyetisyenByIdQuery(hastaModel.DiyetisyenId.Value));
+                    if (diyetisyen != null)
+                    {
+                        ViewBag.Diyetisyenler = new List<object> { diyetisyen };
+                        ViewBag.AtananDiyetisyenId = hastaModel.DiyetisyenId.Value;
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Atanan diyetisyen bilgilerine erişilemedi.";
+                    }
+                }
+                else
+                {
+                    ViewBag.ErrorMessage = "Henüz size atanmış bir diyetisyen bulunmuyor. Randevu oluşturabilmek için önce bir diyetisyen atanmalıdır.";
+                }
                 
                 ViewData["ShowPast"] = showPast;
                 return View(hastaModel);

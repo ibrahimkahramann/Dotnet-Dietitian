@@ -25,9 +25,19 @@
                 <p class="text-muted">Geçmiş ve gelecek randevularınızı görüntüleyin</p>
             </div>
             <div class="d-flex">
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#requestAppointmentModal">
-                    <i class="bi bi-plus-lg me-1"></i> Randevu Talep Et
-                </button>
+                @if (Model?.DiyetisyenId.HasValue == true)
+                {
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#requestAppointmentModal">
+                        <i class="bi bi-plus-lg me-1"></i> Randevu Talep Et
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-success" disabled data-bs-toggle="tooltip" data-bs-placement="left" 
+                            title="Randevu oluşturabilmek için önce bir diyetisyen atanmalıdır">
+                        <i class="bi bi-plus-lg me-1"></i> Randevu Talep Et
+                    </button>
+                }
             </div>
         </div>
         
@@ -212,53 +222,71 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="requestAppointmentForm" asp-controller="Patient" asp-action="RequestAppointment" method="post">
-                    <div class="mb-3">
-                        <label for="DiyetisyenId" class="form-label">Diyetisyen</label>
-                        <select class="form-select" id="DiyetisyenId" name="DiyetisyenId" required>
-                            <option value="" selected disabled>Diyetisyen seçin</option>
-                            @if (ViewBag.Diyetisyenler != null)
-                            {
-                                @foreach (var diyetisyen in ViewBag.Diyetisyenler)
+                @if (Model?.DiyetisyenId.HasValue == true)
+                {
+                    <form id="requestAppointmentForm" asp-controller="Patient" asp-action="RequestAppointment" method="post">
+                        <div class="mb-3">
+                            <label for="DiyetisyenId" class="form-label">Diyetisyen</label>
+                            <select class="form-select" id="DiyetisyenId" name="DiyetisyenId" required disabled>
+                                @if (ViewBag.Diyetisyenler != null)
                                 {
-                                    <option value="@diyetisyen.Id">@diyetisyen.Ad @diyetisyen.Soyad</option>
+                                    @foreach (var diyetisyen in ViewBag.Diyetisyenler)
+                                    {
+                                        <option value="@diyetisyen.Id" selected>@diyetisyen.Ad @diyetisyen.Soyad</option>
+                                    }
                                 }
-                            }
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="RandevuTuru" class="form-label">Randevu Türü</label>
-                        <select class="form-select" id="RandevuTuru" name="RandevuTuru" required>
-                            <option value="" selected disabled>Randevu türü seçin</option>
-                            <option value="Kontrol Randevusu">Kontrol Randevusu</option>
-                            <option value="Diyet Planı Güncellemesi">Diyet Planı Güncellemesi</option>
-                            <option value="Danışma">Danışma</option>
-                            <option value="İlk Görüşme">İlk Görüşme</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="RandevuTarihi" class="form-label">Tercih Ettiğiniz Tarih</label>
-                        <input type="date" class="form-control" id="RandevuTarihi" name="RandevuTarihi" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label for="RandevuSaati" class="form-label">Başlangıç Saati</label>
-                            <input type="time" class="form-control" id="RandevuSaati" name="RandevuSaati" required>
+                            </select>
+                            <input type="hidden" name="DiyetisyenId" value="@ViewBag.AtananDiyetisyenId" />
+                            <small class="text-muted">Sadece size atanan diyetisyen ile randevu oluşturabilirsiniz.</small>
                         </div>
-                        <div class="col">
-                            <label for="RandevuBitisSaati" class="form-label">Bitiş Saati</label>
-                            <input type="time" class="form-control" id="RandevuBitisSaati" name="RandevuBitisSaati" required>
+                        <div class="mb-3">
+                            <label for="RandevuTuru" class="form-label">Randevu Türü</label>
+                            <select class="form-select" id="RandevuTuru" name="RandevuTuru" required>
+                                <option value="" selected disabled>Randevu türü seçin</option>
+                                <option value="Kontrol Randevusu">Kontrol Randevusu</option>
+                                <option value="Diyet Planı Güncellemesi">Diyet Planı Güncellemesi</option>
+                                <option value="Danışma">Danışma</option>
+                                <option value="İlk Görüşme">İlk Görüşme</option>
+                            </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="RandevuTarihi" class="form-label">Tercih Ettiğiniz Tarih</label>
+                            <input type="date" class="form-control" id="RandevuTarihi" name="RandevuTarihi" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="RandevuSaati" class="form-label">Başlangıç Saati</label>
+                                <input type="time" class="form-control" id="RandevuSaati" name="RandevuSaati" required>
+                            </div>
+                            <div class="col">
+                                <label for="RandevuBitisSaati" class="form-label">Bitiş Saati</label>
+                                <input type="time" class="form-control" id="RandevuBitisSaati" name="RandevuBitisSaati" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="Notlar" class="form-label">Notlar (İsteğe Bağlı)</label>
+                            <textarea class="form-control" id="Notlar" name="Notlar" rows="3" placeholder="Randevu talebinizle ilgili eklemek istediğiniz notlar..."></textarea>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Henüz size atanmış bir diyetisyen bulunmuyor. Randevu oluşturabilmek için önce bir diyetisyen atanmalıdır.
                     </div>
-                    <div class="mb-3">
-                        <label for="Notlar" class="form-label">Notlar (İsteğe Bağlı)</label>
-                        <textarea class="form-control" id="Notlar" name="Notlar" rows="3" placeholder="Randevu talebinizle ilgili eklemek istediğiniz notlar..."></textarea>
-                    </div>
-                </form>
+                }
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
-                <button type="submit" form="requestAppointmentForm" class="btn btn-success">Randevu Talep Et</button>
+                @if (Model?.DiyetisyenId.HasValue == true)
+                {
+                    <button type="submit" form="requestAppointmentForm" class="btn btn-success">Randevu Talep Et</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-success" disabled>Randevu Talep Et</button>
+                }
             </div>
         </div>
     </div>
@@ -290,6 +318,12 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
             // Form validation
             const form = document.getElementById('requestAppointmentForm');
             if (form) {
