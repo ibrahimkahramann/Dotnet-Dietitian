@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Randevu> Randevular { get; set; }
     public DbSet<DiyetisyenUygunluk> DiyetisyenUygunluklar { get; set; }
     public DbSet<Mesaj> Mesajlar { get; set; } // Mevcut DbSet'lere ekleyin
+    public DbSet<KullaniciAyarlari> KullaniciAyarlari { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -135,6 +136,18 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.AliciTipi).HasMaxLength(20).IsRequired();
             entity.Property(e => e.Icerik).IsRequired();
             entity.Property(e => e.GonderimZamani).IsRequired();            entity.Property(e => e.Okundu).HasDefaultValue(false);
+        });
+        
+        // KullaniciAyarlari yapılandırması
+        modelBuilder.Entity<KullaniciAyarlari>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.KullaniciId).IsRequired();
+            entity.Property(e => e.KullaniciTipi).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.SonGuncellemeTarihi).IsRequired();
+            
+            // Unique index to ensure one settings record per user
+            entity.HasIndex(e => new { e.KullaniciId, e.KullaniciTipi }).IsUnique();
         });
         
         base.OnModelCreating(modelBuilder);
