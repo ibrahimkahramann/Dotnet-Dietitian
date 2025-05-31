@@ -329,6 +329,113 @@
     </div>
 </div>
 
+<!-- Delete Patient Confirmation Modal -->
+<div class="modal fade" id="deletePatientModal" tabindex="-1" aria-labelledby="deletePatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePatientModalLabel">Hasta Silme Onayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bu hastayı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+                <input type="hidden" id="deletePatientId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" id="confirmDeletePatientBtn" class="btn btn-danger">Sil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Quick View Modal -->
+<div class="modal fade" id="patientQuickViewModal" tabindex="-1" aria-labelledby="patientQuickViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="patientQuickViewModalLabel">Hasta Önizleme</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="text-center py-4 border-bottom">
+                    <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" 
+                         class="rounded-circle mb-3" width="80" height="80" alt="Patient">
+                    <h5 class="fw-bold mb-1" id="quickViewPatientName"></h5>
+                    <div id="quickViewPatientStatus"></div>
+                </div>
+                
+                <div class="p-4">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <h6 class="mb-3 text-muted fs-7">İletişim Bilgileri</h6>
+                            <div class="mb-2">
+                                <div class="d-flex">
+                                    <div class="me-2 text-primary">
+                                        <i class="bi bi-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">E-posta</div>
+                                        <div id="quickViewPatientEmail"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex">
+                                    <div class="me-2 text-primary">
+                                        <i class="bi bi-telephone"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Telefon</div>
+                                        <div id="quickViewPatientPhone"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-6">
+                            <h6 class="mb-3 text-muted fs-7">Sağlık Bilgileri</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="text-muted small">Yaş:</div>
+                                <div id="quickViewPatientAge"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="text-muted small">Boy:</div>
+                                <div id="quickViewPatientHeight"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div class="text-muted small">Kilo:</div>
+                                <div id="quickViewPatientWeight"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="mb-3 text-muted fs-7">Diyet Bilgileri</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2 text-success">
+                                    <i class="bi bi-clipboard2-check"></i>
+                                </div>
+                                <div>
+                                    <div class="text-muted small">Diyet Planı</div>
+                                    <div id="quickViewPatientDietPlan"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Kapat</button>
+                <a id="viewFullProfileBtn" href="#" class="btn btn-primary">
+                    <i class="bi bi-person-lines-fill me-1"></i> Tam Profili Görüntüle
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -357,8 +464,67 @@
             document.querySelectorAll('.view-patient').forEach(button => {
                 button.addEventListener('click', function() {
                     const patientId = this.dataset.id;
-                    // Navigate to patient details page
-                    window.location.href = `/Dietitian/ViewPatient/${patientId}`;
+                    
+                    // Show a loading state on the button
+                    const originalContent = this.innerHTML;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                    this.disabled = true;
+                    
+                    // Fetch basic patient data for quick preview
+                    fetch(`/Dietitian/GetPatientQuickView/${patientId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            // If API fails, just navigate to the full patient page
+                            window.location.href = `/Dietitian/ViewPatient/${patientId}`;
+                            throw new Error('Could not load quick view data');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Reset button state
+                        this.innerHTML = originalContent;
+                        this.disabled = false;
+                        
+                        if (data.success) {
+                            // Show patient quick view modal
+                            const patient = data.patient;
+                            
+                            // Set modal content
+                            document.getElementById('quickViewPatientName').textContent = `${patient.ad} ${patient.soyad}`;
+                            document.getElementById('quickViewPatientStatus').innerHTML = patient.diyetProgramiId ? 
+                                '<span class="badge bg-success">Aktif</span>' : 
+                                '<span class="badge bg-warning text-dark">Beklemede</span>';
+                            
+                            document.getElementById('quickViewPatientEmail').textContent = patient.email || '-';
+                            document.getElementById('quickViewPatientPhone').textContent = patient.telefon || '-';
+                            document.getElementById('quickViewPatientAge').textContent = patient.yas ? `${patient.yas} yaş` : '-';
+                            document.getElementById('quickViewPatientHeight').textContent = patient.boy ? `${patient.boy} cm` : '-';
+                            document.getElementById('quickViewPatientWeight').textContent = patient.kilo ? `${patient.kilo} kg` : '-';
+                            document.getElementById('quickViewPatientDietPlan').textContent = patient.diyetProgramiAdi || 'Atanmadı';
+                            
+                            // Set the view full profile button href
+                            document.getElementById('viewFullProfileBtn').href = `/Dietitian/ViewPatient/${patientId}`;
+                            
+                            // Show the modal
+                            const quickViewModal = new bootstrap.Modal(document.getElementById('patientQuickViewModal'));
+                            quickViewModal.show();
+                        } else {
+                            // If there's an issue with the data, just navigate to the full page
+                            window.location.href = `/Dietitian/ViewPatient/${patientId}`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Reset button state and redirect to full patient page
+                        this.innerHTML = originalContent;
+                        this.disabled = false;
+                        window.location.href = `/Dietitian/ViewPatient/${patientId}`;
+                    });
                 });
             });
             
@@ -569,26 +735,51 @@
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    if (confirm('Bu hastayı silmek istediğinizden emin misiniz?')) {
-                        const patientId = this.dataset.id;
-                        
-                        fetch(`/api/Hasta/${patientId}`, {
-                            method: 'DELETE'
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Hasta silinirken bir hata oluştu');
-                            }
-                            return response.text();
-                        })
-                        .then(data => {
-                            // Sayfayı yenile
-                            window.location.reload();
-                        })
-                        .catch(error => {
-                            alert('Hata: ' + error.message);
-                        });
+                    // Get patient ID and store it in the modal
+                    const patientId = this.dataset.id;
+                    document.getElementById('deletePatientId').value = patientId;
+                    
+                    // Show the confirmation modal
+                    const deleteModal = new bootstrap.Modal(document.getElementById('deletePatientModal'));
+                    deleteModal.show();
+                });
+            });
+            
+            // Handle delete confirmation
+            document.getElementById('confirmDeletePatientBtn').addEventListener('click', function() {
+                const patientId = document.getElementById('deletePatientId').value;
+                const button = this;
+                
+                // Button loading state
+                button.disabled = true;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Siliniyor...';
+                
+                fetch(`/api/Hasta/${patientId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Hasta silinirken bir hata oluştu');
                     }
+                    return response.text();
+                })
+                .then(data => {
+                    // Close the modal
+                    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deletePatientModal'));
+                    deleteModal.hide();
+                    
+                    // Show success message and reload page
+                    alert('Hasta başarıyla silindi');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    // Reset button state
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    
+                    // Show error message
+                    alert('Hata: ' + error.message);
                 });
             });
         });

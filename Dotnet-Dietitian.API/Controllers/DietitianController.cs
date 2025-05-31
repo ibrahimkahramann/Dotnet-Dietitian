@@ -817,6 +817,265 @@ namespace Dotnet_Dietitian.API.Controllers
         }
 
         [HttpGet]
+        [Route("Dietitian/ViewPatient/{id}")]
+        public async Task<IActionResult> ViewPatient(Guid id)
+        {
+            try
+            {
+                // Get the logged-in dietitian's ID
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Check if user is admin
+                bool isAdmin = User.IsInRole("Admin");
+
+                // Get patient details
+                var hastaModel = await _mediator.Send(new GetHastaWithDiyetProgramiQuery(id));
+                
+                // Check if the patient belongs to the current dietitian, is unassigned, or the user is an admin
+                if (!isAdmin && hastaModel.DiyetisyenId != diyetisyenId && hastaModel.DiyetisyenId.HasValue)
+                {
+                    _logger.LogWarning($"Dietitian {diyetisyenId} attempted to view patient {id} who is not assigned to them");
+                    TempData["ErrorMessage"] = "Bu hastayı görüntüleme yetkiniz bulunmamaktadır.";
+                    return RedirectToAction("DietitianPatients");
+                }
+                
+                // Get dietitian details
+                var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
+                ViewBag.DiyetisyenModel = diyetisyenModel;
+                
+                // Get patient's appointments
+                var randevular = await _mediator.Send(new GetRandevuByHastaIdQuery(id));
+                ViewBag.Randevular = randevular;
+                
+                // Get diet plans for dropdown
+                var diyetProgramlari = await _mediator.Send(new GetDiyetProgramiQuery());
+                ViewBag.DiyetProgramlari = diyetProgramlari;
+                
+                // Add a flag to indicate if the current dietitian can edit this patient
+                ViewBag.CanEditPatient = isAdmin || hastaModel.DiyetisyenId == diyetisyenId || !hastaModel.DiyetisyenId.HasValue;
+                
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error viewing patient details. Patient ID: {id}");
+                ViewBag.ErrorMessage = "Hasta bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("DietitianPatients");
+            }
+        }
+        
+        [HttpGet]
+        [Route("Dietitian/EditPatient/{id}")]
+        public async Task<IActionResult> EditPatient(Guid id)
+        {
+            try
+            {
+                // Get the logged-in dietitian's ID
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Get patient details
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(id));
+                
+                // Check if the patient belongs to the current dietitian
+                if (hastaModel.DiyetisyenId != diyetisyenId)
+                {
+                    _logger.LogWarning($"Dietitian {diyetisyenId} attempted to edit patient {id} who is not assigned to them");
+                    return RedirectToAction("DietitianPatients");
+                }
+                
+                return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error editing patient. Patient ID: {id}");
+                ViewBag.ErrorMessage = "Hasta bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("DietitianPatients");
+            }
+        }
+        
+        [HttpPost]
+        [Route("Dietitian/EditPatient/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditPatient(Guid id, UpdateHastaProfileCommand command)
+        {
+            try
+            {
+                // Log the received command data for debugging
+                _logger.LogInformation($"Received patient update: ID={command.Id}, Ad={command.Ad}, Soyad={command.Soyad}, " +
+                    $"Email={command.Email}, DiyetisyenId={command.DiyetisyenId}, TcKimlikNumarasi={command.TcKimlikNumarasi}, " +
+                    $"Adres={command.Adres}, KanGrubu={command.KanGrubu}");
+                
+                // Log model state
+                if (!ModelState.IsValid)
+                {
+                    foreach (var state in ModelState)
+                    {
+                        foreach (var error in state.Value.Errors)
+                        {
+                            _logger.LogWarning($"Model error for {state.Key}: {error.ErrorMessage}");
+                        }
+                    }
+                }
+                
+                // Get the logged-in dietitian's ID
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    _logger.LogWarning("Invalid user session. User ID is empty or not a valid GUID.");
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Ensure the ID from the route matches the command
+                command.Id = id;
+                
+                // Set required properties to prevent model binding errors
+                if (string.IsNullOrEmpty(command.TcKimlikNumarasi))
+                {
+                    // Get the current value from database
+                    var existingPatient = await _mediator.Send(new GetHastaByIdQuery(id));
+                    command.TcKimlikNumarasi = existingPatient.TcKimlikNumarasi;
+                }
+                
+                // Ensure DiyetisyenId is set correctly
+                if (command.DiyetisyenId == null || command.DiyetisyenId == Guid.Empty)
+                {
+                    command.DiyetisyenId = diyetisyenId;
+                }
+                
+                // Get the patient to check if they belong to this dietitian
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(id));
+                
+                // Check if the patient belongs to the current dietitian
+                if (hastaModel.DiyetisyenId != diyetisyenId)
+                {
+                    _logger.LogWarning($"Dietitian {diyetisyenId} attempted to update patient {id} who is not assigned to them");
+                    return RedirectToAction("DietitianPatients");
+                }
+                
+                // Update the patient
+                await _mediator.Send(command);
+                _logger.LogInformation($"Successfully updated patient {id}");
+                
+                // Redirect to the patient details page
+                return RedirectToAction("ViewPatient", new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating patient. Patient ID: {id}. Exception: {ex.Message}");
+                
+                // Log the model state errors if any
+                if (!ModelState.IsValid)
+                {
+                    foreach (var state in ModelState)
+                    {
+                        foreach (var error in state.Value.Errors)
+                        {
+                            _logger.LogError($"Model error for {state.Key}: {error.ErrorMessage}");
+                        }
+                    }
+                }
+                
+                TempData["ErrorMessage"] = $"Hasta bilgileri güncellenirken bir hata oluştu: {ex.Message}";
+                return RedirectToAction("EditPatient", new { id }); 
+            }
+        }
+
+        [HttpGet]
+        [Route("api/Dietitian/DietPlans")]
+        public async Task<IActionResult> GetDietPlansJson()
+        {
+            try
+            {
+                // Get the logged-in dietitian's ID
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Unauthorized(new { success = false, message = "Geçersiz kullanıcı kimliği veya oturum süresi doldu." });
+                }
+
+                // Get all diet programs
+                var diyetProgramlari = await _mediator.Send(new GetDiyetProgramiQuery());
+                
+                // Filter for templates created by this dietitian
+                var diyetisyenProgramlari = diyetProgramlari
+                    .Where(d => d.OlusturanDiyetisyenId == diyetisyenId)
+                    .Select(dp => new {
+                        id = dp.Id,
+                        ad = dp.Ad,
+                        aciklama = dp.Aciklama,
+                        baslangicTarihi = dp.BaslangicTarihi,
+                        bitisTarihi = dp.BitisTarihi
+                    })
+                    .ToList();
+                
+                return Json(diyetisyenProgramlari);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Diet plans could not be fetched as JSON");
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Dietitian/GetPatientQuickView/{id}")]
+        public async Task<IActionResult> GetPatientQuickView(Guid id)
+        {
+            try
+            {
+                // Get the logged-in dietitian's ID
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
+                {
+                    return Json(new { success = false, message = "Oturum bilgileriniz geçersiz." });
+                }
+
+                // Get patient details
+                var hastaModel = await _mediator.Send(new GetHastaWithDiyetProgramiQuery(id));
+                
+                // Check if the patient belongs to the current dietitian or has no dietitian yet
+                if (hastaModel.DiyetisyenId != diyetisyenId && hastaModel.DiyetisyenId.HasValue)
+                {
+                    _logger.LogWarning($"Dietitian {diyetisyenId} attempted to view patient {id} who is assigned to another dietitian");
+                    return Json(new { success = false, message = "Bu hastayı görüntüleme yetkiniz yok." });
+                }
+                
+                // Return patient data in a simplified format for the quick view
+                var patientData = new
+                {
+                    id = hastaModel.Id,
+                    ad = hastaModel.Ad,
+                    soyad = hastaModel.Soyad,
+                    email = hastaModel.Email,
+                    telefon = hastaModel.Telefon,
+                    yas = hastaModel.Yas,
+                    cinsiyet = hastaModel.Cinsiyet,
+                    boy = hastaModel.Boy,
+                    kilo = hastaModel.Kilo,
+                    diyetProgramiId = hastaModel.DiyetProgramiId,
+                    diyetProgramiAdi = hastaModel.DiyetProgramiAdi,
+                    gunlukKaloriIhtiyaci = hastaModel.GunlukKaloriIhtiyaci,
+                    diyetisyenId = hastaModel.DiyetisyenId
+                };
+                
+                return Json(new { success = true, patient = patientData });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error fetching quick view data for patient. Patient ID: {id}");
+                return Json(new { success = false, message = "Hasta bilgileri getirilirken bir hata oluştu: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
         [Route("Dietitian/ViewDietPlan/{id}")]
         public async Task<IActionResult> ViewDietPlan(Guid id)
         {
@@ -1073,208 +1332,6 @@ namespace Dotnet_Dietitian.API.Controllers
                 _logger.LogError(ex, "Diyet programı arşivlenirken hata oluştu");
                 TempData["ErrorMessage"] = "Diyet programı arşivlenirken bir hata oluştu: " + ex.Message;
                 return RedirectToAction("DietPlans");
-            }
-        }
-
-        [HttpGet]
-        [Route("Dietitian/ViewPatient/{id}")]
-        public async Task<IActionResult> ViewPatient(Guid id)
-        {
-            try
-            {
-                // Get the logged-in dietitian's ID
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
-                {
-                    return RedirectToAction("Login", "Account");
-                }
-
-                // Get patient details
-                var hastaModel = await _mediator.Send(new GetHastaWithDiyetProgramiQuery(id));
-                
-                // Check if the patient belongs to the current dietitian
-                if (hastaModel.DiyetisyenId != diyetisyenId)
-                {
-                    _logger.LogWarning($"Dietitian {diyetisyenId} attempted to view patient {id} who is not assigned to them");
-                    return RedirectToAction("DietitianPatients");
-                }
-                
-                // Get dietitian details
-                var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
-                ViewBag.DiyetisyenModel = diyetisyenModel;
-                
-                // Get patient's appointments
-                var randevular = await _mediator.Send(new GetRandevuByHastaIdQuery(id));
-                ViewBag.Randevular = randevular;
-                
-                // Get diet plans for dropdown
-                var diyetProgramlari = await _mediator.Send(new GetDiyetProgramiQuery());
-                ViewBag.DiyetProgramlari = diyetProgramlari;
-                
-                return View(hastaModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error viewing patient details. Patient ID: {id}");
-                ViewBag.ErrorMessage = "Hasta bilgileri getirilirken bir hata oluştu: " + ex.Message;
-                return RedirectToAction("DietitianPatients");
-            }
-        }
-        
-        [HttpGet]
-        [Route("Dietitian/EditPatient/{id}")]
-        public async Task<IActionResult> EditPatient(Guid id)
-        {
-            try
-            {
-                // Get the logged-in dietitian's ID
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
-                {
-                    return RedirectToAction("Login", "Account");
-                }
-
-                // Get patient details
-                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(id));
-                
-                // Check if the patient belongs to the current dietitian
-                if (hastaModel.DiyetisyenId != diyetisyenId)
-                {
-                    _logger.LogWarning($"Dietitian {diyetisyenId} attempted to edit patient {id} who is not assigned to them");
-                    return RedirectToAction("DietitianPatients");
-                }
-                
-                return View(hastaModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error editing patient. Patient ID: {id}");
-                ViewBag.ErrorMessage = "Hasta bilgileri getirilirken bir hata oluştu: " + ex.Message;
-                return RedirectToAction("DietitianPatients");
-            }
-        }
-        
-        [HttpPost]
-        [Route("Dietitian/EditPatient/{id}")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPatient(Guid id, UpdateHastaProfileCommand command)
-        {
-            try
-            {
-                // Log the received command data for debugging
-                _logger.LogInformation($"Received patient update: ID={command.Id}, Ad={command.Ad}, Soyad={command.Soyad}, " +
-                    $"Email={command.Email}, DiyetisyenId={command.DiyetisyenId}, TcKimlikNumarasi={command.TcKimlikNumarasi}, " +
-                    $"Adres={command.Adres}, KanGrubu={command.KanGrubu}");
-                
-                // Log model state
-                if (!ModelState.IsValid)
-                {
-                    foreach (var state in ModelState)
-                    {
-                        foreach (var error in state.Value.Errors)
-                        {
-                            _logger.LogWarning($"Model error for {state.Key}: {error.ErrorMessage}");
-                        }
-                    }
-                }
-                
-                // Get the logged-in dietitian's ID
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
-                {
-                    _logger.LogWarning("Invalid user session. User ID is empty or not a valid GUID.");
-                    return RedirectToAction("Login", "Account");
-                }
-
-                // Ensure the ID from the route matches the command
-                command.Id = id;
-                
-                // Set required properties to prevent model binding errors
-                if (string.IsNullOrEmpty(command.TcKimlikNumarasi))
-                {
-                    // Get the current value from database
-                    var existingPatient = await _mediator.Send(new GetHastaByIdQuery(id));
-                    command.TcKimlikNumarasi = existingPatient.TcKimlikNumarasi;
-                }
-                
-                // Ensure DiyetisyenId is set correctly
-                if (command.DiyetisyenId == null || command.DiyetisyenId == Guid.Empty)
-                {
-                    command.DiyetisyenId = diyetisyenId;
-                }
-                
-                // Get the patient to check if they belong to this dietitian
-                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(id));
-                
-                // Check if the patient belongs to the current dietitian
-                if (hastaModel.DiyetisyenId != diyetisyenId)
-                {
-                    _logger.LogWarning($"Dietitian {diyetisyenId} attempted to update patient {id} who is not assigned to them");
-                    return RedirectToAction("DietitianPatients");
-                }
-                
-                // Update the patient
-                await _mediator.Send(command);
-                _logger.LogInformation($"Successfully updated patient {id}");
-                
-                // Redirect to the patient details page
-                return RedirectToAction("ViewPatient", new { id });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error updating patient. Patient ID: {id}. Exception: {ex.Message}");
-                
-                // Log the model state errors if any
-                if (!ModelState.IsValid)
-                {
-                    foreach (var state in ModelState)
-                    {
-                        foreach (var error in state.Value.Errors)
-                        {
-                            _logger.LogError($"Model error for {state.Key}: {error.ErrorMessage}");
-                        }
-                    }
-                }
-                
-                TempData["ErrorMessage"] = $"Hasta bilgileri güncellenirken bir hata oluştu: {ex.Message}";
-                return RedirectToAction("EditPatient", new { id }); 
-            }
-        }
-
-        [HttpGet]
-        [Route("api/Dietitian/DietPlans")]
-        public async Task<IActionResult> GetDietPlansJson()
-        {
-            try
-            {
-                // Get the logged-in dietitian's ID
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var diyetisyenId))
-                {
-                    return Unauthorized(new { success = false, message = "Geçersiz kullanıcı kimliği veya oturum süresi doldu." });
-                }
-
-                // Get all diet programs
-                var diyetProgramlari = await _mediator.Send(new GetDiyetProgramiQuery());
-                
-                // Filter for templates created by this dietitian
-                var diyetisyenProgramlari = diyetProgramlari
-                    .Where(d => d.OlusturanDiyetisyenId == diyetisyenId)
-                    .Select(dp => new {
-                        id = dp.Id,
-                        ad = dp.Ad,
-                        aciklama = dp.Aciklama,
-                        baslangicTarihi = dp.BaslangicTarihi,
-                        bitisTarihi = dp.BitisTarihi
-                    })
-                    .ToList();
-                
-                return Json(diyetisyenProgramlari);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Diet plans could not be fetched as JSON");
-                return Json(new { success = false, message = ex.Message });
             }
         }
     }

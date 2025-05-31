@@ -51,12 +51,24 @@
             <a href="/Dietitian/Messages?patientId=@Model.Id" class="btn btn-outline-primary me-2">
                 <i class="bi bi-chat-dots me-1"></i> Mesaj Gönder
             </a>
-            <a href="/Dietitian/EditPatient/@Model.Id" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-pencil me-1"></i> Düzenle
-            </a>
-            <a href="/Dietitian/Appointments?newAppointment=true&patientId=@Model.Id" class="btn btn-success">
-                <i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur
-            </a>
+            @if (ViewBag.CanEditPatient == true)
+            {
+                <a href="/Dietitian/EditPatient/@Model.Id" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-pencil me-1"></i> Düzenle
+                </a>
+                <a href="/Dietitian/Appointments?newAppointment=true&patientId=@Model.Id" class="btn btn-success">
+                    <i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur
+                </a>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary me-2" disabled title="Bu hastayı düzenleme yetkiniz yok">
+                    <i class="bi bi-pencil me-1"></i> Düzenle
+                </button>
+                <button class="btn btn-outline-success" disabled title="Bu hasta için randevu oluşturamazsınız">
+                    <i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur
+                </button>
+            }
         </div>
     </div>
     
@@ -149,20 +161,29 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0">Diyet Programı</h5>
                     <div>
-                        @if (Model.DiyetProgramiId.HasValue)
+                        @if (ViewBag.CanEditPatient == true)
                         {
-                            <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#changeDietPlanModal">
-                                <i class="bi bi-arrow-repeat me-1"></i> Değiştir
-                            </button>
+                            @if (Model.DiyetProgramiId.HasValue)
+                            {
+                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#changeDietPlanModal">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Değiştir
+                                </button>
+                                <a href="/Dietitian/ViewDietPlan/@Model.DiyetProgramiId" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye me-1"></i> Detay
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignDietPlanModal">
+                                    <i class="bi bi-clipboard2-plus me-1"></i> Diyet Planı Ata
+                                </button>
+                            }
+                        }
+                        else if (Model.DiyetProgramiId.HasValue)
+                        {
                             <a href="/Dietitian/ViewDietPlan/@Model.DiyetProgramiId" class="btn btn-sm btn-outline-secondary">
                                 <i class="bi bi-eye me-1"></i> Detay
                             </a>
-                        }
-                        else
-                        {
-                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignDietPlanModal">
-                                <i class="bi bi-clipboard2-plus me-1"></i> Diyet Planı Ata
-                            </button>
                         }
                     </div>
                 </div>
