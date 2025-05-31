@@ -1,0 +1,335 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
+
+@{
+    ViewData["Title"] = "Hasta Düzenle - DijetUP";
+    Layout = "_DietitianLayout";
+}
+
+<div class="container-fluid p-4">
+    
+    <!-- Display success and error messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i> @ViewBag.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="/Dietitian/ViewPatient/@Model.Id" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="fw-bold mb-0">Hasta Düzenle</h2>
+                <p class="text-muted mb-0">@Model.Ad @Model.Soyad</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form id="editPatientForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+                        <input type="hidden" id="DiyetisyenId" name="DiyetisyenId" value="@Model.DiyetisyenId" />
+                        <input type="hidden" id="TcKimlikNumarasi" name="TcKimlikNumarasi" value="@Model.TcKimlikNumarasi" />
+                        <input type="hidden" id="DiyetProgramiId" name="DiyetProgramiId" value="@Model.DiyetProgramiId" />
+                        <input type="hidden" id="SaglikBilgisiPaylasimiIzni" name="SaglikBilgisiPaylasimiIzni" value="true" />
+                        <input type="hidden" id="Adres" name="Adres" value="@Model.Adres" />
+                        <input type="hidden" id="KanGrubu" name="KanGrubu" value="@Model.KanGrubu" />
+                        
+                        <h5 class="border-bottom pb-2 mb-4">Kişisel Bilgiler</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Ad" class="form-label">Ad</label>
+                                <input type="text" class="form-control" id="Ad" name="Ad" value="@Model.Ad" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Soyad" class="form-label">Soyad</label>
+                                <input type="text" class="form-control" id="Soyad" name="Soyad" value="@Model.Soyad" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="Email" class="form-label">E-posta</label>
+                                <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Telefon" class="form-label">Telefon</label>
+                                <input type="tel" class="form-control" id="Telefon" name="Telefon" value="@Model.Telefon">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="DogumTarihi" class="form-label">Doğum Tarihi</label>
+                                <input type="date" class="form-control" id="DogumTarihi" name="DogumTarihi" 
+                                    value="@(Model.DogumTarihi.HasValue ? Model.DogumTarihi.Value.ToString("yyyy-MM-dd") : "")">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="Yas" class="form-label">Yaş</label>
+                                <input type="number" class="form-control" id="Yas" name="Yas" value="@Model.Yas">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="Cinsiyet" class="form-label">Cinsiyet</label>
+                                <select class="form-select" id="Cinsiyet" name="Cinsiyet">
+                                    <option value="">Seçiniz</option>
+                                    @if (Model.Cinsiyet == "Kadın")
+                                    {
+                                        <option value="Kadın" selected>Kadın</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Kadın">Kadın</option>
+                                    }
+                                    
+                                    @if (Model.Cinsiyet == "Erkek")
+                                    {
+                                        <option value="Erkek" selected>Erkek</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Erkek">Erkek</option>
+                                    }
+                                    
+                                    @if (Model.Cinsiyet == "Diğer")
+                                    {
+                                        <option value="Diğer" selected>Diğer</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Diğer">Diğer</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <h5 class="border-bottom pb-2 mb-4 mt-4">Sağlık Bilgileri</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="Boy" class="form-label">Boy (cm)</label>
+                                <input type="number" step="0.01" class="form-control" id="Boy" name="Boy" value="@Model.Boy">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="Kilo" class="form-label">Kilo (kg)</label>
+                                <input type="number" step="0.01" class="form-control" id="Kilo" name="Kilo" value="@Model.Kilo">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="GunlukKaloriIhtiyaci" class="form-label">Günlük Kalori İhtiyacı</label>
+                                <input type="number" class="form-control" id="GunlukKaloriIhtiyaci" name="GunlukKaloriIhtiyaci" value="@Model.GunlukKaloriIhtiyaci">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="KronikHastaliklar" class="form-label">Kronik Hastalıklar</label>
+                            <textarea class="form-control" id="KronikHastaliklar" name="KronikHastaliklar" rows="2">@Model.KronikHastaliklar</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="Alerjiler" class="form-label">Alerjiler</label>
+                            <textarea class="form-control" id="Alerjiler" name="Alerjiler" rows="2">@Model.Alerjiler</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="KullanilanIlaclar" class="form-label">İlaç Kullanımı</label>
+                            <textarea class="form-control" id="KullanilanIlaclar" name="KullanilanIlaclar" rows="2">@Model.KullanilanIlaclar</textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/Dietitian/ViewPatient/@Model.Id" class="btn btn-outline-secondary">İptal</a>
+                            <button type="button" id="submitBtn" class="btn btn-primary">Kaydet</button>
+                        </div>
+                    </form>
+
+                    <!-- Error messages will be displayed here -->
+                    <div id="errorMessages" class="alert alert-danger mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Hasta Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle mb-3" width="100" height="100" alt="Patient">
+                        <h5 class="fw-bold">@Model.Ad @Model.Soyad</h5>
+                        <span class="badge bg-@(Model.DiyetProgramiId.HasValue ? "success" : "warning text-dark")">
+                            @(Model.DiyetProgramiId.HasValue ? "Aktif" : "Beklemede")
+                        </span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Kayıt Tarihi:</span>
+                            <span>Bilgi mevcut değil</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Diyet Programı:</span>
+                            <span>@(string.IsNullOrEmpty(Model.DiyetProgramiAdi) ? "Atanmadı" : Model.DiyetProgramiAdi)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4" role="alert">
+                        <i class="bi bi-info-circle me-2"></i> 
+                        Hastanın bilgilerini düzenlerken boy ve kilo değerlerini güncellerseniz, günlük kalori ihtiyacı otomatik olarak hesaplanacaktır.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form submission
+            const form = document.getElementById('editPatientForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('errorMessages');
+            
+            submitBtn.addEventListener('click', function() {
+                // Get the anti-forgery token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                
+                // Create data object from form
+                const formData = new FormData(form);
+                const patient = {};
+                
+                // Convert FormData to regular object
+                for (let [key, value] of formData.entries()) {
+                    // Handle special data types
+                    if (key === 'Id' || key === 'DiyetisyenId' || key === 'DiyetProgramiId') {
+                        patient[key] = value ? value : null; // Handle empty GUIDs
+                    } else if (key === 'Yas' || key === 'GunlukKaloriIhtiyaci') {
+                        patient[key] = value ? parseInt(value) : null;
+                    } else if (key === 'Boy' || key === 'Kilo') {
+                        patient[key] = value ? parseFloat(value) : null;
+                    } else if (key === 'DogumTarihi') {
+                        patient[key] = value ? value : null;
+                    } else if (key === 'SaglikBilgisiPaylasimiIzni') {
+                        patient[key] = value === 'true';
+                    } else if (key !== '__RequestVerificationToken') {
+                        patient[key] = value;
+                    }
+                }
+                
+                // Debug the data being sent
+                console.log('Sending data:', patient);
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Kaydediliyor...';
+                
+                // Submit via fetch API
+                fetch('/Dietitian/EditPatient/@Model.Id', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: new URLSearchParams(formData)
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        // Redirect if the server returns a redirect
+                        window.location.href = response.url;
+                    } else if (!response.ok) {
+                        // Handle non-2xx responses
+                        return response.text().then(text => {
+                            throw new Error('Sunucu hatası: ' + text);
+                        });
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Successfully processed, redirect to patient view
+                    window.location.href = '/Dietitian/ViewPatient/@Model.Id';
+                })
+                .catch(error => {
+                    // Display error message
+                    console.error('Error:', error);
+                    errorDiv.textContent = 'Hasta bilgilerini kaydederken bir hata oluştu: ' + error.message;
+                    errorDiv.style.display = 'block';
+                    
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Kaydet';
+                    
+                    // Scroll to error
+                    errorDiv.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            // Auto-calculate BMI and calorie needs when height or weight changes
+            const boyInput = document.getElementById('Boy');
+            const kiloInput = document.getElementById('Kilo');
+            const kaloriInput = document.getElementById('GunlukKaloriIhtiyaci');
+            const cinsiyetInput = document.getElementById('Cinsiyet');
+            const yasInput = document.getElementById('Yas');
+            
+            // Function to calculate daily calorie needs (using Mifflin-St Jeor formula)
+            function calculateCalorieNeeds() {
+                const boy = parseFloat(boyInput.value);
+                const kilo = parseFloat(kiloInput.value);
+                const yas = parseInt(yasInput.value);
+                const cinsiyet = cinsiyetInput.value;
+                
+                if (boy && kilo && yas && cinsiyet) {
+                    let bmr = 0;
+                    
+                    if (cinsiyet === 'Erkek') {
+                        // Men: BMR = 10W + 6.25H - 5A + 5
+                        bmr = 10 * kilo + 6.25 * boy - 5 * yas + 5;
+                    } else {
+                        // Women: BMR = 10W + 6.25H - 5A - 161
+                        bmr = 10 * kilo + 6.25 * boy - 5 * yas - 161;
+                    }
+                    
+                    // Multiply by activity factor (assuming moderate activity = 1.55)
+                    const kalori = Math.round(bmr * 1.55);
+                    
+                    kaloriInput.value = kalori;
+                }
+            }
+            
+            // Add event listeners to inputs
+            [boyInput, kiloInput, yasInput, cinsiyetInput].forEach(input => {
+                if (input) {
+                    input.addEventListener('change', calculateCalorieNeeds);
+                }
+            });
+        });
+    </script>
+} 

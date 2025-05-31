@@ -308,10 +308,10 @@
             </div>
             <div class="modal-body">
                 <form id="assignDietPlanForm">
-                    <input type="hidden" id="patientId" name="Id">
+                    <input type="hidden" id="patientId" name="hastaId">
                     <div class="mb-3">
                         <label for="dietPlanSelect" class="form-label">Diyet Planı Seçin</label>
-                        <select class="form-select" id="dietPlanSelect" name="DiyetProgramiId" required>
+                        <select class="form-select" id="dietPlanSelect" name="diyetProgramiId" required>
                             <option value="" selected disabled>Diyet planı seçin</option>
                             <!-- Diyet planları AJAX ile doldurulacak -->
                         </select>
@@ -352,6 +352,44 @@
                     });
                 });
             }
+            
+            // View patient button handler
+            document.querySelectorAll('.view-patient').forEach(button => {
+                button.addEventListener('click', function() {
+                    const patientId = this.dataset.id;
+                    // Navigate to patient details page
+                    window.location.href = `/Dietitian/ViewPatient/${patientId}`;
+                });
+            });
+            
+            // Message patient button handler
+            document.querySelectorAll('.message-patient').forEach(button => {
+                button.addEventListener('click', function() {
+                    const patientId = this.dataset.id;
+                    // Navigate to messages page with patient filter
+                    window.location.href = `/Dietitian/Messages?patientId=${patientId}`;
+                });
+            });
+            
+            // Edit patient button handler
+            document.querySelectorAll('.edit-patient').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const patientId = this.dataset.id;
+                    // Navigate to edit patient page
+                    window.location.href = `/Dietitian/EditPatient/${patientId}`;
+                });
+            });
+            
+            // Create appointment button handler
+            document.querySelectorAll('.create-appointment').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const patientId = this.dataset.id;
+                    // Navigate to appointments page with patient pre-selected
+                    window.location.href = `/Dietitian/Appointments?newAppointment=true&patientId=${patientId}`;
+                });
+            });
             
             // Assign patient to dietitian functionality
             document.querySelectorAll('.assign-to-me').forEach(button => {
@@ -404,70 +442,124 @@
                 });
             });
             
-            // Load diet plans for assignment
+            // Load diet plans for assignment when the modal is shown
             document.querySelectorAll('.assign-diet-plan').forEach(button => {
                 button.addEventListener('click', function() {
                     const patientId = this.dataset.id;
                     document.getElementById('patientId').value = patientId;
                     
-                    // Diyet planlarını getir
-                    fetch('/api/DiyetProgrami')
-                        .then(response => response.json())
-                        .then(data => {
-                            const select = document.getElementById('dietPlanSelect');
-                            select.innerHTML = '<option value="" selected disabled>Diyet planı seçin</option>';
-                            
+                    // Show loading state in select
+                    const select = document.getElementById('dietPlanSelect');
+                    select.innerHTML = '<option value="" selected disabled>Diyet planları yükleniyor...</option>';
+                    
+                    // Fetch diet plans from backend using the proper endpoint
+                    fetch('/api/Dietitian/DietPlans', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Diyet planları alınırken bir hata oluştu');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Reset select options
+                        select.innerHTML = '<option value="" selected disabled>Diyet planı seçin</option>';
+                        
+                        // Process the response data and add options to select
+                        if (data && Array.isArray(data)) {
                             data.forEach(plan => {
                                 const option = document.createElement('option');
                                 option.value = plan.id;
                                 option.textContent = plan.ad;
                                 select.appendChild(option);
                             });
-                        })
-                        .catch(error => console.error('Diyet planları yüklenirken hata:', error));
+                        } else {
+                            // Fallback for error or empty response
+                            const option = document.createElement('option');
+                            option.value = "";
+                            option.textContent = "Diyet planı bulunamadı";
+                            option.disabled = true;
+                            select.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Diyet planları yüklenirken hata:', error);
+                        select.innerHTML = '<option value="" selected disabled>Diyet planı yüklenemedi</option>';
+                    });
                 });
             });
             
-            // Assign diet plan
+            // Assign diet plan button click handler
             const assignDietPlanBtn = document.getElementById('assignDietPlanBtn');
             if (assignDietPlanBtn) {
                 assignDietPlanBtn.addEventListener('click', function() {
-                    const form = document.getElementById('assignDietPlanForm');
                     const patientId = document.getElementById('patientId').value;
                     const dietPlanId = document.getElementById('dietPlanSelect').value;
+                    const button = this;
                     
+                    // Input validation
                     if (!dietPlanId) {
                         document.getElementById('dietPlanSelect').classList.add('is-invalid');
                         return;
                     }
                     
-                    // Hasta güncelleme isteği
-                    fetch(`/api/Hasta`, {
-                        method: 'PUT',
+                    // Button loading state
+                    button.disabled = true;
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Atanıyor...';
+                    
+                    // Get the CSRF token from the form
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    
+                    // Submit data to backend using the correct CQRS endpoint
+                    fetch('/Dietitian/AssignDietPlan', {
+                        method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
                         },
                         body: JSON.stringify({
-                            Id: patientId,
-                            DiyetProgramiId: dietPlanId
+                            hastaId: patientId,
+                            diyetProgramiId: dietPlanId
                         })
                     })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Diyet planı atanırken bir hata oluştu');
                         }
-                        return response.text();
+                        return response.json();
                     })
                     .then(data => {
-                        // Başarılı atama sonrası modal kapatılır ve sayfa yenilenir
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('assignDietPlanModal'));
-                        modal.hide();
-                        
-                        // Sayfayı yenile
-                        window.location.reload();
+                        if (data.success) {
+                            // Close modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('assignDietPlanModal'));
+                            modal.hide();
+                            
+                            // Show success message
+                            alert(data.message || 'Diyet planı başarıyla atandı');
+                            
+                            // Reload page to reflect changes
+                            window.location.reload();
+                        } else {
+                            // Show error message
+                            alert(data.message || 'Diyet planı atanırken bir hata oluştu');
+                            
+                            // Reset button
+                            button.disabled = false;
+                            button.innerHTML = originalText;
+                        }
                     })
                     .catch(error => {
+                        console.error('Error:', error);
                         alert('Hata: ' + error.message);
+                        
+                        // Reset button
+                        button.disabled = false;
+                        button.innerHTML = originalText;
                     });
                 });
             }
