@@ -63,16 +63,10 @@ class ContactsService {
             
             // First try the dedicated message contacts endpoints
             if (userType === 'diyetisyen' || userType === 'dietitian') {
-                url = `/api/Mesaj/contacts/dietitian/${this.currentUserId}`;
-                if (!navigator.language.startsWith('en')) {
-                    url = `/api/Mesaj/contacts/diyetisyen/${this.currentUserId}`;
-                }
+                url = `/api/Mesaj/contacts/diyetisyen/${this.currentUserId}`;
                 fallbackUrl = `/api/Diyetisyen/${this.currentUserId}/hastalar`;
             } else if (userType === 'hasta' || userType === 'patient') {
-                url = `/api/Mesaj/contacts/patient/${this.currentUserId}`;
-                if (!navigator.language.startsWith('en')) {
-                    url = `/api/Mesaj/contacts/hasta/${this.currentUserId}`;
-                }
+                url = `/api/Mesaj/contacts/hasta/${this.currentUserId}`;
                 fallbackUrl = `/api/Hasta/${this.currentUserId}/diyetisyen`;
             } else {
                 console.error('Unsupported user type:', this.currentUserType);

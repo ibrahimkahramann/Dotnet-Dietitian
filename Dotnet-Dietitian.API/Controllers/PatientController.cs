@@ -15,6 +15,8 @@ using System.Linq;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.RandevuCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.KullaniciAyarlariCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.KullaniciAyarlariQueries;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -426,6 +428,12 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Hasta verilerini getir
                 var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
                 
+                // Kullanıcı ayarlarını getir
+                var ayarlar = await _mediator.Send(new GetKullaniciAyarlariByKullaniciIdQuery(hastaId, "Hasta"));
+                
+                // Ayarları ViewBag'e ekle
+                ViewBag.Ayarlar = ayarlar;
+                
                 // Aktif tab bilgisini ViewBag'e ekle
                 ViewBag.ActiveTab = tab;
                 
@@ -562,34 +570,59 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Ayar tipine göre işlem yap
+                // UpdateKullaniciAyarlariCommand oluştur
+                var command = new UpdateKullaniciAyarlariCommand
+                {
+                    KullaniciId = hastaId,
+                    KullaniciTipi = "Hasta",
+                    AyarTipi = settingType
+                };
+
+                // Form verilerini komuta ekle
                 switch (settingType)
                 {
                     case "general":
-                        // Genel ayarları güncelle
-                        // Örneğin: Dil, zaman dilimi, tarih formatı, ölçü birimleri
-                        // Bu ayarlar için bir command ve handler oluşturulabilir
-                        // await _mediator.Send(new UpdateHastaGeneralSettingsCommand { ... });
+                        command.Dil = formData["language"];
+                        command.ZamanDilimi = formData["timezone"];
+                        command.TarihFormati = formData["dateFormat"];
+                        command.OlcuBirimi = formData["weightUnit"];
                         break;
+                        
                     case "notifications":
-                        // Bildirim ayarlarını güncelle
-                        // Örneğin: E-posta bildirimleri, uygulama bildirimleri
-                        // await _mediator.Send(new UpdateHastaNotificationSettingsCommand { ... });
+                        command.EmailRandevuBildirimleri = formData["emailNotifAppointments"] == "true";
+                        command.EmailMesajBildirimleri = formData["emailNotifMessages"] == "true";
+                        command.EmailDiyetGuncellemeBildirimleri = formData["emailNotifDietUpdates"] == "true";
+                        command.EmailPazarlamaBildirimleri = formData["emailNotifMarketing"] == "true";
+                        
+                        command.UygulamaRandevuBildirimleri = formData["appNotifAppointments"] == "true";
+                        command.UygulamaMesajBildirimleri = formData["appNotifMessages"] == "true";
+                        command.UygulamaDiyetGuncellemeBildirimleri = formData["appNotifDietUpdates"] == "true";
+                        command.UygulamaGunlukHatirlatmalar = formData["appNotifDailyReminders"] == "true";
                         break;
+                        
                     case "privacy":
-                        // Gizlilik ayarlarını güncelle
-                        // Örneğin: Veri paylaşımı tercihleri
-                        // await _mediator.Send(new UpdateHastaPrivacySettingsCommand { ... });
+                        command.YeniGirisUyarilari = formData["loginAlerts"] == "true";
+                        command.OturumZamanAsimi = formData["sessionTimeout"] == "true";
+                        command.SaglikVerisiPaylasimiIzni = formData["shareHealthData"] == "true";
+                        command.AktiviteVerisiPaylasimiIzni = formData["shareActivityData"] == "true";
+                        command.AnonimKullanimVerisiPaylasimiIzni = formData["shareUsageData"] == "true";
                         break;
+                        
                     case "appearance":
-                        // Görünüm ayarlarını güncelle
-                        // Örneğin: Tema, panel düzeni, görünüm tercihleri
-                        // await _mediator.Send(new UpdateHastaAppearanceSettingsCommand { ... });
+                        command.Tema = formData["theme"];
+                        command.PanelDuzeni = formData["dashboardLayout"];
+                        command.IlerlemeGrafigiGoster = formData["showProgress"] == "true";
+                        command.SuTakibiGoster = formData["showWaterTracker"] == "true";
+                        command.KaloriTakibiGoster = formData["showCalories"] == "true";
                         break;
+                        
                     default:
                         TempData["ErrorMessage"] = "Geçersiz ayar tipi.";
                         return RedirectToAction("Settings");
                 }
+
+                // Ayarları güncelle
+                await _mediator.Send(command);
 
                 // Başarılı mesajı ile ayarlar sayfasına yönlendir
                 TempData["SuccessMessage"] = "Ayarlarınız başarıyla güncellendi.";

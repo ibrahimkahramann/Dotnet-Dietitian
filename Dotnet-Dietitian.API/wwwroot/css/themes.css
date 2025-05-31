@@ -1,0 +1,155 @@
+/**
+ * Theme styles - Açık ve koyu tema için stil tanımlamaları
+ */
+
+/* Light Theme - Varsayılan */
+.theme-light {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --accent-color: #198754;
+    --accent-color-hover: #146c43;
+    --sidebar-bg: #f8f9fa;
+    --sidebar-active: #e9ecef;
+    --navbar-bg: #ffffff;
+    --dropdown-bg: #ffffff;
+}
+
+/* Dark Theme */
+.theme-dark {
+    --bg-primary: #212529;
+    --bg-secondary: #343a40;
+    --bg-card: #2c3034;
+    --text-primary: #f8f9fa;
+    --text-secondary: #adb5bd;
+    --border-color: #495057;
+    --accent-color: #20c997;
+    --accent-color-hover: #13795b;
+    --sidebar-bg: #343a40;
+    --sidebar-active: #495057;
+    --navbar-bg: #212529;
+    --dropdown-bg: #343a40;
+}
+
+/* Uygulama genelinde kullanılacak stiller */
+body {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Navbar ve sidebar */
+#sidebar-wrapper {
+    background-color: var(--sidebar-bg);
+}
+
+.navbar {
+    background-color: var(--navbar-bg) !important;
+}
+
+.navbar .dropdown-menu {
+    background-color: var(--dropdown-bg);
+}
+
+.navbar .dropdown-item {
+    color: var(--text-primary);
+}
+
+.navbar .dropdown-item:hover {
+    background-color: var(--sidebar-active);
+}
+
+.navbar .nav-link {
+    color: var(--text-primary) !important;
+}
+
+.navbar .dropdown-toggle span {
+    color: var(--text-primary) !important;
+}
+
+.navbar .dropdown-header {
+    color: var(--text-secondary);
+}
+
+/* Kart ve liste elemanları */
+.card {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+.list-group-item {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.list-group-item.active {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Butonlar */
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color-hover);
+    border-color: var(--accent-color-hover);
+}
+
+.btn-outline-secondary {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--sidebar-active);
+    color: var(--text-primary);
+}
+
+/* Diğer bileşenler */
+.table {
+    color: var(--text-primary);
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.sidebar {
+    background-color: var(--sidebar-bg);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--sidebar-active);
+}
+
+.border {
+    border-color: var(--border-color) !important;
+}
+
+.border-top {
+    border-top-color: var(--border-color) !important;
+}
+
+.border-bottom {
+    border-bottom-color: var(--border-color) !important;
+}
+
+.border-start {
+    border-left-color: var(--border-color) !important;
+}
+
+.border-end {
+    border-right-color: var(--border-color) !important;
+}
+
+/* Tema geçişlerinde animasyon */
+html {
+    transition: all 0.3s ease-in-out;
+} 

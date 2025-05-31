@@ -85,9 +85,9 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-// Add services to the container
-builder.Services.AddControllersWithViews()
-    .AddRazorRuntimeCompilation(); // Hot reload
+
+// MVC servislerini ekle
+builder.Services.AddControllersWithViews();
 
 builder.Services.AddApplicationServices(builder.Configuration);
 

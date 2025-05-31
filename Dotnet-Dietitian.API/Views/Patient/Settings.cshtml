@@ -1,4 +1,5 @@
 @using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.KullaniciAyarlariResults
 @model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "Ayarlar - DijetUP";
@@ -6,6 +7,15 @@
     
     // Aktif tab bilgisini al, varsayılan olarak "general" kullan
     var activeTab = ViewBag.ActiveTab ?? "general";
+    
+    // Ayarları al, varsayılan değerler kullan
+    var ayarlar = ViewBag.Ayarlar as GetKullaniciAyarlariQueryResult ?? new GetKullaniciAyarlariQueryResult();
+    
+    // Seçili option'ları belirle
+    string GetSelected(string value, string compareTo)
+    {
+        return value == compareTo ? "selected=\"selected\"" : "";
+    }
 }
 
 <!-- Page content -->
@@ -70,38 +80,77 @@
                                 <form id="generalSettingsForm" asp-controller="Patient" asp-action="UpdateSettings" method="post">
                                     <input type="hidden" name="settingType" value="general" />
                                     <div class="mb-4">
-                                        <label class="form-label">Dil</label>
-                                        <select class="form-select" name="language">
-                                            <option value="tr" selected>Türkçe</option>
-                                            <option value="en">English</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-4">
                                         <label class="form-label">Zaman Dilimi</label>
                                         <select class="form-select" name="timezone">
-                                            <option value="europe-istanbul" selected>(GMT+3:00) İstanbul</option>
-                                            <option value="europe-london">(GMT+0:00) Londra</option>
-                                            <option value="america-new_york">(GMT-5:00) New York</option>
+                                            @if (ayarlar.ZamanDilimi == "Europe/Istanbul")
+                                            {
+                                                <!option value="Europe/Istanbul" selected>(GMT+3:00) İstanbul</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="Europe/Istanbul">(GMT+3:00) İstanbul</!option>
+                                            }
+                                            
+                                            @if (ayarlar.ZamanDilimi == "Europe/London")
+                                            {
+                                                <!option value="Europe/London" selected>(GMT+0:00) Londra</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="Europe/London">(GMT+0:00) Londra</!option>
+                                            }
+                                            
+                                            @if (ayarlar.ZamanDilimi == "America/New_York")
+                                            {
+                                                <!option value="America/New_York" selected>(GMT-5:00) New York</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="America/New_York">(GMT-5:00) New York</!option>
+                                            }
                                         </select>
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label">Tarih Formatı</label>
                                         <select class="form-select" name="dateFormat">
-                                            <option value="dd-mm-yyyy" selected>GG/AA/YYYY</option>
-                                            <option value="mm-dd-yyyy">AA/GG/YYYY</option>
-                                            <option value="yyyy-mm-dd">YYYY/AA/GG</option>
+                                            @if (ayarlar.TarihFormati == "dd/MM/yyyy")
+                                            {
+                                                <!option value="dd/MM/yyyy" selected>GG/AA/YYYY</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="dd/MM/yyyy">GG/AA/YYYY</!option>
+                                            }
+                                            
+                                            @if (ayarlar.TarihFormati == "MM/dd/yyyy")
+                                            {
+                                                <!option value="MM/dd/yyyy" selected>AA/GG/YYYY</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="MM/dd/yyyy">AA/GG/YYYY</!option>
+                                            }
+                                            
+                                            @if (ayarlar.TarihFormati == "yyyy/MM/dd")
+                                            {
+                                                <!option value="yyyy/MM/dd" selected>YYYY/AA/GG</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="yyyy/MM/dd">YYYY/AA/GG</!option>
+                                            }
                                         </select>
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label">Ölçü Birimleri</label>
                                         <div class="form-check mb-2">
-                                            <input class="form-check-input" type="radio" name="weightUnit" id="weightMetric" value="metric" checked>
+                                            <input class="form-check-input" type="radio" name="weightUnit" id="weightMetric" value="metric" @(ayarlar.OlcuBirimi == "metric" ? "checked" : "")>
                                             <label class="form-check-label" for="weightMetric">
                                                 Metrik (kg, cm)
                                             </label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="weightUnit" id="weightImperial" value="imperial">
+                                            <input class="form-check-input" type="radio" name="weightUnit" id="weightImperial" value="imperial" @(ayarlar.OlcuBirimi == "imperial" ? "checked" : "")>
                                             <label class="form-check-label" for="weightImperial">
                                                 İngiliz (lb, in)
                                             </label>
@@ -119,19 +168,19 @@
                                     <div class="mb-4">
                                         <h6 class="mb-3">E-posta Bildirimleri</h6>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="emailNotifAppointments" name="emailNotifAppointments" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="emailNotifAppointments" name="emailNotifAppointments" value="true" @(ayarlar.EmailRandevuBildirimleri ? "checked" : "")>
                                             <label class="form-check-label" for="emailNotifAppointments">Randevu hatırlatıcıları</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="emailNotifMessages" name="emailNotifMessages" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="emailNotifMessages" name="emailNotifMessages" value="true" @(ayarlar.EmailMesajBildirimleri ? "checked" : "")>
                                             <label class="form-check-label" for="emailNotifMessages">Yeni mesajlar</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="emailNotifDietUpdates" name="emailNotifDietUpdates" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="emailNotifDietUpdates" name="emailNotifDietUpdates" value="true" @(ayarlar.EmailDiyetGuncellemeBildirimleri ? "checked" : "")>
                                             <label class="form-check-label" for="emailNotifDietUpdates">Diyet planı güncellemeleri</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="emailNotifMarketing" name="emailNotifMarketing" value="true">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifMarketing" name="emailNotifMarketing" value="true" @(ayarlar.EmailPazarlamaBildirimleri ? "checked" : "")>
                                             <label class="form-check-label" for="emailNotifMarketing">Pazarlama e-postaları ve güncellemeler</label>
                                         </div>
                                     </div>
@@ -139,19 +188,19 @@
                                     <div class="mb-4">
                                         <h6 class="mb-3">Uygulama Bildirimleri</h6>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="appNotifAppointments" name="appNotifAppointments" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="appNotifAppointments" name="appNotifAppointments" value="true" @(ayarlar.UygulamaRandevuBildirimleri ? "checked" : "")>
                                             <label class="form-check-label" for="appNotifAppointments">Randevu hatırlatıcıları</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="appNotifMessages" name="appNotifMessages" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="appNotifMessages" name="appNotifMessages" value="true" @(ayarlar.UygulamaMesajBildirimleri ? "checked" : "")>
                                             <label class="form-check-label" for="appNotifMessages">Yeni mesajlar</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="appNotifDietUpdates" name="appNotifDietUpdates" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="appNotifDietUpdates" name="appNotifDietUpdates" value="true" @(ayarlar.UygulamaDiyetGuncellemeBildirimleri ? "checked" : "")>
                                             <label class="form-check-label" for="appNotifDietUpdates">Diyet planı güncellemeleri</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="appNotifDailyReminders" name="appNotifDailyReminders" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="appNotifDailyReminders" name="appNotifDailyReminders" value="true" @(ayarlar.UygulamaGunlukHatirlatmalar ? "checked" : "")>
                                             <label class="form-check-label" for="appNotifDailyReminders">Günlük hatırlatmalar (su içme, egzersiz vb.)</label>
                                         </div>
                                     </div>
@@ -176,11 +225,11 @@
                                             </button>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="loginAlerts" name="loginAlerts" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="loginAlerts" name="loginAlerts" value="true" @(ayarlar.YeniGirisUyarilari ? "checked" : "")>
                                             <label class="form-check-label" for="loginAlerts">Yeni giriş uyarıları</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="sessionTimeout" name="sessionTimeout" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="sessionTimeout" name="sessionTimeout" value="true" @(ayarlar.OturumZamanAsimi ? "checked" : "")>
                                             <label class="form-check-label" for="sessionTimeout">30 dakika hareketsizlik sonrası oturumu kapat</label>
                                         </div>
                                     </div>
@@ -188,15 +237,15 @@
                                     <div class="mb-4">
                                         <h6 class="mb-3">Veri Gizliliği</h6>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="shareHealthData" name="shareHealthData" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="shareHealthData" name="shareHealthData" value="true" @(ayarlar.SaglikVerisiPaylasimiIzni ? "checked" : "")>
                                             <label class="form-check-label" for="shareHealthData">Sağlık ve ilerleme verilerimi diyetisyenimle paylaş</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="shareActivityData" name="shareActivityData" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="shareActivityData" name="shareActivityData" value="true" @(ayarlar.AktiviteVerisiPaylasimiIzni ? "checked" : "")>
                                             <label class="form-check-label" for="shareActivityData">Aktivite verilerimi diyetisyenimle paylaş</label>
                                         </div>
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="shareUsageData" name="shareUsageData" value="true">
+                                            <input class="form-check-input" type="checkbox" id="shareUsageData" name="shareUsageData" value="true" @(ayarlar.AnonimKullanimVerisiPaylasimiIzni ? "checked" : "")>
                                             <label class="form-check-label" for="shareUsageData">Anonim kullanım verilerini iyileştirme amacıyla paylaş</label>
                                         </div>
                                         <div class="mt-3">
@@ -222,19 +271,19 @@
                                         <label class="form-label">Tema</label>
                                         <div class="d-flex gap-3 mb-3">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" checked>
+                                                <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" @(ayarlar.Tema == "light" ? "checked" : "")>
                                                 <label class="form-check-label" for="themeLight">
                                                     Açık
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark">
+                                                <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark" @(ayarlar.Tema == "dark" ? "checked" : "")>
                                                 <label class="form-check-label" for="themeDark">
                                                     Koyu
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="theme" id="themeSystem" value="system">
+                                                <input class="form-check-input" type="radio" name="theme" id="themeSystem" value="system" @(ayarlar.Tema == "system" ? "checked" : "")>
                                                 <label class="form-check-label" for="themeSystem">
                                                     Sistem ayarını kullan
                                                 </label>
@@ -244,27 +293,50 @@
                                     <div class="mb-4">
                                         <label class="form-label">Ana Panel Düzeni</label>
                                         <select class="form-select mb-3" name="dashboardLayout">
-                                            <option value="default" selected>Standart</option>
-                                            <option value="compact">Kompakt</option>
-                                            <option value="detailed">Detaylı</option>
+                                            @if (ayarlar.PanelDuzeni == "default")
+                                            {
+                                                <!option value="default" selected>Standart</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="default">Standart</!option>
+                                            }
+                                            
+                                            @if (ayarlar.PanelDuzeni == "compact")
+                                            {
+                                                <!option value="compact" selected>Kompakt</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="compact">Kompakt</!option>
+                                            }
+                                            
+                                            @if (ayarlar.PanelDuzeni == "detailed")
+                                            {
+                                                <!option value="detailed" selected>Detaylı</!option>
+                                            }
+                                            else
+                                            {
+                                                <!option value="detailed">Detaylı</!option>
+                                            }
                                         </select>
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label">Görünüm Tercihleri</label>
                                         <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="showProgress" name="showProgress" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="showProgress" name="showProgress" value="true" @(ayarlar.IlerlemeGrafigiGoster ? "checked" : "")>
                                             <label class="form-check-label" for="showProgress">
                                                 Ana panelde ilerleme grafiğini göster
                                             </label>
                                         </div>
                                         <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="showWaterTracker" name="showWaterTracker" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="showWaterTracker" name="showWaterTracker" value="true" @(ayarlar.SuTakibiGoster ? "checked" : "")>
                                             <label class="form-check-label" for="showWaterTracker">
                                                 Su takibini ana panelde göster
                                             </label>
                                         </div>
                                         <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="showCalories" name="showCalories" value="true" checked>
+                                            <input class="form-check-input" type="checkbox" id="showCalories" name="showCalories" value="true" @(ayarlar.KaloriTakibiGoster ? "checked" : "")>
                                             <label class="form-check-label" for="showCalories">
                                                 Kalori takibini ana panelde göster
                                             </label>
@@ -357,6 +429,16 @@
                     bsTab.show();
                 }
             }
+
+            // Tema değişikliği
+            const themeInputs = document.querySelectorAll('input[name="theme"]');
+            themeInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.checked) {
+                        applyTheme(this.value);
+                    }
+                });
+            });
         });
     </script>
 }

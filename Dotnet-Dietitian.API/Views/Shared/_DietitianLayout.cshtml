@@ -1,6 +1,6 @@
 @using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="theme-light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,12 +13,47 @@
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dietitian.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes.css" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
+    <!-- Otomatik tema uygulama script'i -->
+    <script>
+        // Kullanıcının seçtiği temayı localStorage'dan al
+        const savedTheme = localStorage.getItem('userTheme');
+        
+        // Eğer tema kaydedilmişse, hemen uygula
+        if (savedTheme) {
+            const htmlElement = document.documentElement;
+            
+            // Mevcut temaları temizle ve yeni temayı ekle
+            htmlElement.classList.remove('theme-light', 'theme-dark');
+            htmlElement.classList.add('theme-' + savedTheme);
+            
+            // Bootstrap tema sınıflarını da uygula
+            if (savedTheme === 'dark') {
+                htmlElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                htmlElement.setAttribute('data-bs-theme', 'light');
+            }
+            
+            // Eğer ayarlar sayfası yüklendiğinde, radyo butonları güncelle
+            document.addEventListener('DOMContentLoaded', function() {
+                const themeRadios = document.querySelectorAll('input[name="theme"]');
+                if (themeRadios.length > 0) {
+                    themeRadios.forEach(radio => {
+                        if (radio.value === savedTheme) {
+                            radio.checked = true;
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
-        <div class="border-end bg-white" id="sidebar-wrapper">
+        <div class="border-end" id="sidebar-wrapper">
             <div class="sidebar-heading border-bottom bg-success text-white">
                 <div class="d-flex align-items-center py-3 px-4">
                     <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
@@ -58,7 +93,7 @@
         <!-- Page content wrapper -->
         <div id="page-content-wrapper">
             <!-- Top navigation -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+            <nav class="navbar navbar-expand-lg navbar-light border-bottom">
                 <div class="container-fluid">
                     <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
                         <i class="bi bi-list"></i>
@@ -108,7 +143,7 @@
                         <div class="dropdown">
                             <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="@(ViewData["DiyetisyenModel"] != null ? ((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).ProfilResmiUrl ?? "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" : "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format")" alt="Profile" class="rounded-circle me-2" width="32" height="32">
-                                <span class="d-none d-lg-block text-dark">@(ViewData["DiyetisyenModel"] != null ? $"{((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).Ad} {((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).Soyad}" : User.Identity?.Name)</span>
+                                <span class="d-none d-lg-block">@(ViewData["DiyetisyenModel"] != null ? $"{((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).Ad} {((GetDiyetisyenByIdQueryResult)ViewData["DiyetisyenModel"]).Soyad}" : User.Identity?.Name)</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" asp-controller="Dietitian" asp-action="Profile"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
@@ -136,6 +171,7 @@
     <script src="~/js/script.js"></script>
     <script src="~/js/auth-helper.js"></script>
     <script src="~/js/dashboard.js"></script>
+    <script src="~/js/settings.js"></script>
     
     <script>
         // Ana sayfa düzen etkileşimleri
@@ -148,6 +184,21 @@
                     localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
                 });
             }
+            
+            // Tema radyo butonları için
+            const themeRadios = document.querySelectorAll('input[name="theme"]');
+            themeRadios.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.checked) {
+                        applyTheme(this.value);
+                        // Form'u otomatik submit et
+                        const form = this.closest('form');
+                        if (form && form.id === 'appearanceSettingsForm') {
+                            form.submit();
+                        }
+                    }
+                });
+            });
         });
     </script>
     

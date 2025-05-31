@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="theme-light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +11,31 @@
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Dotnet_Dietitian.API.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/themes.css" />
 </head>
 <body>
+    <!-- Otomatik tema uygulama script'i -->
+    <script>
+        // Kullanıcının seçtiği temayı localStorage'dan al
+        const savedTheme = localStorage.getItem('userTheme');
+        
+        // Eğer tema kaydedilmişse, hemen uygula
+        if (savedTheme) {
+            const htmlElement = document.documentElement;
+            
+            // Mevcut temaları temizle ve yeni temayı ekle
+            htmlElement.classList.remove('theme-light', 'theme-dark');
+            htmlElement.classList.add('theme-' + savedTheme);
+            
+            // Bootstrap tema sınıflarını da uygula
+            if (savedTheme === 'dark') {
+                htmlElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                htmlElement.setAttribute('data-bs-theme', 'light');
+            }
+        }
+    </script>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
@@ -139,6 +162,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="~/js/script.js"></script>
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/settings.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
     @await RenderSectionAsync("Styles", required: false)
 </body>
