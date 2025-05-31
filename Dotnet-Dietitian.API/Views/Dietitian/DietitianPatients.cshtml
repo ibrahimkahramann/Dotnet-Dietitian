@@ -120,22 +120,24 @@
                                         </td>
                                         <td class="text-end pe-4">
                                             <div class="btn-group">
-                                                <button class="btn btn-sm btn-outline-primary view-patient" data-id="@hasta.Id">
+                                                <button class="btn btn-sm btn-outline-primary view-patient" data-id="@hasta.Id" title="Görüntüle">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-outline-success message-patient" data-id="@hasta.Id">
+                                                <button class="btn btn-sm btn-outline-success message-patient" data-id="@hasta.Id" title="Mesaj Gönder">
                                                     <i class="bi bi-chat-dots"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                <button class="btn btn-sm btn-outline-warning assign-diet-plan" data-id="@hasta.Id" data-bs-toggle="modal" data-bs-target="#assignDietPlanModal" title="Diyet Planı Ata">
+                                                    <i class="bi bi-clipboard2-plus"></i>
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item assign-diet-plan" href="#" data-id="@hasta.Id" data-bs-toggle="modal" data-bs-target="#assignDietPlanModal"><i class="bi bi-clipboard2-plus me-2"></i>Diyet Planı Ata</a></li>
-                                                    <li><a class="dropdown-item edit-patient" href="#" data-id="@hasta.Id"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
-                                                    <li><a class="dropdown-item create-appointment" href="#" data-id="@hasta.Id"><i class="bi bi-calendar-plus me-2"></i>Randevu Oluştur</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item text-danger delete-patient" href="#" data-id="@hasta.Id"><i class="bi bi-trash me-2"></i>Sil</a></li>
-                                                </ul>
+                                                <button class="btn btn-sm btn-outline-secondary edit-patient" data-id="@hasta.Id" title="Düzenle">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-info create-appointment" data-id="@hasta.Id" title="Randevu Oluştur">
+                                                    <i class="bi bi-calendar-plus"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger delete-patient" data-id="@hasta.Id" title="Sil">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -214,19 +216,19 @@
                                         </td>
                                         <td class="text-end pe-4">
                                             <div class="btn-group">
-                                                <button class="btn btn-sm btn-outline-primary view-patient" data-id="@hasta.Id">
+                                                <button class="btn btn-sm btn-outline-primary view-patient" data-id="@hasta.Id" title="Görüntüle">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
                                                 @if (hasta.DiyetisyenId == Model.Id)
                                                 {
-                                                    <button class="btn btn-sm btn-outline-success message-patient" data-id="@hasta.Id">
+                                                    <button class="btn btn-sm btn-outline-success message-patient" data-id="@hasta.Id" title="Mesaj Gönder">
                                                         <i class="bi bi-chat-dots"></i>
                                                     </button>
                                                 }
                                                 else if (!hasta.DiyetisyenId.HasValue)
                                                 {
-                                                    <button class="btn btn-sm btn-primary assign-to-me" data-id="@hasta.Id">
-                                                        <i class="bi bi-person-plus-fill me-1"></i> Bana Ata
+                                                    <button class="btn btn-sm btn-primary assign-to-me" data-id="@hasta.Id" title="Bana Ata">
+                                                        <i class="bi bi-person-plus-fill"></i>
                                                     </button>
                                                 }
                                             </div>
@@ -277,8 +279,8 @@
                                         <td>@hasta.Email</td>
                                         <td>@(string.IsNullOrEmpty(hasta.Telefon) ? "-" : hasta.Telefon)</td>
                                         <td class="text-end pe-4">
-                                            <button class="btn btn-sm btn-primary assign-to-me" data-id="@hasta.Id">
-                                                <i class="bi bi-person-plus-fill me-1"></i> Bana Ata
+                                            <button class="btn btn-sm btn-primary assign-to-me" data-id="@hasta.Id" title="Bana Ata">
+                                                <i class="bi bi-person-plus-fill"></i>
                                             </button>
                                         </td>
                                     </tr>

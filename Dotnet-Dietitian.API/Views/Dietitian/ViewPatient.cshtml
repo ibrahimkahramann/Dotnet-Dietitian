@@ -297,18 +297,18 @@
                                             <td>@randevu.RandevuTuru</td>
                                             <td>
                                                 <div class="btn-group">
-                                                    <button class="btn btn-sm btn-outline-primary view-appointment" data-id="@randevu.Id">
+                                                    <button class="btn btn-sm btn-outline-primary view-appointment" data-id="@randevu.Id" title="Görüntüle">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    <button class="btn btn-sm btn-outline-secondary edit-appointment" data-id="@randevu.Id" title="Düzenle">
+                                                        <i class="bi bi-pencil"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
-                                                        <li><a class="dropdown-item text-success" href="#"><i class="bi bi-check-circle me-2"></i>Tamamlandı</a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i>İptal Et</a></li>
-                                                    </ul>
+                                                    <button class="btn btn-sm btn-outline-success complete-appointment" data-id="@randevu.Id" title="Tamamlandı">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger cancel-appointment" data-id="@randevu.Id" title="İptal Et">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -460,6 +460,84 @@
                 button.addEventListener('click', function() {
                     const appointmentId = this.dataset.id;
                     window.location.href = `/Dietitian/AppointmentDetails/${appointmentId}`;
+                });
+            });
+            
+            // Edit appointment
+            document.querySelectorAll('.edit-appointment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    window.location.href = `/Dietitian/EditAppointment/${appointmentId}`;
+                });
+            });
+            
+            // Complete appointment
+            document.querySelectorAll('.complete-appointment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    if (confirm('Bu randevuyu tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
+                        // Get the CSRF token
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        
+                        fetch('/Dietitian/UpdateAppointmentStatus', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                Id: appointmentId,
+                                Status: 'Tamamlandı'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message || 'Randevu durumu başarıyla güncellendi.');
+                                window.location.reload();
+                            } else {
+                                alert(data.message || 'Randevu durumu güncellenirken bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            alert('Hata: ' + error.message);
+                        });
+                    }
+                });
+            });
+            
+            // Cancel appointment
+            document.querySelectorAll('.cancel-appointment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    if (confirm('Bu randevuyu iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                        // Get the CSRF token
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        
+                        fetch('/Dietitian/UpdateAppointmentStatus', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                Id: appointmentId,
+                                Status: 'İptal Edildi'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message || 'Randevu başarıyla iptal edildi.');
+                                window.location.reload();
+                            } else {
+                                alert(data.message || 'Randevu iptal edilirken bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            alert('Hata: ' + error.message);
+                        });
+                    }
                 });
             });
             
