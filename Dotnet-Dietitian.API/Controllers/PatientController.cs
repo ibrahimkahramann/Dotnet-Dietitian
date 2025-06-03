@@ -17,6 +17,8 @@ using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.RandevuCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.KullaniciAyarlariCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.KullaniciAyarlariQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.IlerlemeOlcumQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.IlerlemeOlcumCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -460,8 +462,49 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Hasta verilerini getir
                 var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
                 
-                // İlerleme takibi verilerini getirmek için ek sorgular yapılabilir
-                // var ilerlemeVerileri = await _mediator.Send(new GetIlerlemeByHastaIdQuery(hastaId));
+                // İlerleme ölçümlerini getir
+                var ilerlemeOlcumler = await _mediator.Send(new GetIlerlemeOlcumlerByHastaIdQuery(hastaId));
+                ViewBag.IlerlemeOlcumler = ilerlemeOlcumler;
+                
+                // Son ilerleme ölçümünü getir
+                var sonOlcum = await _mediator.Send(new GetSonIlerlemeOlcumByHastaIdQuery(hastaId));
+                ViewBag.SonOlcum = sonOlcum;
+                
+                // İlk ölçüm ve son ölçüm arasındaki farkları hesapla
+                if (ilerlemeOlcumler.Count > 1)
+                {
+                    var ilkOlcum = ilerlemeOlcumler.OrderBy(x => x.OlcumTarihi).FirstOrDefault();
+                    ViewBag.IlkOlcum = ilkOlcum;
+                    
+                    if (ilkOlcum != null && sonOlcum != null)
+                    {
+                        ViewBag.KiloDegisimi = sonOlcum.Kilo - ilkOlcum.Kilo;
+                        ViewBag.BelCevresiDegisimi = sonOlcum.BelCevresi.HasValue && ilkOlcum.BelCevresi.HasValue 
+                            ? sonOlcum.BelCevresi.Value - ilkOlcum.BelCevresi.Value : (float?)null;
+                        ViewBag.KalcaCevresiDegisimi = sonOlcum.KalcaCevresi.HasValue && ilkOlcum.KalcaCevresi.HasValue 
+                            ? sonOlcum.KalcaCevresi.Value - ilkOlcum.KalcaCevresi.Value : (float?)null;
+                        ViewBag.GogusCevresiDegisimi = sonOlcum.GogusCevresi.HasValue && ilkOlcum.GogusCevresi.HasValue 
+                            ? sonOlcum.GogusCevresi.Value - ilkOlcum.GogusCevresi.Value : (float?)null;
+                        ViewBag.KolCevresiDegisimi = sonOlcum.KolCevresi.HasValue && ilkOlcum.KolCevresi.HasValue 
+                            ? sonOlcum.KolCevresi.Value - ilkOlcum.KolCevresi.Value : (float?)null;
+                        ViewBag.VucutYagOraniDegisimi = sonOlcum.VucutYagOrani.HasValue && ilkOlcum.VucutYagOrani.HasValue 
+                            ? sonOlcum.VucutYagOrani.Value - ilkOlcum.VucutYagOrani.Value : (float?)null;
+                    }
+                }
+                
+                // Son 30 gündeki değişimi hesapla
+                if (sonOlcum != null)
+                {
+                    var otuzGunOncekiOlcum = ilerlemeOlcumler
+                        .Where(x => x.OlcumTarihi <= DateTime.Now.AddDays(-30))
+                        .OrderByDescending(x => x.OlcumTarihi)
+                        .FirstOrDefault();
+                        
+                    if (otuzGunOncekiOlcum != null)
+                    {
+                        ViewBag.OtuzGunlukKiloDegisimi = sonOlcum.Kilo - otuzGunOncekiOlcum.Kilo;
+                    }
+                }
                 
                 return View(hastaModel);
             }
@@ -633,6 +676,38 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Hata durumunda loglama yapılabilir
                 TempData["ErrorMessage"] = "Ayarlar güncellenirken bir hata oluştu: " + ex.Message;
                 return RedirectToAction("Settings", new { tab = settingType });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddProgressMeasurement(CreateIlerlemeOlcumCommand command)
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Güvenlik kontrolü: Sadece kendi ilerleme ölçümlerini ekleyebilir
+                if (command.HastaId != hastaId)
+                {
+                    return Unauthorized();
+                }
+
+                // İlerleme ölçümünü ekle
+                var ilerlemeOlcumId = await _mediator.Send(command);
+
+                // Başarılı mesajı ile ilerleme takibi sayfasına yönlendir
+                TempData["SuccessMessage"] = "İlerleme ölçümü başarıyla kaydedildi.";
+                return RedirectToAction("ProgressTracking");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "İlerleme ölçümü eklenirken bir hata oluştu: " + ex.Message;
+                return RedirectToAction("ProgressTracking");
             }
         }
     }

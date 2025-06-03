@@ -28,4 +28,5 @@ public class Hasta : BaseEntity
     public virtual DiyetProgrami? DiyetProgrami { get; set; }
     public virtual ICollection<OdemeBilgisi> Odemeler { get; set; }
     public virtual ICollection<Randevu> Randevular { get; set; }
+    public virtual ICollection<IlerlemeOlcum> IlerlemeOlcumleri { get; set; }
 }

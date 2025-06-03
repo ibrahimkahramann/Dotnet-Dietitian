@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<DiyetisyenUygunluk> DiyetisyenUygunluklar { get; set; }
     public DbSet<Mesaj> Mesajlar { get; set; } // Mevcut DbSet'lere ekleyin
     public DbSet<KullaniciAyarlari> KullaniciAyarlari { get; set; }
+    public DbSet<IlerlemeOlcum> IlerlemeOlcumleri { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
