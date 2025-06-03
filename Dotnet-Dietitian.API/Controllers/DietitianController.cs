@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetProgramiCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.KullaniciAyarlariQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.KullaniciAyarlariCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.PaymentRequestCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -1313,12 +1314,35 @@ namespace Dotnet_Dietitian.API.Controllers
                     DiyetProgramiId = model.diyetProgramiId,
                     GunlukKaloriIhtiyaci = hasta.GunlukKaloriIhtiyaci
                 };
-                
-                // Mediator ile güncelleme işlemini gerçekleştir
+                  // Mediator ile güncelleme işlemini gerçekleştir
                 await _mediator.Send(updateHastaCommand);
                 
+                // Diyet programı atandıktan sonra otomatik ödeme talebi oluştur
+                try
+                {
+                    var diyetProgrami = await _mediator.Send(new GetDiyetProgramiByIdQuery(model.diyetProgramiId));
+                    
+                    var createPaymentRequestCommand = new CreatePaymentRequestCommand
+                    {
+                        HastaId = model.hastaId,
+                        DiyetisyenId = diyetisyenId,
+                        DiyetProgramiId = model.diyetProgramiId,
+                        Tutar = 500.00m, // Varsayılan tutar - bu daha sonra konfigüre edilebilir
+                        VadeTarihi = DateTime.Now.AddDays(30), // 30 gün vade
+                        Aciklama = $"'{diyetProgrami?.Ad}' diyet programı için ödeme talebi"
+                    };
+                    
+                    await _mediator.Send(createPaymentRequestCommand);
+                    _logger.LogInformation($"Diyet programı atama sonrası otomatik ödeme talebi oluşturuldu. Hasta: {model.hastaId}, Diyetisyen: {diyetisyenId}");
+                }
+                catch (Exception paymentEx)
+                {
+                    _logger.LogWarning(paymentEx, "Diyet programı başarıyla atandı ancak ödeme talebi oluşturulurken hata oluştu");
+                    // Ödeme talebi oluşturulamasa da diyet programı atama işlemi başarılı sayılır
+                }
+                
                 // AJAX isteği için JSON yanıt döndür
-                return Ok(new { success = true, message = "Diyet programı hastaya başarıyla atandı." });
+                return Ok(new { success = true, message = "Diyet programı hastaya başarıyla atandı ve ödeme talebi oluşturuldu." });
             }
             catch (Exception ex)
             {

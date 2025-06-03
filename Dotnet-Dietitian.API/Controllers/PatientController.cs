@@ -21,6 +21,9 @@ using Dotnet_Dietitian.Application.Features.CQRS.Queries.IlerlemeOlcumQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.IlerlemeOlcumCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.MesajQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Results.MesajResults;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.OdemeBilgisiQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.PaymentRequestQueries;
+using Dotnet_Dietitian.Domain.Entities;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -540,12 +543,53 @@ namespace Dotnet_Dietitian.API.Controllers
                         ViewBag.OtuzGunlukKiloDegisimi = sonOlcum.Kilo - otuzGunOncekiOlcum.Kilo;
                     }
                 }
+                  return View(hastaModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "İlerleme bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                return View();
+            }
+        }        public async Task<IActionResult> Payments()
+        {
+            try
+            {
+                // Giriş yapmış kullanıcının ID'sini al
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var hastaId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Hasta verilerini getir
+                var hastaModel = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                
+                // Ödeme bilgilerini getir (tamamlanan ödemeler)
+                var odemeler = await _mediator.Send(new GetOdemeBilgisiByHastaIdQuery(hastaId));
+                ViewBag.Odemeler = odemeler;
+                
+                // Ödeme taleplerini getir (bekleyen ödemeler)
+                var paymentRequests = await _mediator.Send(new GetPaymentRequestsByHastaIdQuery { HastaId = hastaId });
+                ViewBag.PaymentRequests = paymentRequests;
+                
+                // Toplam ödeme tutarını hesapla
+                ViewBag.ToplamOdeme = odemeler?.Sum(o => o.Tutar) ?? 0;
+                  // Bekleyen ödeme tutarını hesapla
+                ViewBag.BekleyenOdeme = paymentRequests?.Where(pr => pr.Durum == PaymentRequestStatus.Bekliyor)
+                    .Sum(pr => pr.Tutar) ?? 0;
+                
+                // Son ödeme tarihini getir
+                ViewBag.SonOdemeTarihi = odemeler?.OrderByDescending(o => o.Tarih).FirstOrDefault()?.Tarih;
+                
+                // Bu yıl yapılan ödemeleri getir
+                var buYilOdemeler = odemeler?.Where(o => o.Tarih.Year == DateTime.Now.Year);
+                ViewBag.BuYilToplamOdeme = buYilOdemeler?.Sum(o => o.Tutar) ?? 0;
                 
                 return View(hastaModel);
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "İlerleme bilgileri getirilirken bir hata oluştu: " + ex.Message;
+                ViewBag.ErrorMessage = "Ödeme bilgileri getirilirken bir hata oluştu: " + ex.Message;
                 return View();
             }
         }

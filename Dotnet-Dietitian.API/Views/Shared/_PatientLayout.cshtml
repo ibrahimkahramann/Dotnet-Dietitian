@@ -67,9 +67,11 @@
                 </a>
                 <a asp-controller="Patient" asp-action="ProgressTracking" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "ProgressTracking" ? "active" : "") py-3 px-4" id="progress-link">
                     <i class="bi bi-graph-up-arrow me-2"></i> İlerleme Takibi
-                </a>
-                <a asp-controller="Patient" asp-action="Messages" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Messages" ? "active" : "") py-3 px-4" id="messages-link">
+                </a>                <a asp-controller="Patient" asp-action="Messages" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Messages" ? "active" : "") py-3 px-4" id="messages-link">
                     <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                </a>
+                <a asp-controller="Patient" asp-action="Payments" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Payments" ? "active" : "") py-3 px-4" id="payments-link">
+                    <i class="bi bi-credit-card me-2"></i> Ödemeler
                 </a>
                 <a asp-controller="Patient" asp-action="Profile" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Profile" ? "active" : "") py-3 px-4" id="profile-link">
                     <i class="bi bi-person-circle me-2"></i> Profilim
