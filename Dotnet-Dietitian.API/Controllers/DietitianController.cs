@@ -20,6 +20,8 @@ using Dotnet_Dietitian.Application.Features.CQRS.Commands.RandevuCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.HastaCommands;
 using Microsoft.Extensions.Logging;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.DiyetProgramiCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.KullaniciAyarlariQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.KullaniciAyarlariCommands;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -414,6 +416,12 @@ namespace Dotnet_Dietitian.API.Controllers
                 // Diyetisyen verilerini getir
                 var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
                 
+                // Kullanıcı ayarlarını getir
+                var ayarlar = await _mediator.Send(new GetKullaniciAyarlariByKullaniciIdQuery(diyetisyenId, "Diyetisyen"));
+                
+                // Ayarları ViewBag'e ekle
+                ViewBag.Ayarlar = ayarlar;
+                
                 // Aktif tab bilgisini ViewBag'e ekle
                 ViewBag.ActiveTab = tab;
                 
@@ -599,30 +607,57 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Ayar tipine göre işlem yap
+                // UpdateKullaniciAyarlariCommand oluştur
+                var command = new UpdateKullaniciAyarlariCommand
+                {
+                    KullaniciId = diyetisyenId,
+                    KullaniciTipi = "Diyetisyen",
+                    AyarTipi = settingType
+                };
+
+                // Form verilerini komuta ekle
                 switch (settingType)
                 {
                     case "general":
-                        // Genel ayarları güncelle
-                        // Örneğin: Dil, zaman dilimi, tarih formatı
-                        // await _mediator.Send(new UpdateDiyetisyenGeneralSettingsCommand { ... });
+                        command.Dil = formData["language"];
+                        command.ZamanDilimi = formData["timezone"];
+                        command.TarihFormati = formData["dateFormat"];
+                        command.CalismaBaslangicSaati = formData["workStartTime"];
+                        command.CalismaBitisSaati = formData["workEndTime"];
+                        command.HaftaSonuCalisma = formData["weekendAvailability"] == "on";
                         break;
+                        
                     case "notifications":
-                        // Bildirim ayarlarını güncelle
-                        // await _mediator.Send(new UpdateDiyetisyenNotificationSettingsCommand { ... });
+                        command.EmailRandevuBildirimleri = formData["emailNotifAppointments"] == "on";
+                        command.EmailMesajBildirimleri = formData["emailNotifMessages"] == "on";
+                        command.EmailYeniHastaBildirimleri = formData["emailNotifPatients"] == "on";
+                        command.EmailPazarlamaBildirimleri = formData["emailNotifMarketing"] == "on";
+                        
+                        command.UygulamaRandevuBildirimleri = formData["appNotifAppointments"] == "on";
+                        command.UygulamaMesajBildirimleri = formData["appNotifMessages"] == "on";
+                        command.UygulamaYeniHastaBildirimleri = formData["appNotifPatients"] == "on";
                         break;
+                        
                     case "privacy":
-                        // Gizlilik ayarlarını güncelle
-                        // await _mediator.Send(new UpdateDiyetisyenPrivacySettingsCommand { ... });
+                        command.YeniGirisUyarilari = formData["loginAlerts"] == "on";
+                        command.OturumZamanAsimi = formData["sessionTimeout"] == "on";
+                        command.AnonimKullanimVerisiPaylasimiIzni = formData["shareUsageData"] == "on";
+                        command.ProfilGorunurlugu = formData["profileVisibility"] == "on";
                         break;
+                        
                     case "appearance":
-                        // Görünüm ayarlarını güncelle
-                        // await _mediator.Send(new UpdateDiyetisyenAppearanceSettingsCommand { ... });
+                        command.Tema = formData["theme"];
+                        command.PanelDuzeni = formData["dashboardLayout"];
+                        command.RenkSemasi = formData["colorScheme"];
                         break;
+                        
                     default:
                         TempData["ErrorMessage"] = "Geçersiz ayar tipi.";
                         return RedirectToAction("Settings");
                 }
+
+                // Ayarları güncelle
+                await _mediator.Send(command);
 
                 // Başarılı mesajı ile ayarlar sayfasına yönlendir
                 TempData["SuccessMessage"] = "Ayarlarınız başarıyla güncellendi.";
@@ -631,6 +666,7 @@ namespace Dotnet_Dietitian.API.Controllers
             catch (Exception ex)
             {
                 // Hata durumunda loglama yapılabilir
+                _logger.LogError(ex, "Ayarlar güncellenirken bir hata oluştu");
                 TempData["ErrorMessage"] = "Ayarlar güncellenirken bir hata oluştu: " + ex.Message;
                 return RedirectToAction("Settings", new { tab = settingType });
             }
