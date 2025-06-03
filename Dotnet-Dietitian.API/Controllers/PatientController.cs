@@ -19,6 +19,8 @@ using Dotnet_Dietitian.Application.Features.CQRS.Commands.KullaniciAyarlariComma
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.KullaniciAyarlariQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.IlerlemeOlcumQueries;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.IlerlemeOlcumCommands;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.MesajQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Results.MesajResults;
 
 namespace Dotnet_Dietitian.API.Controllers
 {
@@ -71,6 +73,39 @@ namespace Dotnet_Dietitian.API.Controllers
                     .ToList() ?? new List<Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults.RandevuDto>();
                     
                 ViewBag.YaklasanRandevular = yaklaşanRandevular;
+                
+                // Mesaj bilgilerini getirmeyi dene, hata olursa diğer işlemlerin çalışmasını engelleme
+                try
+                {
+                    // Son mesajları getir (Hasta ile diyetisyeni arasındaki son mesajlaşmalar)
+                    if (hastaModel.DiyetisyenId.HasValue)
+                    {
+                        // Diyetisyen ile olan son mesajları getir
+                        var sonMesajlar = await _mediator.Send(new GetConversationQuery(
+                            hastaId, "Hasta",
+                            hastaModel.DiyetisyenId.Value, "Diyetisyen",
+                            2)); // Son 2 mesajı getir
+                        
+                        ViewBag.SonMesajlar = sonMesajlar.OrderByDescending(m => m.GonderimZamani).ToList();
+                    }
+                    else
+                    {
+                        ViewBag.SonMesajlar = new List<GetMesajQueryResult>();
+                    }
+                    
+                    // Okunmamış mesaj sayısını getir
+                    var okunmamisMesajlar = await _mediator.Send(new GetUnreadMessagesQuery(hastaId, "Hasta"));
+                    ViewBag.OkunmamisMesajSayisi = okunmamisMesajlar?.Count() ?? 0;
+                }
+                catch (Exception ex)
+                {
+                    // Mesaj bilgilerini getirirken hata oluşursa, boş liste kullan
+                    ViewBag.SonMesajlar = new List<GetMesajQueryResult>();
+                    ViewBag.OkunmamisMesajSayisi = 0;
+                    
+                    // Hata loglanabilir
+                    Console.WriteLine($"Mesaj bilgileri getirilirken hata oluştu: {ex.Message}");
+                }
                 
                 // Diyet programı detayları - örnek veriler (Gerçek veritabanı verisi ile değiştirilmeli)
                 if (hastaModel.DiyetProgramiId.HasValue)

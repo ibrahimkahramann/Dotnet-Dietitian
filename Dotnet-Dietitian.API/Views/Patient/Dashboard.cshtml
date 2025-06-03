@@ -1,4 +1,5 @@
 @using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.MesajResults
 @model GetHastaByIdQueryResult
 @{
     ViewData["Title"] = "Hasta Paneli - DijetUP";
@@ -17,6 +18,10 @@
     var suTuketimi = ViewBag.SuTuketimi;
     var adimSayisi = ViewBag.AdimSayisi;
     var kaloriTuketimi = ViewBag.KaloriTuketimi;
+    
+    // Son mesajları al
+    var sonMesajlar = ViewBag.SonMesajlar as List<GetMesajQueryResult> ?? new List<GetMesajQueryResult>();
+    var okunmamisMesajSayisi = ViewBag.OkunmamisMesajSayisi ?? 0;
 }
 
 <!-- Dashboard Content -->
@@ -250,6 +255,90 @@
                             </a>
                         </div>
                     }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tips & Messages Preview -->
+    <div class="row">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Beslenme İpuçları</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action p-4">
+                            <h6 class="mb-2 text-success"><i class="bi bi-lightbulb me-2"></i> Su Tüketimini Arttırma</h6>
+                            <p class="mb-0 text-muted small">Günde en az 2-2.5 litre su içmeyi hedefleyin. Yanınızda her zaman su şişesi bulundurun ve...</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action p-4">
+                            <h6 class="mb-2 text-success"><i class="bi bi-lightbulb me-2"></i> Protein Kaynakları</h6>
+                            <p class="mb-0 text-muted small">Yumurta, tavuk, balık gibi kaliteli protein kaynaklarını düzenli olarak tüketin. Bitkisel protein...</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action p-4">
+                            <h6 class="mb-2 text-success"><i class="bi bi-lightbulb me-2"></i> Ara Öğün Alternatifleri</h6>
+                            <p class="mb-0 text-muted small">Acıktığınızda sağlıklı atıştırmalıklar tercih edin. Badem, ceviz, yoğurt, meyve gibi...</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Son Mesajlar</h5>
+                        <a asp-controller="Patient" asp-action="Messages" class="btn btn-sm btn-outline-success">Tümünü Gör</a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if(sonMesajlar.Any())
+                        {
+                            @foreach(var mesaj in sonMesajlar)
+                            {
+                                <a asp-controller="Patient" asp-action="Messages" class="list-group-item list-group-item-action p-4">
+                                    <div class="d-flex">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person-circle text-secondary fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <h6 class="mb-0">@mesaj.GonderenAd</h6>
+                                                <small class="text-muted">@mesaj.GonderimZamani.ToString("dd MMM, HH:mm")</small>
+                                            </div>
+                                            <p class="mb-0 text-muted small">
+                                                @(mesaj.Icerik.Length > 60 ? mesaj.Icerik.Substring(0, 57) + "..." : mesaj.Icerik)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="p-4">
+                                <div class="alert alert-info mb-3">
+                                    Henüz mesajınız bulunmuyor.
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 text-center">
+                    <a asp-controller="Patient" asp-action="Messages" class="btn btn-success w-100">
+                        <i class="bi bi-chat-text me-2"></i> 
+                        @if(okunmamisMesajSayisi > 0)
+                        {
+                            <span>Yeni Mesaj (@okunmamisMesajSayisi)</span>
+                        }
+                        else
+                        {
+                            <span>Yeni Mesaj Gönder</span>
+                        }
+                    </a>
                 </div>
             </div>
         </div>
