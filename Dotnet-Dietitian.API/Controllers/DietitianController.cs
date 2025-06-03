@@ -392,8 +392,8 @@ namespace Dotnet_Dietitian.API.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Diyetisyen verilerini getir
-                var diyetisyenModel = await _mediator.Send(new GetDiyetisyenByIdQuery(diyetisyenId));
+                // Diyetisyen verilerini getir (hastalar dahil)
+                var diyetisyenModel = await _mediator.Send(new GetDiyetisyenWithHastalarQuery(diyetisyenId));
                 return View(diyetisyenModel);
             }
             catch (Exception ex)
