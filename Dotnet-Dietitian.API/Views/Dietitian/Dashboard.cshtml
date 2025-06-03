@@ -307,7 +307,122 @@
         
         // View appointment details function
         function viewAppointmentDetails(appointmentId) {
-            window.location.href = '/Dietitian/GetAppointmentDetails?id=' + appointmentId;
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('viewAppointmentModal'));
+            modal.show();
+            
+            // Fetch appointment details
+            fetch(`/Dietitian/GetAppointmentDetails?id=${appointmentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const randevu = data.data;
+                        const startDate = new Date(randevu.randevuBaslangicTarihi);
+                        const endDate = new Date(randevu.randevuBitisTarihi);
+                        
+                        // Durum sınıfını belirle
+                        const statusClass = {
+                            'Onaylandı': 'success',
+                            'Beklemede': 'warning',
+                            'İptal Edildi': 'danger',
+                            'Tamamlandı': 'primary'
+                        }[randevu.durum] || 'secondary';
+                        
+                        // Detayları HTML olarak oluştur
+                        document.getElementById('appointmentDetails').innerHTML = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Hasta Bilgileri</h6>
+                                    <p class="mb-1"><strong>Ad Soyad:</strong> ${randevu.hastaAdSoyad}</p>
+                                    <p class="mb-3"><strong>ID:</strong> ${randevu.hastaId}</p>
+                                    
+                                    <h6 class="fw-bold mb-3">Randevu Bilgileri</h6>
+                                    <p class="mb-1"><strong>Tarih:</strong> ${startDate.toLocaleDateString()}</p>
+                                    <p class="mb-1"><strong>Saat:</strong> ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                    <p class="mb-1"><strong>Tür:</strong> ${randevu.randevuTuru || 'Belirtilmemiş'}</p>
+                                    <p class="mb-1"><strong>Durum:</strong> <span class="badge bg-${statusClass}">${randevu.durum}</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Onay Durumu</h6>
+                                    <p class="mb-1"><strong>Diyetisyen Onayı:</strong> ${randevu.diyetisyenOnayi ? '<span class="text-success">Onaylandı</span>' : '<span class="text-warning">Beklemede</span>'}</p>
+                                    <p class="mb-3"><strong>Hasta Onayı:</strong> ${randevu.hastaOnayi ? '<span class="text-success">Onaylandı</span>' : '<span class="text-warning">Beklemede</span>'}</p>
+                                    
+                                    <h6 class="fw-bold mb-3">Notlar</h6>
+                                    <div class="p-3 bg-light rounded">
+                                        ${randevu.notlar || 'Not bulunmuyor.'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Oluşturulma Tarihi: ${new Date(randevu.yaratilmaTarihi).toLocaleString()}</small>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-success status-action-modal" data-id="${randevu.id}" data-status="Onaylandı">
+                                            <i class="bi bi-check-circle me-1"></i> Onayla
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger status-action-modal" data-id="${randevu.id}" data-status="İptal Edildi">
+                                            <i class="bi bi-x-circle me-1"></i> İptal Et
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Modal içindeki durum değiştirme butonlarına event listener ekle
+                        document.querySelectorAll('.status-action-modal').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const id = this.dataset.id;
+                                const status = this.dataset.status;
+                                
+                                if (confirm(`Randevu durumunu "${status}" olarak değiştirmek istediğinize emin misiniz?`)) {
+                                    // Send AJAX request
+                                    fetch('/Dietitian/UpdateAppointmentStatus', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                                        },
+                                        body: JSON.stringify({
+                                            Id: id,
+                                            Status: status
+                                        })
+                                    })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Sunucu yanıt vermedi. Lütfen daha sonra tekrar deneyin.');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            window.location.reload();
+                                        } else {
+                                            alert(data.message || 'İşlem sırasında bir hata oluştu.');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Hata detayı:', error);
+                                        alert('Bir hata oluştu: ' + error.message);
+                                    });
+                                }
+                            });
+                        });
+                    } else {
+                        document.getElementById('appointmentDetails').innerHTML = `
+                            <div class="alert alert-danger">
+                                ${data.message}
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('appointmentDetails').innerHTML = `
+                        <div class="alert alert-danger">
+                            Bir hata oluştu: ${error.message}
+                        </div>
+                    `;
+                });
         }
         
         // Edit appointment function
@@ -316,3 +431,31 @@
         }
     </script>
 }
+
+<!-- Add View Appointment Modal -->
+@Html.AntiForgeryToken()
+<div class="modal fade" id="viewAppointmentModal" tabindex="-1" aria-labelledby="viewAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewAppointmentModalLabel">Randevu Detayları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    <!-- Appointment details will be loaded here -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-2">Randevu detayları yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="editAppointmentBtn" onclick="window.location.href='/Dietitian/Appointments'">Tüm Randevuları Gör</button>
+            </div>
+        </div>
+    </div>
+</div>
