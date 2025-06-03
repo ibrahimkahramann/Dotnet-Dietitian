@@ -580,6 +580,63 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.ToTable("OdemeBilgileri");
                 });
 
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.PaymentRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Aciklama")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("DiyetProgramiId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DiyetisyenId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Durum")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("HastaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("OdemeBilgisiId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("OdemeTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RedNotu")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Tutar")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("VadeTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiyetProgramiId");
+
+                    b.HasIndex("DiyetisyenId");
+
+                    b.HasIndex("HastaId");
+
+                    b.HasIndex("OdemeBilgisiId")
+                        .IsUnique()
+                        .HasFilter("[OdemeBilgisiId] IS NOT NULL");
+
+                    b.ToTable("PaymentRequests");
+                });
+
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Randevu", b =>
                 {
                     b.Property<Guid>("Id")
@@ -706,6 +763,40 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Hasta");
+                });
+
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.PaymentRequest", b =>
+                {
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.DiyetProgrami", "DiyetProgrami")
+                        .WithMany()
+                        .HasForeignKey("DiyetProgramiId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "Diyetisyen")
+                        .WithMany()
+                        .HasForeignKey("DiyetisyenId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "Hasta")
+                        .WithMany()
+                        .HasForeignKey("HastaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.OdemeBilgisi", "OdemeBilgisi")
+                        .WithOne()
+                        .HasForeignKey("Dotnet_Dietitian.Domain.Entities.PaymentRequest", "OdemeBilgisiId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("DiyetProgrami");
+
+                    b.Navigation("Diyetisyen");
+
+                    b.Navigation("Hasta");
+
+                    b.Navigation("OdemeBilgisi");
                 });
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Randevu", b =>
