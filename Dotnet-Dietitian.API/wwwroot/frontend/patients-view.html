@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hastalarım - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="dietitian-dashboard.html" class="list-group-item list-group-item-action py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patients-view.html" class="list-group-item list-group-item-action active py-3 px-4" id="patients-link">
+                    <i class="bi bi-people me-2"></i> Hastalarım
+                </a>
+                <a href="appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevular
+                </a>
+                <a href="diet-plans.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planları
+                </a>
+                <a href="messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">3</span>
+                </a>
+                <a href="profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3"><i class="bi bi-calendar-check"></i></div>
+                                        <div>
+                                            <p class="mb-0">Bugün saat 14:00'de randevunuz var</p>
+                                            <small class="text-muted">10 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">Tüm bildirimleri gör</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Dr. Ayşe Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Patient list content -->
+                <div class="patients-content">
+                    <!-- Header and Filters -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                        <div class="mb-3 mb-md-0">
+                            <h2 class="fw-bold mb-0">Hastalarım</h2>
+                            <p class="text-muted">Toplam 48 kayıtlı hasta</p>
+                        </div>
+                        <div class="d-flex">
+                            <div class="input-group me-2">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="patientSearch" placeholder="Hasta ara...">
+                            </div>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                                <i class="bi bi-person-plus-fill me-1"></i> Yeni Hasta
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Pills -->
+                    <div class="mb-4">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-sm btn-outline-secondary active">
+                                Tüm Hastalar <span class="badge bg-secondary ms-1">48</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success">
+                                Aktif <span class="badge bg-success ms-1">32</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning">
+                                Beklemede <span class="badge bg-warning text-dark ms-1">10</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger">
+                                İptal <span class="badge bg-danger ms-1">6</span>
+                            </button>
+                            <div class="ms-auto d-flex align-items-center">
+                                <label class="me-2 text-muted small">Sırala:</label>
+                                <select class="form-select form-select-sm" style="width: auto;">
+                                    <option value="name">İsim (A-Z)</option>
+                                    <option value="name-desc">İsim (Z-A)</option>
+                                    <option value="date-asc">Katılım (Eskiden Yeniye)</option>
+                                    <option value="date-desc" selected>Katılım (Yeniden Eskiye)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patient List -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4">Hasta</th>
+                                        <th>Durum</th>
+                                        <th>Diyet Planı</th>
+                                        <th>Son Randevu</th>
+                                        <th>İlerleme</th>
+                                        <th class="text-end pe-4">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Patient Row -->
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Patient">
+                                                <div>
+                                                    <h6 class="mb-0">Zeynep Kaya</h6>
+                                                    <small class="text-muted">ID: #12345 • 28y, Kadın</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">Aktif</span>
+                                        </td>
+                                        <td>
+                                            <span>Kilo Verme Planı</span>
+                                        </td>
+                                        <td>
+                                            <div>10 May 2023</div>
+                                            <small class="text-muted">14:00 - 14:30</small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="text-muted small">65%</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-chat-dots"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-plus me-2"></i>Randevu Oluştur</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-clipboard2-plus me-2"></i>Diyet Planı Ata</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Patient Row -->
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Patient">
+                                                <div>
+                                                    <h6 class="mb-0">Ahmet Yıldız</h6>
+                                                    <small class="text-muted">ID: #12346 • 35y, Erkek</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">Aktif</span>
+                                        </td>
+                                        <td>
+                                            <span>Sporcu Beslenmesi</span>
+                                        </td>
+                                        <td>
+                                            <div>08 May 2023</div>
+                                            <small class="text-muted">11:00 - 11:30</small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 6px; width: 100px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="text-muted small">40%</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-chat-dots"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-plus me-2"></i>Randevu Oluştur</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-clipboard2-plus me-2"></i>Diyet Planı Ata</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Patient Row -->
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="50" height="50" alt="Patient">
+                                                <div>
+                                                    <h6 class="mb-0">Selin Demir</h6>
+                                                    <small class="text-muted">ID: #12347 • 42y, Kadın</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark">Beklemede</span>
+                                        </td>
+                                        <td>
+                                            <span>Henüz atanmadı</span>
+                                        </td>
+                                        <td>
+                                            <div>-</div>
+                                            <small class="text-muted">İlk randevu bekleniyor</small>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted small">Başlamadı</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-chat-dots"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil me-2"></i>Düzenle</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-plus me-2"></i>Randevu Oluştur</a></li>
+                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-clipboard2-plus me-2"></i>Diyet Planı Ata</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Sil</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer bg-white p-3">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Önceki</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Sonraki</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Patient Modal -->
+    <div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPatientModalLabel">Yeni Hasta Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPatientForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="patientName" class="form-label">Ad Soyad</label>
+                            <input type="text" class="form-control" id="patientName" required>
+                            <div class="invalid-feedback">
+                                Hasta adı gerekli.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientEmail" class="form-label">E-posta</label>
+                            <input type="email" class="form-control" id="patientEmail" required>
+                            <div class="invalid-feedback">
+                                Geçerli bir e-posta adresi girin.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientPhone" class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" id="patientPhone" required>
+                            <div class="invalid-feedback">
+                                Telefon numarası gerekli.
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="patientBirthdate" class="form-label">Doğum Tarihi</label>
+                                <input type="date" class="form-control" id="patientBirthdate" required>
+                                <div class="invalid-feedback">
+                                    Doğum tarihi gerekli.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="patientGender" class="form-label">Cinsiyet</label>
+                                <select class="form-select" id="patientGender" required>
+                                    <option value="" selected disabled>Seçiniz</option>
+                                    <option value="female">Kadın</option>
+                                    <option value="male">Erkek</option>
+                                    <option value="other">Diğer</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Cinsiyet seçimi gerekli.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientNotes" class="form-label">Notlar (İsteğe Bağlı)</label>
+                            <textarea class="form-control" id="patientNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" form="addPatientForm" class="btn btn-success">Hasta Ekle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                });
+            }
+            
+            // Patient search
+            const patientSearch = document.getElementById('patientSearch');
+            if (patientSearch) {
+                patientSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('tbody tr');
+                    
+                    rows.forEach(row => {
+                        const patientName = row.querySelector('h6').textContent.toLowerCase();
+                        const patientId = row.querySelector('small').textContent.toLowerCase();
+                        
+                        if (patientName.includes(searchTerm) || patientId.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Form validation
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        event.preventDefault();
+                        alert('Hasta başarıyla eklendi!');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addPatientModal'));
+                        modal.hide();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        });
+    </script>
+</body>
+</html> 

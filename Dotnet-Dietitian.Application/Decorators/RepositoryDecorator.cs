@@ -34,9 +34,7 @@ namespace Dotnet_Dietitian.Application.Decorators
         public virtual async Task<T> AddAsync(T entity)
         {
             return await _decoratedRepository.AddAsync(entity);
-        }
-
-        public virtual async Task UpdateAsync(T entity)
+        }        public virtual async Task UpdateAsync(T entity)
         {
             await _decoratedRepository.UpdateAsync(entity);
         }
@@ -46,7 +44,7 @@ namespace Dotnet_Dietitian.Application.Decorators
             await _decoratedRepository.DeleteAsync(entity);
         }
 
-        public virtual async Task<T> GetByFilterAsync(Expression<Func<T, bool>> predicate)
+        public virtual async Task<T?> GetByFilterAsync(Expression<Func<T, bool>> predicate)
         {
             return await _decoratedRepository.GetByFilterAsync(predicate);
         }

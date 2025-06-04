@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randevularım - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="patient-dashboard.html" class="list-group-item list-group-item-action py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patient-diet-plan.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planım
+                </a>
+                <a href="patient-appointments.html" class="list-group-item list-group-item-action active py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevularım
+                </a>
+                <a href="patient-progress-tracking.html" class="list-group-item list-group-item-action py-3 px-4" id="progress-link">
+                    <i class="bi bi-graph-up-arrow me-2"></i> İlerleme Takibi
+                </a>
+                <a href="patient-messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">1</span>
+                </a>
+                <a href="patient-profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="patient-settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3">
+                                            <i class="bi bi-clipboard2-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yeni diyet planınız hazır</p>
+                                            <small class="text-muted">30 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-primary me-3">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yarın saat 15:00'de randevunuz var</p>
+                                            <small class="text-muted">1 saat önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">
+                                        Tüm bildirimleri gör
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Mehmet Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="patient-profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="patient-settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Appointments Content -->
+                <div class="appointments-content">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                        <div class="mb-3 mb-md-0">
+                            <h2 class="fw-bold mb-0">Randevularım</h2>
+                            <p class="text-muted">Geçmiş ve gelecek randevularınızı görüntüleyin</p>
+                        </div>
+                        <div class="d-flex">
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#requestAppointmentModal">
+                                <i class="bi bi-plus-lg me-1"></i> Randevu Talep Et
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Appointment -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-success bg-opacity-10 py-3">
+                            <h5 class="mb-0 text-success">Yaklaşan Randevunuz</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 text-center mb-3 mb-md-0">
+                                    <div class="display-4 text-success mb-0">16</div>
+                                    <div class="h5">Haziran</div>
+                                    <div class="badge bg-light text-dark">Salı</div>
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="60" height="60" alt="Dr. Ayşe Yılmaz">
+                                        <div>
+                                            <h6 class="mb-1">Dr. Ayşe Yılmaz</h6>
+                                            <p class="text-muted mb-0 small">Diyetisyen</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3 mb-md-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                                            <i class="bi bi-clock"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">15:00 - 15:30</h6>
+                                            <p class="text-muted mb-0 small">Kontrol Randevusu</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-md-end">
+                                    <button class="btn btn-sm btn-outline-success me-2 mb-2 mb-md-0">
+                                        <i class="bi bi-calendar-check me-1"></i> Onaylandı
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x-lg me-1"></i> İptal Et
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Calendar and List View Tabs -->
+                    <ul class="nav nav-tabs mb-4" id="appointmentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab">Takvim Görünümü</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#list" type="button" role="tab">Liste Görünümü</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="appointmentTabContent">
+                        <!-- Calendar View -->
+                        <div class="tab-pane fade show active" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-0">
+                                    <div id="appointmentCalendar" style="height: 600px;">
+                                        <!-- Calendar will be initialized via JavaScript -->
+                                        <div class="d-flex flex-column justify-content-center align-items-center h-100 py-5">
+                                            <div class="mb-4">
+                                                <i class="bi bi-calendar-week text-muted" style="font-size: 4rem;"></i>
+                                            </div>
+                                            <h4 class="text-muted mb-3">Takvim Yükleniyor</h4>
+                                            <p class="text-center text-muted">FullCalendar kütüphanesi yükleniyor...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- List View -->
+                        <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>Tarih</th>
+                                                    <th>Saat</th>
+                                                    <th>Diyetisyen</th>
+                                                    <th>Tür</th>
+                                                    <th>Durum</th>
+                                                    <th class="text-end">İşlemler</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>16 Haziran 2025</td>
+                                                    <td>15:00 - 15:30</td>
+                                                    <td>Dr. Ayşe Yılmaz</td>
+                                                    <td>Kontrol Randevusu</td>
+                                                    <td><span class="badge bg-success">Onaylandı</span></td>
+                                                    <td class="text-end">
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-x-lg"></i> İptal
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>02 Haziran 2025</td>
+                                                    <td>10:30 - 11:00</td>
+                                                    <td>Dr. Ayşe Yılmaz</td>
+                                                    <td>İlk Görüşme</td>
+                                                    <td><span class="badge bg-secondary">Tamamlandı</span></td>
+                                                    <td class="text-end">
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-eye"></i> Detaylar
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>25 Mayıs 2025</td>
+                                                    <td>14:00 - 14:30</td>
+                                                    <td>Dr. Ahmet Demir</td>
+                                                    <td>Danışma</td>
+                                                    <td><span class="badge bg-secondary">Tamamlandı</span></td>
+                                                    <td class="text-end">
+                                                        <button class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-eye"></i> Detaylar
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>30 Haziran 2025</td>
+                                                    <td>16:00 - 16:30</td>
+                                                    <td>Dr. Ayşe Yılmaz</td>
+                                                    <td>Kontrol Randevusu</td>
+                                                    <td><span class="badge bg-warning text-dark">İşlemde</span></td>
+                                                    <td class="text-end">
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-x-lg"></i> İptal
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Request Appointment Modal -->
+    <div class="modal fade" id="requestAppointmentModal" tabindex="-1" aria-labelledby="requestAppointmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="requestAppointmentModalLabel">Randevu Talep Et</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="requestAppointmentForm">
+                        <div class="mb-3">
+                            <label for="appointmentDietitian" class="form-label">Diyetisyen</label>
+                            <select class="form-select" id="appointmentDietitian" required>
+                                <option value="" selected disabled>Diyetisyen seçin</option>
+                                <option value="1">Dr. Ayşe Yılmaz</option>
+                                <option value="2">Dr. Ahmet Demir</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="appointmentType" class="form-label">Randevu Türü</label>
+                            <select class="form-select" id="appointmentType" required>
+                                <option value="" selected disabled>Randevu türü seçin</option>
+                                <option value="control">Kontrol Randevusu</option>
+                                <option value="diet">Diyet Planı Güncellemesi</option>
+                                <option value="consultation">Danışma</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="preferredDate" class="form-label">Tercih Ettiğiniz Tarih</label>
+                            <input type="date" class="form-control" id="preferredDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="preferredTime" class="form-label">Tercih Ettiğiniz Saat</label>
+                            <select class="form-select" id="preferredTime" required>
+                                <option value="" selected disabled>Saat seçin</option>
+                                <option value="morning">Sabah (09:00 - 12:00)</option>
+                                <option value="afternoon">Öğleden Sonra (13:00 - 17:00)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="appointmentNotes" class="form-label">Notlar (İsteğe Bağlı)</label>
+                            <textarea class="form-control" id="appointmentNotes" rows="3" placeholder="Randevu talebinizle ilgili eklemek istediğiniz notlar..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" form="requestAppointmentForm" class="btn btn-success">Randevu Talep Et</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/patient-navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation
+            const form = document.getElementById('requestAppointmentForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (!form.checkValidity()) {
+                        e.stopPropagation();
+                        form.classList.add('was-validated');
+                    } else {
+                        alert('Randevu talebiniz alınmıştır. En kısa sürede onaylanacaktır.');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('requestAppointmentModal'));
+                        modal.hide();
+                        // Reset form
+                        form.reset();
+                        form.classList.remove('was-validated');
+                    }
+                });
+            }
+            
+            // Ensure sidebar links always point to correct patient pages
+            const correctLinks = {
+                'messages-link': 'patient-messages.html',
+                'profile-link': 'patient-profile.html',
+                'settings-link': 'patient-settings.html'
+            };
+            
+            // Fix links if needed
+            Object.keys(correctLinks).forEach(linkId => {
+                const link = document.getElementById(linkId);
+                if (link) {
+                    // Force correct href
+                    link.setAttribute('href', correctLinks[linkId]);
+                    
+                    // Add click listener to double-check href at click time
+                    link.addEventListener('click', function(e) {
+                        // Make absolutely sure the href is correct
+                        if (this.getAttribute('href') !== correctLinks[linkId]) {
+                            this.setAttribute('href', correctLinks[linkId]);
+                        }
+                    });
+                }
+            });
+            
+            // Also, fix dropdown menu links
+            const dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                // Replace regular page links with patient page links
+                if (href === 'profile.html') {
+                    link.setAttribute('href', 'patient-profile.html');
+                } else if (href === 'settings.html') {
+                    link.setAttribute('href', 'patient-settings.html');
+                } else if (href === 'messages.html') {
+                    link.setAttribute('href', 'patient-messages.html');
+                }
+            });
+            
+            // Cancel appointment functionality
+            const cancelButtons = document.querySelectorAll('.btn-cancel-appointment');
+            cancelButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (confirm('Bu randevuyu iptal etmek istediğinize emin misiniz?')) {
+                        // In a real app, this would send a request to the server
+                        alert('Randevunuz iptal edilmiştir.');
+                        // Here we'd typically update the UI to reflect the cancellation
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <!-- EMERGENCY FIX: Force correct patient page links -->
+    <script>
+        // This is an emergency fix that runs immediately and after a delay
+        // to ensure links always point to correct patient pages
+        (function fixPatientLinks() {
+            console.log('⚠️ EMERGENCY FIX: Running patient link correction');
+            
+            // Fix message link
+            var messagesLink = document.getElementById('messages-link');
+            if (messagesLink) messagesLink.href = 'patient-messages.html';
+            
+            // Fix profile link
+            var profileLink = document.getElementById('profile-link');
+            if (profileLink) profileLink.href = 'patient-profile.html';
+            
+            // Fix settings link
+            var settingsLink = document.getElementById('settings-link');
+            if (settingsLink) settingsLink.href = 'patient-settings.html';
+            
+            // Fix dropdown links
+            var dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(function(link) {
+                var text = link.textContent.trim();
+                if (text.includes('Profilim')) {
+                    link.href = 'patient-profile.html';
+                } else if (text.includes('Ayarlar')) {
+                    link.href = 'patient-settings.html';
+                } else if (text.includes('Mesaj')) {
+                    link.href = 'patient-messages.html';
+                }
+            });
+            
+            // Run again after a delay to ensure it catches any dynamically updated links
+            setTimeout(fixPatientLinks, 200);
+        })();
+    </script>
+</body>
+</html> 

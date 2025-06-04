@@ -20,19 +20,26 @@ namespace Dotnet_Dietitian.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public TokenResponseDto GenerateToken(GetCheckAppUserQueryResult user)
+        private IEnumerable<Claim> GenerateClaims(GetCheckAppUserQueryResult user)
         {
-            var claims = new List<Claim>();
-            
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
+
             if (!string.IsNullOrEmpty(user.Role))
                 claims.Add(new Claim(ClaimTypes.Role, user.Role));
-            
-            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-            
+
             if (!string.IsNullOrEmpty(user.Username))
                 claims.Add(new Claim("Username", user.Username));
 
-            // Use JwtTokenDefaults instead of _configuration
+            return claims;
+        }
+
+        public TokenResponseDto GenerateToken(GetCheckAppUserQueryResult user)
+        {
+            var claims = GenerateClaims(user);
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Application.Tools.JwtTokenDefaults.Key));
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expireDate = DateTime.UtcNow.AddMinutes(Application.Tools.JwtTokenDefaults.Expire);

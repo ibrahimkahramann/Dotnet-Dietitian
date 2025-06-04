@@ -1,0 +1,650 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
+
+@{
+    ViewData["Title"] = "Hasta Detayları - DijetUP";
+    Layout = "_DietitianLayout";
+    var randevular = ViewBag.Randevular as List<Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults.RandevuDto> ?? new List<Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults.RandevuDto>();
+    var diyetProgramlari = ViewBag.DiyetProgramlari as List<Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults.GetDiyetProgramiQueryResult> ?? new List<Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults.GetDiyetProgramiQueryResult>();
+}
+
+<div class="container-fluid p-4">
+    @Html.AntiForgeryToken()
+    
+    <!-- Display success and error messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i> @ViewBag.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <!-- Patient Details Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="/Dietitian/DietitianPatients" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="fw-bold mb-0">@Model.Ad @Model.Soyad</h2>
+                <p class="text-muted mb-0">ID: #@Model.Id.ToString().Substring(0, 5) • @(Model.Yas.HasValue ? $"{Model.Yas} yaşında" : "Yaş bilgisi yok")</p>
+            </div>
+        </div>
+        <div class="d-flex">
+            <a href="/Dietitian/Messages?patientId=@Model.Id" class="btn btn-outline-primary me-2">
+                <i class="bi bi-chat-dots me-1"></i> Mesaj Gönder
+            </a>
+            @if (ViewBag.CanEditPatient == true)
+            {
+                <a href="/Dietitian/EditPatient/@Model.Id" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-pencil me-1"></i> Düzenle
+                </a>
+                <a href="/Dietitian/Appointments?newAppointment=true&patientId=@Model.Id" class="btn btn-success">
+                    <i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur
+                </a>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary me-2" disabled title="Bu hastayı düzenleme yetkiniz yok">
+                    <i class="bi bi-pencil me-1"></i> Düzenle
+                </button>
+                <button class="btn btn-outline-success" disabled title="Bu hasta için randevu oluşturamazsınız">
+                    <i class="bi bi-calendar-plus me-1"></i> Randevu Oluştur
+                </button>
+            }
+        </div>
+    </div>
+    
+    <!-- Patient Info and Actions -->
+    <div class="row">
+        <!-- Patient Info Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle mb-3" width="100" height="100" alt="Patient">
+                        <h5 class="fw-bold">@Model.Ad @Model.Soyad</h5>
+                        <span class="badge bg-@(Model.DiyetProgramiId.HasValue ? "success" : "warning text-dark")">
+                            @(Model.DiyetProgramiId.HasValue ? "Aktif" : "Beklemede")
+                        </span>
+                    </div>
+                    
+                    <h6 class="border-bottom pb-2 mb-3">Kişisel Bilgiler</h6>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">E-posta:</span>
+                            <span>@Model.Email</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Telefon:</span>
+                            <span>@(string.IsNullOrEmpty(Model.Telefon) ? "-" : Model.Telefon)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Yaş:</span>
+                            <span>@(Model.Yas.HasValue ? Model.Yas.Value.ToString() : "-")</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Cinsiyet:</span>
+                            <span>@(string.IsNullOrEmpty(Model.Cinsiyet) ? "-" : Model.Cinsiyet)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Boy:</span>
+                            <span>@(Model.Boy.HasValue ? $"{Model.Boy.Value} cm" : "-")</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Kilo:</span>
+                            <span>@(Model.Kilo.HasValue ? $"{Model.Kilo.Value} kg" : "-")</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Diyet Programı:</span>
+                            <span>@(string.IsNullOrEmpty(Model.DiyetProgramiAdi) ? "Atanmadı" : Model.DiyetProgramiAdi)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Kalori İhtiyacı:</span>
+                            <span>@(Model.GunlukKaloriIhtiyaci.HasValue ? $"{Model.GunlukKaloriIhtiyaci.Value} kcal" : "-")</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Kayıt Tarihi:</span>
+                            <span>Bilgi mevcut değil</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="col-lg-8">
+            <!-- Diet Plan Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0">Diyet Programı</h5>
+                    <div>
+                        @if (ViewBag.CanEditPatient == true)
+                        {
+                            @if (Model.DiyetProgramiId.HasValue)
+                            {
+                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#changeDietPlanModal">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Değiştir
+                                </button>
+                                <a href="/Dietitian/ViewDietPlan/@Model.DiyetProgramiId" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye me-1"></i> Detay
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignDietPlanModal">
+                                    <i class="bi bi-clipboard2-plus me-1"></i> Diyet Planı Ata
+                                </button>
+                            }
+                        }
+                        else if (Model.DiyetProgramiId.HasValue)
+                        {
+                            <a href="/Dietitian/ViewDietPlan/@Model.DiyetProgramiId" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye me-1"></i> Detay
+                            </a>
+                        }
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.DiyetProgramiId.HasValue)
+                    {
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6 class="mb-2">Program Detayları</h6>
+                                <p class="mb-1"><strong>Program Adı:</strong> @Model.DiyetProgramiAdi</p>
+                                <p class="mb-1"><strong>Kalori:</strong> @(Model.GunlukKaloriIhtiyaci.HasValue ? $"{Model.GunlukKaloriIhtiyaci.Value} kcal/gün" : "-")</p>
+                                <p class="mb-3"><strong>Atanma Tarihi:</strong> <span class="text-muted">Bilgi mevcut değil</span></p>
+                                
+                                <h6 class="mb-2">İlerleme Durumu</h6>
+                                <div class="progress mb-2" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <p class="text-muted small">Diyet programını %50 tamamladı</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-2">Beslenme Hedefleri</h6>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-droplet-fill text-primary fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0"><strong>Su</strong></p>
+                                        <p class="mb-0 text-muted">2.5 L/gün</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-egg-fried text-warning fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0"><strong>Protein</strong></p>
+                                        <p class="mb-0 text-muted">80-100 g/gün</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-activity text-danger fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0"><strong>Egzersiz</strong></p>
+                                        <p class="mb-0 text-muted">Haftada 3 gün, 30 dk</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-clipboard-x text-muted fs-1 mb-3"></i>
+                            <h6 class="mb-2">Henüz Diyet Programı Atanmadı</h6>
+                            <p class="text-muted">Hastaya bir diyet programı atamak için "Diyet Planı Ata" butonuna tıklayın.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Appointments Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0">Randevular</h5>
+                    <a href="/Dietitian/Appointments?newAppointment=true&patientId=@Model.Id" class="btn btn-sm btn-success">
+                        <i class="bi bi-calendar-plus me-1"></i> Yeni Randevu
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (randevular.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>Saat</th>
+                                        <th>Durum</th>
+                                        <th>Tür</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var randevu in randevular.OrderByDescending(r => r.RandevuBaslangicTarihi))
+                                    {
+                                        <tr>
+                                            <td>@randevu.RandevuBaslangicTarihi.ToString("dd.MM.yyyy")</td>
+                                            <td>@randevu.RandevuBaslangicTarihi.ToString("HH:mm") - @randevu.RandevuBitisTarihi.ToString("HH:mm")</td>
+                                            <td>
+                                                @switch (randevu.Durum?.ToLower())
+                                                {
+                                                    case "onaylandı":
+                                                        <span class="badge bg-success">Onaylandı</span>
+                                                        break;
+                                                    case "beklemede":
+                                                        <span class="badge bg-warning text-dark">Beklemede</span>
+                                                        break;
+                                                    case "iptal edildi":
+                                                        <span class="badge bg-danger">İptal Edildi</span>
+                                                        break;
+                                                    case "tamamlandı":
+                                                        <span class="badge bg-info">Tamamlandı</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@randevu.Durum</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@randevu.RandevuTuru</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-sm btn-outline-primary view-appointment" data-id="@randevu.Id" title="Görüntüle">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-secondary edit-appointment" data-id="@randevu.Id" title="Düzenle">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-success complete-appointment" data-id="@randevu.Id" title="Tamamlandı">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger cancel-appointment" data-id="@randevu.Id" title="İptal Et">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
+                            <h6 class="mb-2">Henüz Randevu Yok</h6>
+                            <p class="text-muted">Hasta için randevu oluşturmak için "Yeni Randevu" butonuna tıklayın.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Notes Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0">Hasta Notları</h5>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addNoteModal">
+                        <i class="bi bi-plus-lg me-1"></i> Not Ekle
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="bi bi-journal-text text-muted fs-1 mb-3"></i>
+                        <h6 class="mb-2">Henüz Not Eklenmedi</h6>
+                        <p class="text-muted">Hasta ile ilgili notlarınızı eklemek için "Not Ekle" butonuna tıklayın.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Diet Plan Modal -->
+<div class="modal fade" id="assignDietPlanModal" tabindex="-1" aria-labelledby="assignDietPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignDietPlanModalLabel">Diyet Planı Ata</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignDietPlanForm">
+                    <input type="hidden" id="patientId" name="hastaId" value="@Model.Id">
+                    <div class="mb-3">
+                        <label for="dietPlanSelect" class="form-label">Diyet Planı Seçin</label>
+                        <select class="form-select" id="dietPlanSelect" name="diyetProgramiId" required>
+                            <option value="" selected disabled>Diyet planı seçin</option>
+                            @foreach (var plan in diyetProgramlari)
+                            {
+                                <option value="@plan.Id">@plan.Ad</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">
+                            Lütfen bir diyet planı seçin.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" id="assignDietPlanBtn" class="btn btn-success">Ata</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Diet Plan Modal -->
+<div class="modal fade" id="changeDietPlanModal" tabindex="-1" aria-labelledby="changeDietPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeDietPlanModalLabel">Diyet Planını Değiştir</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changeDietPlanForm">
+                    <input type="hidden" id="changePatientId" name="hastaId" value="@Model.Id">
+                    <div class="mb-3">
+                        <label for="changeDietPlanSelect" class="form-label">Yeni Diyet Planı Seçin</label>
+                        <select class="form-select" id="changeDietPlanSelect" name="diyetProgramiId" required>
+                            <option value="" selected disabled>Diyet planı seçin</option>
+                            @foreach (var plan in diyetProgramlari)
+                            {
+                                @if(Model.DiyetProgramiId == plan.Id)
+                                {
+                                    <option value="@plan.Id" selected>@plan.Ad</option>
+                                }
+                                else
+                                {
+                                    <option value="@plan.Id">@plan.Ad</option>
+                                }
+                            }
+                        </select>
+                        <div class="invalid-feedback">
+                            Lütfen bir diyet planı seçin.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" id="changeDietPlanBtn" class="btn btn-primary">Değiştir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addNoteModalLabel">Hasta Notu Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNoteForm">
+                    <input type="hidden" name="patientId" value="@Model.Id">
+                    <div class="mb-3">
+                        <label for="noteTitle" class="form-label">Not Başlığı</label>
+                        <input type="text" class="form-control" id="noteTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="noteContent" class="form-label">Not İçeriği</label>
+                        <textarea class="form-control" id="noteContent" name="content" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" id="addNoteBtn" class="btn btn-primary">Ekle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // View appointment
+            document.querySelectorAll('.view-appointment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    window.location.href = `/Dietitian/AppointmentDetails/${appointmentId}`;
+                });
+            });
+            
+            // Edit appointment
+            document.querySelectorAll('.edit-appointment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    window.location.href = `/Dietitian/EditAppointment/${appointmentId}`;
+                });
+            });
+            
+            // Complete appointment
+            document.querySelectorAll('.complete-appointment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    if (confirm('Bu randevuyu tamamlandı olarak işaretlemek istediğinizden emin misiniz?')) {
+                        // Get the CSRF token
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        
+                        fetch('/Dietitian/UpdateAppointmentStatus', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                Id: appointmentId,
+                                Status: 'Tamamlandı'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message || 'Randevu durumu başarıyla güncellendi.');
+                                window.location.reload();
+                            } else {
+                                alert(data.message || 'Randevu durumu güncellenirken bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            alert('Hata: ' + error.message);
+                        });
+                    }
+                });
+            });
+            
+            // Cancel appointment
+            document.querySelectorAll('.cancel-appointment').forEach(button => {
+                button.addEventListener('click', function() {
+                    const appointmentId = this.dataset.id;
+                    if (confirm('Bu randevuyu iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+                        // Get the CSRF token
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        
+                        fetch('/Dietitian/UpdateAppointmentStatus', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            body: JSON.stringify({
+                                Id: appointmentId,
+                                Status: 'İptal Edildi'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message || 'Randevu başarıyla iptal edildi.');
+                                window.location.reload();
+                            } else {
+                                alert(data.message || 'Randevu iptal edilirken bir hata oluştu.');
+                            }
+                        })
+                        .catch(error => {
+                            alert('Hata: ' + error.message);
+                        });
+                    }
+                });
+            });
+            
+            // Assign diet plan
+            const assignDietPlanBtn = document.getElementById('assignDietPlanBtn');
+            if (assignDietPlanBtn) {
+                assignDietPlanBtn.addEventListener('click', function() {
+                    const form = document.getElementById('assignDietPlanForm');
+                    const patientId = document.getElementById('patientId').value;
+                    const dietPlanId = document.getElementById('dietPlanSelect').value;
+                    
+                    if (!dietPlanId) {
+                        document.getElementById('dietPlanSelect').classList.add('is-invalid');
+                        return;
+                    }
+                    
+                    // Get the CSRF token
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    
+                    // Assign diet plan
+                    fetch('/Dietitian/AssignDietPlan', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            hastaId: patientId,
+                            diyetProgramiId: dietPlanId
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Diyet planı atanırken bir hata oluştu');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message and reload page
+                            alert(data.message || 'Diyet planı başarıyla atandı');
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Diyet planı atanırken bir hata oluştu');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Hata: ' + error.message);
+                    });
+                });
+            }
+            
+            // Change diet plan
+            const changeDietPlanBtn = document.getElementById('changeDietPlanBtn');
+            if (changeDietPlanBtn) {
+                changeDietPlanBtn.addEventListener('click', function() {
+                    const patientId = document.getElementById('changePatientId').value;
+                    const dietPlanId = document.getElementById('changeDietPlanSelect').value;
+                    
+                    if (!dietPlanId) {
+                        document.getElementById('changeDietPlanSelect').classList.add('is-invalid');
+                        return;
+                    }
+                    
+                    // Get the CSRF token
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    
+                    // Assign diet plan
+                    fetch('/Dietitian/AssignDietPlan', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            hastaId: patientId,
+                            diyetProgramiId: dietPlanId
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Diyet planı değiştirilirken bir hata oluştu');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message and reload page
+                            alert(data.message || 'Diyet planı başarıyla değiştirildi');
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Diyet planı değiştirilirken bir hata oluştu');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Hata: ' + error.message);
+                    });
+                });
+            }
+            
+            // Add note
+            const addNoteBtn = document.getElementById('addNoteBtn');
+            if (addNoteBtn) {
+                addNoteBtn.addEventListener('click', function() {
+                    alert('Not ekleme özelliği henüz uygulanmamıştır.');
+                });
+            }
+        });
+    </script>
+} 

@@ -485,6 +485,75 @@ namespace Dotnet_Dietitian.Persistence.Data
                     await context.SaveChangesAsync();
                 }
                 
+                /* // Mesaj seed data örneği:
+                if (!context.Mesajlar.Any())
+                {
+                    // Önce veritabanından mevcut kayıtları çekelim
+                    var mevcutDiyetisyenler = await context.Diyetisyenler.ToListAsync();
+                    var mevcutHastalar = await context.Hastalar.ToListAsync();
+                    
+                    if (mevcutDiyetisyenler.Count > 0 && mevcutHastalar.Count > 0)
+                    {
+                        var mesajlar = new List<Mesaj>();
+                        
+                        // Debug için bilgi yazdıralım
+                        Console.WriteLine($"Bulunan diyetisyen sayısı: {mevcutDiyetisyenler.Count}");
+                        Console.WriteLine($"Bulunan hasta sayısı: {mevcutHastalar.Count}");
+                        
+                        // Her hasta ve diyetisyen için mesaj eklemeden önce kontrol edelim
+                        for (int i = 0; i < Math.Min(mevcutHastalar.Count, 5); i++)
+                        {
+                            var diyetisyenIndex = i % mevcutDiyetisyenler.Count;
+                            
+                            var hastaId = mevcutHastalar[i].Id;
+                            var diyetisyenId = mevcutDiyetisyenler[diyetisyenIndex].Id;
+                            
+                            // Varlık kontrolü
+                            var hastaExists = await context.Hastalar.AnyAsync(h => h.Id == hastaId);
+                            var diyetisyenExists = await context.Diyetisyenler.AnyAsync(d => d.Id == diyetisyenId);
+                            
+                            if (!hastaExists || !diyetisyenExists)
+                            {
+                                Console.WriteLine($"HATA: Hasta ID {hastaId} veya Diyetisyen ID {diyetisyenId} veritabanında bulunamadı.");
+                                continue;
+                            }
+                            
+                            // Her şey yolunda, mesajları ekle
+                            mesajlar.Add(new Mesaj
+                            {
+                                Id = Guid.NewGuid(),
+                                GonderenId = hastaId,
+                                GonderenTipi = "Hasta",
+                                AliciId = diyetisyenId,
+                                AliciTipi = "Diyetisyen",
+                                Icerik = $"Merhaba, ben {mevcutHastalar[i].Ad}. Bir sorum var.",
+                                GonderimZamani = DateTime.Now.AddHours(-2),
+                                Okundu = true,
+                                OkunmaZamani = DateTime.Now.AddHours(-1)
+                            });
+                            
+                            await context.SaveChangesAsync(); // Her mesaj ekledikten sonra kaydet
+                            
+                            mesajlar.Clear(); // Önceki mesajı temizle
+                            
+                            // İkinci mesaj
+                            mesajlar.Add(new Mesaj
+                            {
+                                Id = Guid.NewGuid(),
+                                GonderenId = diyetisyenId,
+                                GonderenTipi = "Diyetisyen",
+                                AliciId = hastaId,
+                                AliciTipi = "Hasta",
+                                Icerik = $"Merhaba {mevcutHastalar[i].Ad}, nasıl yardımcı olabilirim?",
+                                GonderimZamani = DateTime.Now.AddHours(-1)
+                            });
+                            
+                            await context.SaveChangesAsync(); // Her mesaj ekledikten sonra kaydet
+                            mesajlar.Clear();
+                        }
+                    }
+                } */
+                
                 Console.WriteLine("Seed verileri başarıyla eklendi.");
             }
             catch (Exception ex)

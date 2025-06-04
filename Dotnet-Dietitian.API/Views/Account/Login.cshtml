@@ -1,0 +1,337 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands
+@model LoginCommand
+@{
+    ViewData["Title"] = "Giriş Yap - DijetUP";
+}
+
+<link rel="stylesheet" href="~/css/style.css">
+<style>
+    .login-card {
+        transition: all 0.3s ease;
+    }
+    
+    .login-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .login-option-card {
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    
+    .login-option-card.selected {
+        border-color: #198754;
+        background-color: rgba(25, 135, 84, 0.05);
+    }
+    
+    .login-section {
+        min-height: calc(100vh - 76px - 80px);
+    }
+    
+    .icon-large {
+        font-size: 3rem;
+    }
+</style>
+
+<!-- Login Section -->
+<section class="py-5 login-section d-flex align-items-center">
+    <div class="container my-5">
+        <!-- Login Options Section -->
+        <div id="loginOptions" class="row justify-content-center">
+            <div class="col-md-10 col-lg-8 text-center mb-4">
+                <i class="bi bi-heart-pulse-fill text-success fs-1 mb-3"></i>
+                <h2 class="fw-bold">DijetUP'a Hoş Geldiniz</h2>
+                <p class="text-muted">Lütfen giriş yapmak istediğiniz hesap türünü seçin</p>
+            </div>
+            
+            <div class="col-md-10 col-lg-8">
+                <div class="row g-4">
+                    <!-- Patient Login Option -->
+                    <div class="col-md-6">
+                        <div id="patientLoginOption" class="card border-0 shadow-sm h-100 login-card login-option-card" data-login-type="patient">
+                            <div class="card-body p-4 text-center">
+                                <div class="icon-large text-success mb-3">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                                <h4 class="fw-bold">Hasta Girişi</h4>
+                                <p class="text-muted mb-0">Diyet planınızı görüntülemek, randevularınızı yönetmek ve diyetisyeninizle iletişim kurmak için giriş yapın.</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 p-4">
+                                <button class="btn btn-outline-success w-100 select-login-option" data-login-type="patient">
+                                    Hasta Olarak Giriş Yap <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dietitian Login Option -->
+                    <div class="col-md-6">
+                        <div id="dietitianLoginOption" class="card border-0 shadow-sm h-100 login-card login-option-card" data-login-type="dietitian">
+                            <div class="card-body p-4 text-center">
+                                <div class="icon-large text-success mb-3">
+                                    <i class="bi bi-clipboard2-pulse"></i>
+                                </div>
+                                <h4 class="fw-bold">Diyetisyen Girişi</h4>
+                                <p class="text-muted mb-0">Hastalarınızı yönetmek, diyet planları oluşturmak ve randevularınızı düzenlemek için giriş yapın.</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 p-4">
+                                <button class="btn btn-outline-success w-100 select-login-option" data-login-type="dietitian">
+                                    Diyetisyen Olarak Giriş Yap <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patient Login Form -->
+        <div id="patientLoginForm" class="row justify-content-center d-none">
+            <div class="col-md-6 col-lg-5">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <button class="btn btn-sm btn-outline-secondary back-to-options">
+                                <i class="bi bi-arrow-left me-1"></i> Geri
+                            </button>
+                            <div class="text-center flex-grow-1">
+                                <i class="bi bi-person-circle text-success fs-1 mb-2"></i>
+                                <h3 class="fw-bold">Hasta Girişi</h3>
+                            </div>
+                            <div style="width: 60px;"></div> <!-- Spacer for alignment -->
+                        </div>
+                        
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success mb-3">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+                        
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <form asp-action="Login" method="post" class="needs-validation" novalidate>
+                            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                            <input type="hidden" name="userType" value="Hasta" />
+                            
+                            <div class="mb-4">
+                                <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                    <input asp-for="Username" class="form-control" placeholder="kullaniciadi" required />
+                                    <span asp-validation-for="Username" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <label asp-for="Password" class="form-label">Şifre</label>
+                                    <a href="~/Account/ForgotPassword" class="text-success small text-decoration-none">Şifremi Unuttum</a>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                    <input asp-for="Password" type="password" class="form-control" placeholder="********" required />
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="Password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <span asp-validation-for="Password" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4 form-check">
+                                <input asp-for="RememberMe" type="checkbox" class="form-check-input" />
+                                <label asp-for="RememberMe" class="form-check-label">Beni Hatırla</label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg login-btn">Giriş Yap</button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <p class="text-muted">Hesabınız yok mu? <a asp-action="Register" class="text-success">Kayıt olun</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dietitian Login Form -->
+        <div id="dietitianLoginForm" class="row justify-content-center d-none">
+            <div class="col-md-6 col-lg-5">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <button class="btn btn-sm btn-outline-secondary back-to-options">
+                                <i class="bi bi-arrow-left me-1"></i> Geri
+                            </button>
+                            <div class="text-center flex-grow-1">
+                                <i class="bi bi-clipboard2-pulse text-success fs-1 mb-2"></i>
+                                <h3 class="fw-bold">Diyetisyen Girişi</h3>
+                            </div>
+                            <div style="width: 60px;"></div> <!-- Spacer for alignment -->
+                        </div>
+                        
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success mb-3">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+                        
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <form asp-action="Login" method="post" class="needs-validation" novalidate>
+                            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                            <input type="hidden" name="userType" value="Diyetisyen" />
+                            
+                            <div class="mb-4">
+                                <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                    <input asp-for="Username" class="form-control" placeholder="kullaniciadi" required />
+                                    <span asp-validation-for="Username" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <label asp-for="Password" class="form-label">Şifre</label>
+                                    <a href="~/Account/ForgotPassword" class="text-success small text-decoration-none">Şifremi Unuttum</a>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                    <input asp-for="Password" type="password" class="form-control" placeholder="********" required />
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="Password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <span asp-validation-for="Password" class="invalid-feedback"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4 form-check">
+                                <input asp-for="RememberMe" type="checkbox" class="form-check-input" />
+                                <label asp-for="RememberMe" class="form-check-label">Beni Hatırla</label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg login-btn">Giriş Yap</button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <p class="text-muted">Hesabınız yok mu? <a asp-action="Register" class="text-success">Kayıt olun</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/script.js"></script>
+    <script src="~/js/auth-helper.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // UI Elements
+            const loginOptions = document.getElementById('loginOptions');
+            const patientLoginForm = document.getElementById('patientLoginForm');
+            const dietitianLoginForm = document.getElementById('dietitianLoginForm');
+            const backButtons = document.querySelectorAll('.back-to-options');
+            const selectLoginButtons = document.querySelectorAll('.select-login-option');
+            const loginOptionCards = document.querySelectorAll('.login-option-card');
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            
+            // Selection of login type
+            selectLoginButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const loginType = this.getAttribute('data-login-type');
+                    
+                    // Hide options, show appropriate form
+                    loginOptions.classList.add('d-none');
+                    
+                    if (loginType === 'patient') {
+                        patientLoginForm.classList.remove('d-none');
+                    } else {
+                        dietitianLoginForm.classList.remove('d-none');
+                    }
+                });
+            });
+            
+            // Highlight selected option on hover
+            loginOptionCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const loginType = this.getAttribute('data-login-type');
+                    selectLoginType(loginType);
+                });
+            });
+            
+            function selectLoginType(loginType) {
+                const button = document.querySelector(`.select-login-option[data-login-type="${loginType}"]`);
+                if (button) {
+                    button.click();
+                }
+            }
+            
+            // Back to options functionality
+            backButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    patientLoginForm.classList.add('d-none');
+                    dietitianLoginForm.classList.add('d-none');
+                    loginOptions.classList.remove('d-none');
+                });
+            });
+            
+            // Toggle password visibility
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.querySelector('i').classList.toggle('bi-eye');
+                    this.querySelector('i').classList.toggle('bi-eye-slash');
+                });
+            });
+            
+            // Check URL parameters for direct login form selection
+            const urlParams = new URLSearchParams(window.location.search);
+            const loginType = urlParams.get('type');
+            
+            if (loginType === 'patient') {
+                selectLoginType('patient');
+            } else if (loginType === 'dietitian') {
+                selectLoginType('dietitian');
+            }
+
+            // Check if user was redirected from another page due to auth issues
+            // and show appropriate notification
+            const authError = urlParams.get('authError');
+            if (authError === 'patient') {
+                selectLoginType('patient');
+                const alertPlaceholder = document.createElement('div');
+                alertPlaceholder.className = 'alert alert-warning alert-dismissible fade show mt-3';
+                alertPlaceholder.role = 'alert';
+                alertPlaceholder.innerHTML = `
+                    Lütfen hasta hesabınıza giriş yapın.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                patientLoginForm.querySelector('.card-body').prepend(alertPlaceholder);
+            } else if (authError === 'dietitian') {
+                selectLoginType('dietitian');
+                const alertPlaceholder = document.createElement('div');
+                alertPlaceholder.className = 'alert alert-warning alert-dismissible fade show mt-3';
+                alertPlaceholder.role = 'alert';
+                alertPlaceholder.innerHTML = `
+                    Lütfen diyetisyen hesabınıza giriş yapın.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                dietitianLoginForm.querySelector('.card-body').prepend(alertPlaceholder);
+            }
+        });
+    </script>
+}

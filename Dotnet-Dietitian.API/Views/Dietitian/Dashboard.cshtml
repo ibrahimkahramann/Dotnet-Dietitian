@@ -1,0 +1,461 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.RandevuResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Diyetisyen Paneli - DijetUP";
+    Layout = "_DietitianLayout";
+    
+    // Randevuları al (ViewBag.Randevular'dan)
+    var randevular = ViewBag.Randevular as List<GetRandevuQueryResult> ?? new List<GetRandevuQueryResult>();
+    var bugunRandevular = randevular.Where(r => r.RandevuBaslangicTarihi.Date == DateTime.Today).ToList();
+    var gelecekRandevular = randevular.Where(r => r.RandevuBaslangicTarihi > DateTime.Now).OrderBy(r => r.RandevuBaslangicTarihi).Take(3).ToList();
+    
+    // Aktif diyet planları sayısı
+    var aktifDiyetPlanlariSayisi = ViewBag.AktifDiyetPlanlariSayisi ?? 0;
+    
+    // Okunmamış mesajlar (şu anda sahte veri)
+    var okunmamisMesajSayisi = ViewBag.OkunmamisMesajSayisi ?? 0;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Ana Panel</h2>
+    <div>
+        <span class="text-muted me-2">Bugün:</span>
+        <span class="fw-bold" id="current-date">@DateTime.Now.ToString("dd MMMM yyyy")</span>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded text-primary me-3">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Toplam Hasta</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">@(Model.Hastalar?.Count ?? 0)</h3>
+                <div class="d-flex align-items-center mt-3">
+                    @if (ViewBag.HastalardakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.HastalardakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-success" : "bg-danger") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)%
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success me-2">
+                            <i class="bi bi-arrow-up me-1"></i>5.7%
+                        </span>
+                    }
+                    <small class="text-muted">Bu ay</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                        <i class="bi bi-calendar-check fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Bugünkü Randevular</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">@bugunRandevular.Count</h3>
+                <div class="d-flex align-items-center mt-3">
+                    @if (ViewBag.RandevulardakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.RandevulardakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-success" : "bg-danger") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success me-2">
+                            <i class="bi bi-arrow-up me-1"></i>2
+                        </span>
+                    }
+                    <small class="text-muted">Dünden</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info bg-opacity-10 p-3 rounded text-info me-3">
+                        <i class="bi bi-clipboard2-pulse fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Aktif Diyet Planları</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">@aktifDiyetPlanlariSayisi</h3>
+                <div class="d-flex align-items-center mt-3">
+                    @if (ViewBag.DiyetPlanlarindakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.DiyetPlanlarindakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-success" : "bg-danger") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success me-2">
+                            <i class="bi bi-arrow-up me-1"></i>3
+                        </span>
+                    }
+                    <small class="text-muted">Bu hafta</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded text-warning me-3">
+                        <i class="bi bi-chat-dots fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="card-title mb-0 text-muted">Okunmamış Mesajlar</h6>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-0">@okunmamisMesajSayisi</h3>
+                <div class="d-flex align-items-center mt-3">
+                    @if (ViewBag.MesajlardakiArtisOrani != null)
+                    {
+                        var artisOrani = ViewBag.MesajlardakiArtisOrani;
+                        <span class="badge @(artisOrani > 0 ? "bg-danger" : "bg-success") me-2">
+                            <i class="bi bi-arrow-@(artisOrani > 0 ? "up" : "down") me-1"></i>@Math.Abs(artisOrani)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger me-2">
+                            <i class="bi bi-arrow-up me-1"></i>2
+                        </span>
+                    }
+                    <small class="text-muted">Bugün</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Appointments & Notifications Sections -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Yaklaşan Randevular</h5>
+                    <a asp-controller="Dietitian" asp-action="Appointments" class="btn btn-sm btn-outline-success">Tümünü Gör</a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Hasta</th>
+                                <th>Tarih & Saat</th>
+                                <th>Durum</th>
+                                <th class="text-end pe-4">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (gelecekRandevular.Any())
+                            {
+                                @foreach (var randevu in gelecekRandevular)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                                <div>
+                                                    <h6 class="mb-0">@randevu.HastaAdSoyad</h6>
+                                                    <small class="text-muted">ID: #@randevu.HastaId.ToString().Substring(0, 5)</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>@randevu.RandevuBaslangicTarihi.ToString("dd MMMM yyyy")</div>
+                                            <small class="text-muted">@randevu.RandevuBaslangicTarihi.ToString("HH:mm") - @randevu.RandevuBitisTarihi.ToString("HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            @{
+                                                string badgeClass = "bg-secondary";
+                                                switch (randevu.Durum)
+                                                {
+                                                    case "Onaylandı":
+                                                        badgeClass = "bg-success";
+                                                        break;
+                                                    case "Bekliyor":
+                                                        badgeClass = "bg-warning";
+                                                        break;
+                                                    case "İptal Edildi":
+                                                        badgeClass = "bg-danger";
+                                                        break;
+                                                }
+                                            }
+                                            <span class="badge @badgeClass">@randevu.Durum</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewAppointmentDetails('@randevu.Id')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="editAppointment('@randevu.Id')">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        <p class="text-muted mb-0">Yaklaşan randevunuz bulunmuyor.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Son Bildirimler</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @if (ViewBag.Bildirimler != null && ((List<dynamic>)ViewBag.Bildirimler).Any())
+                    {
+                        foreach (var bildirim in (List<dynamic>)ViewBag.Bildirimler)
+                        {
+                            <a href="@bildirim.Url" class="list-group-item list-group-item-action px-4 py-3">
+                                <div class="d-flex w-100 justify-content-between mb-1">
+                                    <h6 class="mb-0">@bildirim.Baslik</h6>
+                                    <small class="text-muted">@bildirim.ZamanBilgisi</small>
+                                </div>
+                                <p class="mb-0 text-muted small">@bildirim.Icerik</p>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">Yeni randevu talebi</h6>
+                                <small class="text-muted">3 saat önce</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Mehmet Aydın 18 Haziran için randevu talep etti.</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">Yeni mesaj</h6>
+                                <small class="text-muted">5 saat önce</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Zeynep Kaya: "Diyet planım hakkında bir sorum vardı..."</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">İptal edilen randevu</h6>
+                                <small class="text-muted">Dün</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Ahmet Yılmaz bugünkü randevusunu iptal etti.</p>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between mb-1">
+                                <h6 class="mb-0">Yeni hasta kaydı</h6>
+                                <small class="text-muted">2 gün önce</small>
+                            </div>
+                            <p class="mb-0 text-muted small">Selin Demir uygulamaya kaydoldu ve sizinle çalışmak istiyor.</p>
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 text-center">
+                <a href="#" class="btn btn-sm btn-outline-secondary w-100">Tüm Bildirimleri Gör</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Current date
+        document.addEventListener('DOMContentLoaded', function() {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const currentDate = new Date().toLocaleDateString('tr-TR', options);
+            document.getElementById('current-date').textContent = currentDate;
+        });
+        
+        // View appointment details function
+        function viewAppointmentDetails(appointmentId) {
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('viewAppointmentModal'));
+            modal.show();
+            
+            // Fetch appointment details
+            fetch(`/Dietitian/GetAppointmentDetails?id=${appointmentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const randevu = data.data;
+                        const startDate = new Date(randevu.randevuBaslangicTarihi);
+                        const endDate = new Date(randevu.randevuBitisTarihi);
+                        
+                        // Durum sınıfını belirle
+                        const statusClass = {
+                            'Onaylandı': 'success',
+                            'Beklemede': 'warning',
+                            'İptal Edildi': 'danger',
+                            'Tamamlandı': 'primary'
+                        }[randevu.durum] || 'secondary';
+                        
+                        // Detayları HTML olarak oluştur
+                        document.getElementById('appointmentDetails').innerHTML = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Hasta Bilgileri</h6>
+                                    <p class="mb-1"><strong>Ad Soyad:</strong> ${randevu.hastaAdSoyad}</p>
+                                    <p class="mb-3"><strong>ID:</strong> ${randevu.hastaId}</p>
+                                    
+                                    <h6 class="fw-bold mb-3">Randevu Bilgileri</h6>
+                                    <p class="mb-1"><strong>Tarih:</strong> ${startDate.toLocaleDateString()}</p>
+                                    <p class="mb-1"><strong>Saat:</strong> ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                    <p class="mb-1"><strong>Tür:</strong> ${randevu.randevuTuru || 'Belirtilmemiş'}</p>
+                                    <p class="mb-1"><strong>Durum:</strong> <span class="badge bg-${statusClass}">${randevu.durum}</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3">Onay Durumu</h6>
+                                    <p class="mb-1"><strong>Diyetisyen Onayı:</strong> ${randevu.diyetisyenOnayi ? '<span class="text-success">Onaylandı</span>' : '<span class="text-warning">Beklemede</span>'}</p>
+                                    <p class="mb-3"><strong>Hasta Onayı:</strong> ${randevu.hastaOnayi ? '<span class="text-success">Onaylandı</span>' : '<span class="text-warning">Beklemede</span>'}</p>
+                                    
+                                    <h6 class="fw-bold mb-3">Notlar</h6>
+                                    <div class="p-3 bg-light rounded">
+                                        ${randevu.notlar || 'Not bulunmuyor.'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Oluşturulma Tarihi: ${new Date(randevu.yaratilmaTarihi).toLocaleString()}</small>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-success status-action-modal" data-id="${randevu.id}" data-status="Onaylandı">
+                                            <i class="bi bi-check-circle me-1"></i> Onayla
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger status-action-modal" data-id="${randevu.id}" data-status="İptal Edildi">
+                                            <i class="bi bi-x-circle me-1"></i> İptal Et
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Modal içindeki durum değiştirme butonlarına event listener ekle
+                        document.querySelectorAll('.status-action-modal').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const id = this.dataset.id;
+                                const status = this.dataset.status;
+                                
+                                if (confirm(`Randevu durumunu "${status}" olarak değiştirmek istediğinize emin misiniz?`)) {
+                                    // Send AJAX request
+                                    fetch('/Dietitian/UpdateAppointmentStatus', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                                        },
+                                        body: JSON.stringify({
+                                            Id: id,
+                                            Status: status
+                                        })
+                                    })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Sunucu yanıt vermedi. Lütfen daha sonra tekrar deneyin.');
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        if (data.success) {
+                                            alert(data.message);
+                                            window.location.reload();
+                                        } else {
+                                            alert(data.message || 'İşlem sırasında bir hata oluştu.');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Hata detayı:', error);
+                                        alert('Bir hata oluştu: ' + error.message);
+                                    });
+                                }
+                            });
+                        });
+                    } else {
+                        document.getElementById('appointmentDetails').innerHTML = `
+                            <div class="alert alert-danger">
+                                ${data.message}
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('appointmentDetails').innerHTML = `
+                        <div class="alert alert-danger">
+                            Bir hata oluştu: ${error.message}
+                        </div>
+                    `;
+                });
+        }
+        
+        // Edit appointment function
+        function editAppointment(appointmentId) {
+            window.location.href = '/Dietitian/Appointments?editId=' + appointmentId;
+        }
+    </script>
+}
+
+<!-- Add View Appointment Modal -->
+@Html.AntiForgeryToken()
+<div class="modal fade" id="viewAppointmentModal" tabindex="-1" aria-labelledby="viewAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewAppointmentModalLabel">Randevu Detayları</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    <!-- Appointment details will be loaded here -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-2">Randevu detayları yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="editAppointmentBtn" onclick="window.location.href='/Dietitian/Appointments'">Tüm Randevuları Gör</button>
+            </div>
+        </div>
+    </div>
+</div>

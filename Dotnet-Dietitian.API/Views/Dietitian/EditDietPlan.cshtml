@@ -1,0 +1,194 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetProgramiResults
+@model GetDiyetProgramiByIdQueryResult
+@{
+    ViewData["Title"] = "Diyet Planı Düzenle";
+    Layout = "_DietitianLayout";
+}
+
+<div class="container-fluid p-4">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+            <h2 class="fw-bold mb-0">Diyet Planı Düzenle</h2>
+            <p class="text-muted">@Model.Ad planını güncelleyin</p>
+        </div>
+        <div>
+            <a href="/Dietitian/DietPlans" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Geri Dön
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form asp-controller="Dietitian" asp-action="EditDietPlan" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div class="mb-3">
+                    <label for="Ad" class="form-label">Plan Adı</label>
+                    <input type="text" class="form-control" id="Ad" name="Ad" value="@Model.Ad" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Aciklama" class="form-label">Açıklama</label>
+                    <textarea class="form-control" id="Aciklama" name="Aciklama" rows="3">@Model.Aciklama</textarea>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="BaslangicTarihi" class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" class="form-control" id="BaslangicTarihi" name="BaslangicTarihi" 
+                               value="@(Model.BaslangicTarihi.HasValue ? Model.BaslangicTarihi.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"))">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="BitisTarihi" class="form-label">Bitiş Tarihi</label>
+                        <input type="date" class="form-control" id="BitisTarihi" name="BitisTarihi" 
+                               value="@(Model.BitisTarihi.HasValue ? Model.BitisTarihi.Value.ToString("yyyy-MM-dd") : DateTime.Now.AddMonths(3).ToString("yyyy-MM-dd"))">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="GunlukAdimHedefi" class="form-label">Günlük Adım Hedefi</label>
+                    <input type="number" class="form-control" id="GunlukAdimHedefi" name="GunlukAdimHedefi" 
+                           min="1000" max="20000" value="@(Model.GunlukAdimHedefi ?? 8000)">
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="ProteinGram" class="form-label">Protein (g)</label>
+                        <input type="number" class="form-control" id="ProteinGram" name="ProteinGram" 
+                               min="0" value="@(Model.ProteinGram ?? 100)" step="0.1">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="KarbonhidratGram" class="form-label">Karbonhidrat (g)</label>
+                        <input type="number" class="form-control" id="KarbonhidratGram" name="KarbonhidratGram" 
+                               min="0" value="@(Model.KarbonhidratGram ?? 150)" step="0.1">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="YagGram" class="form-label">Yağ (g)</label>
+                        <input type="number" class="form-control" id="YagGram" name="YagGram" 
+                               min="0" value="@(Model.YagGram ?? 60)" step="0.1">
+                    </div>
+                </div>
+                <div class="text-end mt-4">
+                    <button type="button" class="btn btn-outline-secondary me-2" onclick="history.back()">İptal</button>
+                    <button type="submit" class="btn btn-success">Değişiklikleri Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to get JWT token from cookie
+            function getJwtToken() {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('jwt_token=')) {
+                        return cookie.substring('jwt_token='.length, cookie.length);
+                    }
+                }
+                return null;
+            }
+            
+            // Form doğrulama ve gönderme
+            const form = document.querySelector('form');
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                
+                const planName = document.getElementById('Ad').value;
+                if (!planName.trim()) {
+                    alert('Lütfen plan adı girin.');
+                    isValid = false;
+                }
+                
+                const baslangicTarihi = new Date(document.getElementById('BaslangicTarihi').value);
+                const bitisTarihi = new Date(document.getElementById('BitisTarihi').value);
+                
+                if (baslangicTarihi > bitisTarihi) {
+                    alert('Başlangıç tarihi bitiş tarihinden sonra olamaz.');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                try {
+                    // Form verilerini al
+                    const formData = {
+                        Id: '@Model.Id',
+                        Ad: document.getElementById('Ad').value,
+                        Aciklama: document.getElementById('Aciklama').value,
+                        BaslangicTarihi: document.getElementById('BaslangicTarihi').value,
+                        BitisTarihi: document.getElementById('BitisTarihi').value,
+                        GunlukAdimHedefi: parseInt(document.getElementById('GunlukAdimHedefi').value) || 8000,
+                        ProteinGram: parseFloat(document.getElementById('ProteinGram').value) || 0,
+                        KarbonhidratGram: parseFloat(document.getElementById('KarbonhidratGram').value) || 0,
+                        YagGram: parseFloat(document.getElementById('YagGram').value) || 0,
+                        OlusturanDiyetisyenId: '@Model.OlusturanDiyetisyenId'
+                    };
+                    
+                    // CSRF token'ı al
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    // JWT token'ı al
+                    const jwtToken = getJwtToken();
+                    
+                    // Headers oluştur
+                    const headers = { 
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    };
+                    
+                    // JWT token varsa ekle
+                    if (jwtToken) {
+                        headers['Authorization'] = `Bearer ${jwtToken}`;
+                    }
+                    
+                    // API çağrısı yap
+                    const response = await fetch('/api/DiyetProgrami', {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(formData),
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        alert('Diyet planı başarıyla güncellendi!');
+                        window.location.href = '/Dietitian/DietPlans';
+                    } else {
+                        let errorMessage = `HTTP ${response.status}: `;
+                        
+                        try {
+                            const errorData = await response.json();
+                            errorMessage += errorData.message || errorData.title || 'Bir hata oluştu';
+                            
+                            // Kimlik doğrulama hatası için özel mesaj
+                            if (response.status === 401) {
+                                console.error('Kimlik doğrulama hatası:', errorData);
+                                alert('Oturum süreniz dolmuş olabilir. Lütfen sayfayı yenileyip tekrar giriş yapın.');
+                                // Kullanıcıyı giriş sayfasına yönlendir
+                                setTimeout(() => {
+                                    window.location.href = '/Account/Login?returnUrl=/Dietitian/EditDietPlan/@Model.Id';
+                                }, 1000);
+                                return;
+                            }
+                        } catch (parseError) {
+                            console.error('Response parsing error:', parseError);
+                            errorMessage += 'İstek işlenirken bir hata oluştu';
+                        }
+                        
+                        alert('Güncelleme sırasında bir hata oluştu: ' + errorMessage);
+                    }
+                } catch (error) {
+                    console.error('Error updating diet plan:', error);
+                    alert('Diyet planı güncellenirken bir hata oluştu: ' + error.message);
+                }
+            });
+        });
+    </script>
+} 

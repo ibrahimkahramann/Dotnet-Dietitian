@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diyet Planları - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="dietitian-dashboard.html" class="list-group-item list-group-item-action py-3 px-4"
+                    id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patients-view.html" class="list-group-item list-group-item-action py-3 px-4"
+                    id="patients-link">
+                    <i class="bi bi-people me-2"></i> Hastalarım
+                </a>
+                <a href="appointments.html" class="list-group-item list-group-item-action py-3 px-4"
+                    id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevular
+                </a>
+                <a href="diet-plans.html" class="list-group-item list-group-item-action active py-3 px-4"
+                    id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planları
+                </a>
+                <a href="messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">3</span>
+                </a>
+                <a href="profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button"
+                                id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li>
+                                    <h6 class="dropdown-header">Bildirimler</h6>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3"><i class="bi bi-calendar-check"></i></div>
+                                        <div>
+                                            <p class="mb-0">Bugün saat 14:00'de randevunuz var</p>
+                                            <small class="text-muted">10 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">Tüm bildirimleri gör</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#"
+                                id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-circle me-2"
+                                    width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Dr. Ayşe Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="profile.html"><i
+                                            class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear me-2"></i>
+                                        Ayarlar</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i>
+                                        Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Diet Plans Content -->
+                <div class="diet-plans-content">
+                    <!-- Header and Filters -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                        <div class="mb-3 mb-md-0">
+                            <h2 class="fw-bold mb-0">Diyet Planları</h2>
+                            <p class="text-muted">Oluşturduğunuz ve düzenlediğiniz diyet planları</p>
+                        </div>
+                        <div class="d-flex">
+                            <div class="input-group me-2">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="planSearch"
+                                    placeholder="Plan ara...">
+                            </div>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPlanModal">
+                                <i class="bi bi-plus-lg me-1"></i> Yeni Plan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-4" id="planTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="templates-tab" data-bs-toggle="tab"
+                                data-bs-target="#templates" type="button" role="tab" aria-controls="templates"
+                                aria-selected="true">Plan Şablonları</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active"
+                                type="button" role="tab" aria-controls="active" aria-selected="false">Atanmış Planlar
+                                <span class="badge bg-success ms-1">32</span></button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="archive-tab" data-bs-toggle="tab" data-bs-target="#archive"
+                                type="button" role="tab" aria-controls="archive" aria-selected="false">Arşiv</button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="planTabContent">
+                        <!-- Plan Templates -->
+                        <div class="tab-pane fade show active" id="templates" role="tabpanel"
+                            aria-labelledby="templates-tab">
+                            <div class="row g-4">
+                                <!-- Template Card -->
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                                                    <i class="bi bi-clipboard2-pulse fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="card-title mb-0">Kilo Verme Planı</h5>
+                                                    <p class="text-muted mb-0 small">Temel Şablon</p>
+                                                </div>
+                                            </div>
+                                            <p class="card-text text-muted">Günlük 1500-1800 kalori alımı ile orta
+                                                tempolu kilo vermeye odaklanan dengeli beslenme planı.</p>
+                                            <div>
+                                                <span class="badge bg-light text-dark me-1">Düşük Kalori</span>
+                                                <span class="badge bg-light text-dark me-1">Denge</span>
+                                                <span class="badge bg-light text-dark">Protein Odaklı</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white p-4 border-top-0">
+                                            <div class="d-flex">
+                                                <a href="#" class="btn btn-sm btn-outline-success me-2">
+                                                    <i class="bi bi-eye me-1"></i> Görüntüle
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="bi bi-pencil me-1"></i> Düzenle
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-primary ms-auto">
+                                                    <i class="bi bi-person-plus me-1"></i> Ata
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Template Card -->
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                                                    <i class="bi bi-clipboard2-pulse fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="card-title mb-0">Sporcu Beslenmesi</h5>
+                                                    <p class="text-muted mb-0 small">İleri Düzey</p>
+                                                </div>
+                                            </div>
+                                            <p class="card-text text-muted">Yüksek protein, kompleks karbonhidrat ve
+                                                sağlıklı yağlar ile sporcu performansını destekleyici program.</p>
+                                            <div>
+                                                <span class="badge bg-light text-dark me-1">Yüksek Protein</span>
+                                                <span class="badge bg-light text-dark me-1">Performans</span>
+                                                <span class="badge bg-light text-dark">Supplement</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white p-4 border-top-0">
+                                            <div class="d-flex">
+                                                <a href="#" class="btn btn-sm btn-outline-success me-2">
+                                                    <i class="bi bi-eye me-1"></i> Görüntüle
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="bi bi-pencil me-1"></i> Düzenle
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-primary ms-auto">
+                                                    <i class="bi bi-person-plus me-1"></i> Ata
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Template Card -->
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                                                    <i class="bi bi-clipboard2-pulse fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="card-title mb-0">Diyabet Dostu</h5>
+                                                    <p class="text-muted mb-0 small">Sağlık Odaklı</p>
+                                                </div>
+                                            </div>
+                                            <p class="card-text text-muted">Düşük glisemik indeksli besinlerle diyabetli
+                                                hastalara özel hazırlanmış dengeli beslenme planı.</p>
+                                            <div>
+                                                <span class="badge bg-light text-dark me-1">Düşük GI</span>
+                                                <span class="badge bg-light text-dark me-1">Şeker Kontrol</span>
+                                                <span class="badge bg-light text-dark">Dengeli</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-white p-4 border-top-0">
+                                            <div class="d-flex">
+                                                <a href="#" class="btn btn-sm btn-outline-success me-2">
+                                                    <i class="bi bi-eye me-1"></i> Görüntüle
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="bi bi-pencil me-1"></i> Düzenle
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-primary ms-auto">
+                                                    <i class="bi bi-person-plus me-1"></i> Ata
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Create New Template Card -->
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div
+                                            class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                                            <div class="bg-light rounded-circle p-4 mb-3">
+                                                <i class="bi bi-plus-lg text-success fs-4"></i>
+                                            </div>
+                                            <h5 class="card-title mb-2">Yeni Şablon Oluştur</h5>
+                                            <p class="card-text text-muted text-center">Sıfırdan yeni bir diyet planı
+                                                şablonu oluşturun.</p>
+                                            <button class="btn btn-success mt-2" data-bs-toggle="modal"
+                                                data-bs-target="#createPlanModal">
+                                                <i class="bi bi-plus-lg me-1"></i> Şablon Oluştur
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Plans -->
+                        <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Hasta</th>
+                                            <th>Plan Adı</th>
+                                            <th>Başlangıç</th>
+                                            <th>Bitiş</th>
+                                            <th>İlerleme</th>
+                                            <th class="text-end">İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://via.placeholder.com/40"
+                                                        class="rounded-circle me-3" width="40" height="40"
+                                                        alt="Patient">
+                                                    <div>
+                                                        <h6 class="mb-0">Zeynep Kaya</h6>
+                                                        <small class="text-muted">ID: #12345</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Kilo Verme Planı</td>
+                                            <td>01.03.2025</td>
+                                            <td>01.06.2025</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                                        <div class="progress-bar bg-success" role="progressbar"
+                                                            style="width: 65%;" aria-valuenow="65" aria-valuemin="0"
+                                                            aria-valuemax="100"></div>
+                                                    </div>
+                                                    <span class="text-muted small">65%</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-outline-success me-1">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-primary me-1">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://via.placeholder.com/40"
+                                                        class="rounded-circle me-3" width="40" height="40"
+                                                        alt="Patient">
+                                                    <div>
+                                                        <h6 class="mb-0">Ahmet Yıldız</h6>
+                                                        <small class="text-muted">ID: #12346</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Sporcu Beslenmesi</td>
+                                            <td>15.02.2025</td>
+                                            <td>15.08.2025</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                                        <div class="progress-bar bg-success" role="progressbar"
+                                                            style="width: 40%;" aria-valuenow="40" aria-valuemin="0"
+                                                            aria-valuemax="100"></div>
+                                                    </div>
+                                                    <span class="text-muted small">40%</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-outline-success me-1">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-primary me-1">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-three-dots"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Archive Plans -->
+                        <div class="tab-pane fade" id="archive" role="tabpanel" aria-labelledby="archive-tab">
+                            <div class="text-center py-5">
+                                <div class="mb-4">
+                                    <i class="bi bi-archive text-muted fs-1"></i>
+                                </div>
+                                <h5>Arşivlenmiş Plan Bulunamadı</h5>
+                                <p class="text-muted">Henüz hiçbir diyet planını arşivlemediniz.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Plan Modal -->
+    <div class="modal fade" id="createPlanModal" tabindex="-1" aria-labelledby="createPlanModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createPlanModalLabel">Yeni Diyet Planı Oluştur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createPlanForm">
+                        <div class="mb-3">
+                            <label for="planName" class="form-label">Plan Adı</label>
+                            <input type="text" class="form-control" id="planName" placeholder="Örn: Kilo Verme Planı"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="planDescription" class="form-label">Açıklama</label>
+                            <textarea class="form-control" id="planDescription" rows="3"
+                                placeholder="Plan hakkında kısa bir açıklama..."></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="planCategory" class="form-label">Kategori</label>
+                                <select class="form-select" id="planCategory" required>
+                                    <option value="" selected disabled>Kategori seçin</option>
+                                    <option value="weight-loss">Kilo Verme</option>
+                                    <option value="weight-gain">Kilo Alma</option>
+                                    <option value="maintenance">Kilo Koruma</option>
+                                    <option value="athletic">Sporcu Beslenmesi</option>
+                                    <option value="medical">Medikal Beslenme</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="planDuration" class="form-label">Süre (Hafta)</label>
+                                <input type="number" class="form-control" id="planDuration" min="1" max="52" value="4"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Etiketler</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tagLowCalorie">
+                                    <label class="form-check-label" for="tagLowCalorie">Düşük Kalori</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tagHighProtein">
+                                    <label class="form-check-label" for="tagHighProtein">Yüksek Protein</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tagBalanced">
+                                    <label class="form-check-label" for="tagBalanced">Dengeli</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tagVegetarian">
+                                    <label class="form-check-label" for="tagVegetarian">Vejetaryen</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tagGlutenFree">
+                                    <label class="form-check-label" for="tagGlutenFree">Glutensiz</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tagDiabetic">
+                                    <label class="form-check-label" for="tagDiabetic">Diyabetik</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-success">Plan Oluştur</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                });
+            }
+
+            // Plan search functionality
+            const planSearch = document.getElementById('planSearch');
+            if (planSearch) {
+                planSearch.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase();
+                    const planCards = document.querySelectorAll('.card');
+
+                    planCards.forEach(card => {
+                        const title = card.querySelector('.card-title');
+                        if (title) {
+                            const titleText = title.textContent.toLowerCase();
+                            if (titleText.includes(searchTerm)) {
+                                card.parentElement.style.display = 'block';
+                            } else {
+                                card.parentElement.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Handle form submission for creating a new diet plan
+            const createPlanForm = document.getElementById('createPlanForm');
+            createPlanForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const planData = {
+                    name: document.getElementById('planName').value,
+                    description: document.getElementById('planDescription').value,
+                    category: document.getElementById('planCategory').value,
+                    duration: document.getElementById('planDuration').value,
+                    tags: Array.from(createPlanForm.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.nextElementSibling.textContent)
+                };
+
+                try {
+                    const response = await fetch('/api/DiyetProgrami/sablon-olustur', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(planData)
+                    });
+
+                    if (!response.ok) throw new Error('Failed to create diet plan');
+                    alert('Diyet planı başarıyla oluşturuldu!');
+                    createPlanForm.reset();
+                    fetchDietPlans(); // Refresh the list
+                } catch (error) {
+                    console.error('Error creating diet plan:', error);
+                    alert('Diyet planı oluşturulurken bir hata oluştu.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,215 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@model GetHastaByIdQueryResult
+@{
+    ViewData["Title"] = "Mesajlar - DijetUP";
+    Layout = "_PatientLayout";
+}
+
+<div class="content-section">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Mesajlarım</h2>
+    </div>
+    
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <!-- Left Sidebar - Contact List -->
+                <div class="col-md-4 col-lg-3 border-end">
+                    <div class="p-3 border-bottom">
+                        <div class="input-group">
+                            <input type="text" class="form-control border-0 bg-light" placeholder="Diyetisyen ara..." id="searchContact">
+                            <button class="btn btn-light border-0" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="contacts-list" style="height: calc(100vh - 250px); overflow-y: auto;">
+                        @if (Model.DiyetisyenId != null && !string.IsNullOrEmpty(Model.DiyetisyenAdi))
+                        {
+                            <a href="#" class="contact-item d-flex align-items-center p-3 border-bottom text-decoration-none text-dark" data-id="@Model.DiyetisyenId" onclick="selectContact('@Model.DiyetisyenId', '@Model.DiyetisyenAdi')">
+                                <div class="position-relative me-3">
+                                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle" width="50" height="50" alt="@Model.DiyetisyenAdi">
+                                    <span class="position-absolute bottom-0 end-0 bg-success rounded-circle" style="width: 12px; height: 12px;"></span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">@Model.DiyetisyenAdi</h6>
+                                    <p class="text-muted small mb-0">Son mesaj içeriği...</p>
+                                </div>
+                                <div class="text-end ms-2">
+                                    <small class="text-muted">12:45</small>
+                                    <div class="badge bg-danger rounded-pill">2</div>
+                                </div>
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="text-center p-4">
+                                <p class="mb-0 text-muted">Henüz diyetisyen atamanız bulunmuyor.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Right Content - Messages -->
+                <div class="col-md-8 col-lg-9" id="messageContent">
+                    <!-- Default empty state -->
+                    <div class="text-center py-5" id="emptyState">
+                        <div class="mb-4">
+                            <i class="bi bi-chat-text text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4>Mesajlarınız</h4>
+                        <p class="text-muted mb-4">Mesajlaşmaya başlamak için soldaki listeden diyetisyeni seçin.</p>
+                    </div>
+                    
+                    <!-- Chat area (initially hidden) -->
+                    <div class="d-none" id="chatArea" style="height: calc(100vh - 200px); display: flex; flex-direction: column;">
+                        <!-- Chat header -->
+                        <div class="p-3 border-bottom d-flex align-items-center">
+                            <div class="d-flex align-items-center">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40" alt="Diyetisyen" id="chatHeaderImage">
+                                <div>
+                                    <h6 class="mb-0" id="chatHeaderName">Diyetisyen Adı</h6>
+                                    <small class="text-success" id="chatHeaderStatus">Çevrimiçi</small>
+                                </div>
+                            </div>
+                            <div class="ms-auto">
+                                <button class="btn btn-light rounded-circle" title="Görüntülü Arama">
+                                    <i class="bi bi-camera-video"></i>
+                                </button>
+                                <button class="btn btn-light rounded-circle ms-2" title="Sesli Arama">
+                                    <i class="bi bi-telephone"></i>
+                                </button>
+                                <button class="btn btn-light rounded-circle ms-2" title="Daha Fazla">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Messages container -->
+                        <div class="p-3 flex-grow-1 overflow-auto" id="messagesContainer">
+                            <!-- Sample messages - will be filled dynamically -->
+                            <div class="d-flex mb-3">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle align-self-start me-3" width="35" height="35" alt="Diyetisyen">
+                                <div class="bg-light rounded-3 p-3" style="max-width: 75%;">
+                                    <p class="mb-0">Merhaba, diyet programınızla ilgili güncellemeler hakkında konuşmak istiyorum.</p>
+                                    <small class="text-muted mt-1 d-block">10:30</small>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-3 justify-content-end">
+                                <div class="bg-primary text-white rounded-3 p-3" style="max-width: 75%;">
+                                    <p class="mb-0">Merhaba, tabii ki. Size yardımcı olmaktan memnuniyet duyarım.</p>
+                                    <small class="text-white-50 mt-1 d-block">10:32</small>
+                                </div>
+                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle align-self-start ms-3" width="35" height="35" alt="Patient">
+                            </div>
+                            <div class="d-flex mb-3">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" class="rounded-circle align-self-start me-3" width="35" height="35" alt="Diyetisyen">
+                                <div class="bg-light rounded-3 p-3" style="max-width: 75%;">
+                                    <p class="mb-0">Günlük kalori alımınızı nasıl takip ediyorsunuz? Uygulama kullanıyor musunuz?</p>
+                                    <small class="text-muted mt-1 d-block">10:35</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Message input -->
+                        <div class="p-3 border-top">
+                            <form id="messageForm" class="d-flex align-items-center">
+                                <button type="button" class="btn btn-light rounded-circle me-2" title="Emoji">
+                                    <i class="bi bi-emoji-smile"></i>
+                                </button>
+                                <button type="button" class="btn btn-light rounded-circle me-2" title="Dosya Ekle">
+                                    <i class="bi bi-paperclip"></i>
+                                </button>
+                                <input type="text" class="form-control me-2" placeholder="Mesajınızı yazın..." id="messageInput">
+                                <button type="submit" class="btn btn-primary rounded-circle">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/message-service.js"></script>
+    <script src="~/js/contacts-service.js"></script>
+    <script>
+        // Initialize services
+        const messageService = new MessageService();
+        const contactsService = new ContactsService();
+        
+        // Current user info
+        const currentUserId = '@Model.Id';
+        const currentUserType = 'Hasta';
+          document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize message service with current user
+            messageService.setCurrentUser(currentUserId, currentUserType);
+            
+            // Initialize contacts service
+            contactsService.initialize(currentUserId, currentUserType, messageService);
+            
+            // Handle message form submission
+            const messageForm = document.getElementById('messageForm');
+            const messageInput = document.getElementById('messageInput');
+            
+            if (messageForm) {
+                messageForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const message = messageInput.value.trim();
+                    if (!message) return;
+                    
+                    const selectedContactId = document.querySelector('.contact-item.active')?.dataset.id;
+                    if (!selectedContactId) {
+                        alert('Lütfen önce bir kişi seçin.');
+                        return;
+                    }
+                    
+                    try {
+                        await messageService.sendMessage(
+                            currentUserId,
+                            currentUserType,
+                            selectedContactId,
+                            'Diyetisyen',
+                            message
+                        );
+                        
+                        // Clear input
+                        messageInput.value = '';
+                        
+                        // Refresh conversation
+                        contactsService.loadConversation(selectedContactId);
+                    } catch (error) {
+                        console.error('Mesaj gönderilirken hata oluştu:', error);
+                        alert('Mesaj gönderilemedi: ' + error.message);
+                    }
+                });
+            }
+            
+            // Handle received messages
+            messageService.onMessageReceived(function(message) {
+                const selectedContactId = document.querySelector('.contact-item.active')?.dataset.id;
+                
+                // If we're currently in a conversation with the sender, refresh it
+                if (selectedContactId && 
+                   (message.gonderenId === selectedContactId || message.aliciId === selectedContactId)) {
+                    contactsService.loadConversation(selectedContactId);
+                }
+            });
+        });
+        
+        // Helper function to select contact (used in the view)
+        function selectContact(contactId, contactName) {
+            contactsService.selectContact(contactId, contactName);
+        }
+    </script>
+}

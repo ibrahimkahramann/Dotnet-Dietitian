@@ -1,6 +1,6 @@
 using Dotnet_Dietitian.Application.Interfaces;
 using Dotnet_Dietitian.Application.Interfaces.AppUserInterfaces;
-using Dotnet_Dietitian.Application.Queries.AppUserQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands;
 using Dotnet_Dietitian.Application.Services;
 using Dotnet_Dietitian.Infrastructure.Services;
 using Dotnet_Dietitian.Persistence.Context;
@@ -29,7 +29,7 @@ namespace Dotnet_Dietitian.API.Extensions
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             
            // MediatR kaydı
-            services.AddMediatR(typeof(GetCheckAppUserQuery).Assembly);        
+            services.AddMediatR(typeof(LoginCommand).Assembly);        
 
             services.AddSingleton<IAppConfigService, AppConfigService>();
 
@@ -37,10 +37,11 @@ namespace Dotnet_Dietitian.API.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IDiyetisyenRepository, DiyetisyenRepository>();
             services.AddScoped<IHastaRepository, HastaRepository>();
-            services.AddScoped<IDiyetProgramiRepository, DiyetProgramiRepository>();
-            services.AddScoped<IAppUserRepository, AppUserRepository>();
+            services.AddScoped<IDiyetProgramiRepository, DiyetProgramiRepository>();            services.AddScoped<IAppUserRepository, AppUserRepository>();
             services.AddScoped<IRandevuRepository, RandevuRepository>();
             services.AddScoped<IDiyetisyenUygunlukRepository, DiyetisyenUygunlukRepository>();
+            services.AddScoped<IIlerlemeOlcumRepository, IlerlemeOlcumRepository>();
+            services.AddScoped<IPaymentRequestRepository, PaymentRequestRepository>();
             
             // Services
             services.AddScoped<IDiyetisyenService, DiyetisyenService>();

@@ -1,0 +1,351 @@
+@using Dotnet_Dietitian.API.Models
+@using Dotnet_Dietitian.Application.Features.CQRS.Commands.AppUserCommands
+@model RegisterCommand
+@{
+    ViewData["Title"] = "Kayıt Ol - DijetUP";
+}
+
+<link rel="stylesheet" href="~/css/style.css">
+<style>
+    .login-card {
+        transition: all 0.3s ease;
+    }
+    
+    .login-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .register-section {
+        min-height: calc(100vh - 76px - 80px);
+    }
+    
+    .password-strength {
+        height: 5px;
+        margin-top: 5px;
+    }
+    
+    .patient-field {
+        display: block;
+    }
+    
+    .dietitian-field {
+        display: none;
+    }
+</style>
+
+<!-- Register Section -->
+<section class="py-5 register-section d-flex align-items-center">
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-heart-pulse-fill text-success fs-1 mb-3"></i>
+                            <h2 class="fw-bold">Hesap Oluştur</h2>
+                            <p class="text-muted">Diyetisyen veya hasta olarak hesabınızı oluşturun</p>
+                        </div>
+                        
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger mb-3">
+                                @TempData["ErrorMessage"]
+                            </div>
+                        }
+                        
+                        <form asp-action="Register" method="post" class="needs-validation" novalidate>
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                            
+                            <!-- Account Type Selector -->
+                            <div class="mb-4">
+                                <div class="btn-group w-100" role="group" aria-label="Account type">
+                                    <input asp-for="UserType" type="radio" class="btn-check" id="patientType" value="Hasta" autocomplete="off" checked>
+                                    <label class="btn btn-outline-success" for="patientType">
+                                        <i class="bi bi-person me-2"></i> Hasta
+                                    </label>
+                                    <input asp-for="UserType" type="radio" class="btn-check" id="dietitianType" value="Diyetisyen" autocomplete="off">
+                                    <label class="btn btn-outline-success" for="dietitianType">
+                                        <i class="bi bi-clipboard2-pulse me-2"></i> Diyetisyen
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="FirstName" class="form-label">Ad</label>
+                                    <input asp-for="FirstName" class="form-control" required>
+                                    <span asp-validation-for="FirstName" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="LastName" class="form-label">Soyad</label>
+                                    <input asp-for="LastName" class="form-control" required>
+                                    <span asp-validation-for="LastName" class="invalid-feedback"></span>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label asp-for="IdentityNumber" class="form-label">T.C. Kimlik No</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-person-badge"></i></span>
+                                        <input asp-for="IdentityNumber" class="form-control" maxlength="11" required>
+                                        <span asp-validation-for="IdentityNumber" class="invalid-feedback"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label asp-for="Email" class="form-label">E-posta Adresi</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                        <input asp-for="Email" class="form-control" placeholder="ornek@email.com" required>
+                                        <span asp-validation-for="Email" class="invalid-feedback"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label asp-for="Phone" class="form-label">Telefon Numarası</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
+                                        <input asp-for="Phone" class="form-control" placeholder="05XX XXX XX XX" required>
+                                        <span asp-validation-for="Phone" class="invalid-feedback"></span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Patient-specific fields -->
+                                <div class="col-md-6 patient-field">
+                                    <label asp-for="BirthDate" class="form-label">Doğum Tarihi</label>
+                                    <input asp-for="BirthDate" type="date" class="form-control">
+                                    <span asp-validation-for="BirthDate" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-md-6 patient-field">
+                                    <label asp-for="Gender" class="form-label">Cinsiyet</label>
+                                    <select asp-for="Gender" class="form-select">
+                                        <option value="" selected disabled>Seçiniz</option>
+                                        <option value="Erkek">Erkek</option>
+                                        <option value="Kadın">Kadın</option>
+                                        <option value="Diğer">Diğer</option>
+                                    </select>
+                                    <span asp-validation-for="Gender" class="invalid-feedback"></span>
+                                </div>
+                                
+                                <!-- Dietitian-specific fields -->
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="LicenseNumber" class="form-label">Lisans Numarası</label>
+                                    <input asp-for="LicenseNumber" class="form-control">
+                                    <span asp-validation-for="LicenseNumber" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="Specialty" class="form-label">Uzmanlık Alanı</label>
+                                    <select asp-for="Specialty" class="form-select">
+                                        <option value="" selected disabled>Seçiniz</option>
+                                        <option value="Genel Beslenme">Genel Beslenme</option>
+                                        <option value="Sporcu Beslenmesi">Sporcu Beslenmesi</option>
+                                        <option value="Kilo Kontrolü">Kilo Kontrolü</option>
+                                        <option value="Klinik Beslenme">Klinik Beslenme</option>
+                                        <option value="Çocuk Beslenmesi">Çocuk Beslenmesi</option>
+                                    </select>
+                                    <span asp-validation-for="Specialty" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-md-6 dietitian-field">
+                                    <label asp-for="GraduationSchool" class="form-label">Mezuniyet Okulu</label>
+                                    <input asp-for="GraduationSchool" class="form-control">
+                                    <span asp-validation-for="GraduationSchool" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-md-6 dietitian-field">
+                                    <label asp-for="ExperienceYears" class="form-label">Deneyim Yılı</label>
+                                    <input asp-for="ExperienceYears" type="number" min="0" max="100" class="form-control">
+                                    <span asp-validation-for="ExperienceYears" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="City" class="form-label">Şehir</label>
+                                    <input asp-for="City" class="form-control">
+                                    <span asp-validation-for="City" class="invalid-feedback"></span>
+                                </div>
+                                <div class="col-12 dietitian-field">
+                                    <label asp-for="About" class="form-label">Hakkında</label>
+                                    <textarea asp-for="About" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="About" class="invalid-feedback"></span>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                        <input asp-for="Username" class="form-control" required>
+                                        <span asp-validation-for="Username" class="invalid-feedback"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label asp-for="Password" class="form-label">Şifre</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                        <input asp-for="Password" type="password" class="form-control" id="password" required>
+                                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <span asp-validation-for="Password" class="invalid-feedback"></span>
+                                    </div>
+                                    <div class="password-strength mt-2 d-none">
+                                        <div class="progress" style="height: 5px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <small class="text-muted">Şifre gücü: <span id="strengthText">Zayıf</span></small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label asp-for="ConfirmPassword" class="form-label">Şifre Tekrar</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                        <input asp-for="ConfirmPassword" type="password" class="form-control" id="confirmPassword" required>
+                                        <span asp-validation-for="ConfirmPassword" class="invalid-feedback"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input asp-for="AgreeTerms" class="form-check-input" required>
+                                        <label asp-for="AgreeTerms" class="form-check-label">
+                                            <a href="/Home/Privacy" class="text-success">Kullanım Şartları</a> ve <a href="/Home/Privacy" class="text-success">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
+                                        </label>
+                                        <span asp-validation-for="AgreeTerms" class="invalid-feedback"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mt-4">
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-success btn-lg">Kayıt Ol</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <p class="text-muted">Zaten bir hesabınız var mı? <a asp-action="Login" class="text-success">Giriş yapın</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/script.js"></script>
+    <script src="~/js/auth-helper.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle account type fields
+            const patientType = document.getElementById('patientType');
+            const dietitianType = document.getElementById('dietitianType');
+            const patientFields = document.querySelectorAll('.patient-field');
+            const dietitianFields = document.querySelectorAll('.dietitian-field');
+            const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+            
+            function toggleAccountTypeFields() {
+                if (patientType.checked) {
+                    patientFields.forEach(field => field.style.display = 'block');
+                    dietitianFields.forEach(field => {
+                        field.style.display = 'none';
+                        const inputs = field.querySelectorAll('input, select, textarea');
+                        inputs.forEach(input => input.required = false);
+                    });
+                } else {
+                    patientFields.forEach(field => field.style.display = 'none');
+                    dietitianFields.forEach(field => {
+                        field.style.display = 'block';
+                        const inputs = field.querySelectorAll('input[type="text"], select');
+                        // Sadece lisans numarası ve uzmanlık alanını zorunlu yap
+                        if (field.querySelector('[name="LicenseNumber"]') || field.querySelector('[name="Specialty"]')) {
+                            inputs.forEach(input => input.required = true);
+                        }
+                    });
+                }
+            }
+            
+            patientType.addEventListener('change', toggleAccountTypeFields);
+            dietitianType.addEventListener('change', toggleAccountTypeFields);
+            
+            // Initial toggle
+            toggleAccountTypeFields();
+            
+            // Toggle password visibility
+            togglePasswordBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.querySelector('i').classList.toggle('bi-eye');
+                    this.querySelector('i').classList.toggle('bi-eye-slash');
+                });
+            });
+            
+            // Password strength meter
+            const passwordInput = document.getElementById('password');
+            const strengthBar = document.querySelector('.progress-bar');
+            const strengthText = document.getElementById('strengthText');
+            const strengthContainer = document.querySelector('.password-strength');
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    
+                    if (password.length > 0) {
+                        strengthContainer.classList.remove('d-none');
+                        
+                        // Calculate strength (simple version)
+                        let strength = 0;
+                        
+                        // Length check
+                        if (password.length >= 8) strength += 25;
+                        
+                        // Uppercase check
+                        if (/[A-Z]/.test(password)) strength += 25;
+                        
+                        // Number check
+                        if (/[0-9]/.test(password)) strength += 25;
+                        
+                        // Special char check
+                        if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+                        
+                        // Update UI
+                        strengthBar.style.width = strength + '%';
+                        
+                        // Change color based on strength
+                        if (strength <= 25) {
+                            strengthBar.className = 'progress-bar bg-danger';
+                            strengthText.textContent = 'Zayıf';
+                        } else if (strength <= 50) {
+                            strengthBar.className = 'progress-bar bg-warning';
+                            strengthText.textContent = 'Orta';
+                        } else if (strength <= 75) {
+                            strengthBar.className = 'progress-bar bg-info';
+                            strengthText.textContent = 'İyi';
+                        } else {
+                            strengthBar.className = 'progress-bar bg-success';
+                            strengthText.textContent = 'Güçlü';
+                        }
+                    } else {
+                        strengthContainer.classList.add('d-none');
+                    }
+                });
+            }
+            
+            // Confirm password validation
+            const confirmPassword = document.getElementById('confirmPassword');
+            
+            if (confirmPassword && passwordInput) {
+                confirmPassword.addEventListener('input', function() {
+                    if (this.value !== passwordInput.value) {
+                        this.setCustomValidity('Şifreler eşleşmiyor');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+        });
+    </script>
+}

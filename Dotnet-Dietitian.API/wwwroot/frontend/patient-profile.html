@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilim - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="patient-dashboard.html" class="list-group-item list-group-item-action py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patient-diet-plan.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planım
+                </a>
+                <a href="patient-appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevularım
+                </a>
+                <a href="patient-progress-tracking.html" class="list-group-item list-group-item-action py-3 px-4" id="progress-link">
+                    <i class="bi bi-graph-up-arrow me-2"></i> İlerleme Takibi
+                </a>
+                <a href="patient-messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">1</span>
+                </a>
+                <a href="patient-profile.html" class="list-group-item list-group-item-action active py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="patient-settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3">
+                                            <i class="bi bi-clipboard2-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yeni diyet planınız hazır</p>
+                                            <small class="text-muted">30 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-primary me-3">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Yarın saat 15:00'de randevunuz var</p>
+                                            <small class="text-muted">1 saat önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">
+                                        Tüm bildirimleri gör
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=300&h=300&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Mehmet Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="patient-profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="patient-settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Profile Content -->
+                <div class="profile-content">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                        <div>
+                            <h2 class="fw-bold mb-0">Profilim</h2>
+                            <p class="text-muted">Kişisel bilgilerinizi düzenleyin</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Alert Placeholder -->
+                    <div id="profileUpdateAlert"></div>
+
+                    <div class="row">
+                        <!-- Profile Info Card -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-4 text-center">
+                                    <div class="position-relative d-inline-block mb-4">
+                                        <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=300&h=300&fit=crop&auto=format" class="rounded-circle img-thumbnail" width="150" height="150" alt="Profile Picture">
+                                        <button class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle" title="Profil Fotoğrafını Değiştir">
+                                            <i class="bi bi-camera"></i>
+                                        </button>
+                                    </div>
+                                    <h4 class="fw-bold mb-1">Mehmet Yılmaz</h4>
+                                    <p class="text-muted mb-3">Hasta</p>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                            <i class="bi bi-key me-2"></i> Şifre Değiştir
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white p-4 border-top-0">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted"><i class="bi bi-envelope me-2"></i> E-posta</span>
+                                        <span>mehmet.yilmaz@gmail.com</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted"><i class="bi bi-telephone me-2"></i> Telefon</span>
+                                        <span>+90 555 987 6543</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-0">
+                                        <span class="text-muted"><i class="bi bi-geo-alt me-2"></i> Konum</span>
+                                        <span>İstanbul, Türkiye</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Health Summary Card -->
+                            <div class="card border-0 shadow-sm mt-4">
+                                <div class="card-header bg-white py-3">
+                                    <h5 class="card-title mb-0 fw-bold">Sağlık Özeti</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                                            <span class="text-muted">Boy</span>
+                                            <span class="fw-medium">178 cm</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                                            <span class="text-muted">Kilo</span>
+                                            <span class="fw-medium">85 kg</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                                            <span class="text-muted">Vücut Kitle İndeksi (BMI)</span>
+                                            <span class="fw-medium">26.8</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                                            <span class="text-muted">Kan Grubu</span>
+                                            <span class="fw-medium">A Rh+</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+                                            <span class="text-muted">Diyetisyen</span>
+                                            <span class="fw-medium">Dr. Ayşe Yılmaz</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile Edit Form -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-white py-3">
+                                    <h5 class="card-title mb-0 fw-bold">Kişisel Bilgiler</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <form id="profileUpdateForm">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="firstName" class="form-label">Ad</label>
+                                                <input type="text" class="form-control" id="firstName" value="Mehmet">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="lastName" class="form-label">Soyad</label>
+                                                <input type="text" class="form-control" id="lastName" value="Yılmaz">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="email" class="form-label">E-posta</label>
+                                                <input type="email" class="form-control" id="email" value="mehmet.yilmaz@gmail.com">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="phone" class="form-label">Telefon</label>
+                                                <input type="tel" class="form-control" id="phone" value="+90 555 987 6543">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="birthDate" class="form-label">Doğum Tarihi</label>
+                                                <input type="date" class="form-control" id="birthDate" value="1990-04-12">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="gender" class="form-label">Cinsiyet</label>
+                                                <select class="form-select" id="gender">
+                                                    <option>Seçiniz</option>
+                                                    <option value="female">Kadın</option>
+                                                    <option value="male" selected>Erkek</option>
+                                                    <option value="other">Diğer</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="address" class="form-label">Adres</label>
+                                            <textarea class="form-control" id="address" rows="3">Yeşil Mah. Deniz Cad. No:45 Daire:12 Kadıköy/İstanbul</textarea>
+                                        </div>
+                                        <hr class="my-4">
+                                        <h6 class="mb-3">Sağlık Bilgileri</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="height" class="form-label">Boy (cm)</label>
+                                                <input type="number" class="form-control" id="height" value="178">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="weight" class="form-label">Kilo (kg)</label>
+                                                <input type="number" class="form-control" id="weight" value="85">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="bloodType" class="form-label">Kan Grubu</label>
+                                                <select class="form-select" id="bloodType">
+                                                    <option value="" disabled>Seçiniz</option>
+                                                    <option value="A+" selected>A Rh+</option>
+                                                    <option value="A-">A Rh-</option>
+                                                    <option value="B+">B Rh+</option>
+                                                    <option value="B-">B Rh-</option>
+                                                    <option value="AB+">AB Rh+</option>
+                                                    <option value="AB-">AB Rh-</option>
+                                                    <option value="O+">0 Rh+</option>
+                                                    <option value="O-">0 Rh-</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="allergies" class="form-label">Alerjiler (Varsa)</label>
+                                            <input type="text" class="form-control" id="allergies" value="Fındık, Çilek">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="medicalConditions" class="form-label">Sağlık Durumları (Varsa)</label>
+                                            <input type="text" class="form-control" id="medicalConditions" value="Hafif Hipertansiyon">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="medications" class="form-label">Kullanılan İlaçlar (Varsa)</label>
+                                            <input type="text" class="form-control" id="medications" value="Tansiyon ilacı (günde 1 defa)">
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="shareHealthInfo" checked>
+                                                <label class="form-check-label" for="shareHealthInfo">
+                                                    Sağlık bilgilerimi diyetisyenimle paylaşmayı kabul ediyorum
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Bilgileri Güncelle</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Şifre Değiştir</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Mevcut Şifre</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Yeni Şifre</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                            <div class="form-text">Şifreniz en az 8 karakter uzunluğunda olmalı ve harf, rakam ve özel karakter içermelidir.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Yeni Şifre (Tekrar)</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" form="changePasswordForm" class="btn btn-success">Şifreyi Değiştir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth-helper.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/patient-navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profile update form submission
+            const profileForm = document.getElementById('profileUpdateForm');
+            if (profileForm) {
+                profileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Show success message
+                    const alertPlaceholder = document.getElementById('profileUpdateAlert');
+                    if (alertPlaceholder) {
+                        alertPlaceholder.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                Profil bilgileriniz başarıyla güncellendi.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                    }
+                    
+                    // Scroll to top to see the success message
+                    window.scrollTo(0, 0);
+                });
+            }
+            
+            // Ensure sidebar links always point to correct patient pages
+            const correctLinks = {
+                'messages-link': 'patient-messages.html',
+                'profile-link': 'patient-profile.html',
+                'settings-link': 'patient-settings.html'
+            };
+            
+            // Fix links if needed
+            Object.keys(correctLinks).forEach(linkId => {
+                const link = document.getElementById(linkId);
+                if (link) {
+                    // Force correct href
+                    link.setAttribute('href', correctLinks[linkId]);
+                    
+                    // Add click listener to double-check href at click time
+                    link.addEventListener('click', function(e) {
+                        // Make absolutely sure the href is correct
+                        if (this.getAttribute('href') !== correctLinks[linkId]) {
+                            this.setAttribute('href', correctLinks[linkId]);
+                        }
+                    });
+                }
+            });
+            
+            // Also, fix dropdown menu links
+            const dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                // Replace regular page links with patient page links
+                if (href === 'profile.html') {
+                    link.setAttribute('href', 'patient-profile.html');
+                } else if (href === 'settings.html') {
+                    link.setAttribute('href', 'patient-settings.html');
+                } else if (href === 'messages.html') {
+                    link.setAttribute('href', 'patient-messages.html');
+                }
+            });
+            
+            // Password change form submission
+            const passwordForm = document.getElementById('changePasswordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        alert('Şifreler eşleşmiyor. Lütfen tekrar deneyin.');
+                        return;
+                    }
+                    
+                    alert('Şifreniz başarıyla değiştirildi.');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    modal.hide();
+                });
+            }
+            
+            // Calculate BMI when height or weight changes
+            const heightInput = document.getElementById('height');
+            const weightInput = document.getElementById('weight');
+            
+            if (heightInput && weightInput) {
+                const calculateBMI = function() {
+                    const height = parseFloat(heightInput.value) / 100; // Convert cm to m
+                    const weight = parseFloat(weightInput.value);
+                    
+                    if (height > 0 && weight > 0) {
+                        const bmi = (weight / (height * height)).toFixed(1);
+                        // In a real app, this would update the BMI value in the health summary card
+                        console.log('BMI:', bmi);
+                    }
+                };
+                
+                heightInput.addEventListener('change', calculateBMI);
+                weightInput.addEventListener('change', calculateBMI);
+            }
+        });
+    </script>
+    
+    <!-- EMERGENCY FIX: Force correct patient page links -->
+    <script>
+        // This is an emergency fix that runs immediately and after a delay
+        // to ensure links always point to correct patient pages
+        (function fixPatientLinks() {
+            console.log('⚠️ EMERGENCY FIX: Running patient link correction');
+            
+            // Fix message link
+            var messagesLink = document.getElementById('messages-link');
+            if (messagesLink) messagesLink.href = 'patient-messages.html';
+            
+            // Fix profile link
+            var profileLink = document.getElementById('profile-link');
+            if (profileLink) profileLink.href = 'patient-profile.html';
+            
+            // Fix settings link
+            var settingsLink = document.getElementById('settings-link');
+            if (settingsLink) settingsLink.href = 'patient-settings.html';
+            
+            // Fix dropdown links
+            var dropdownLinks = document.querySelectorAll('.dropdown-menu .dropdown-item');
+            dropdownLinks.forEach(function(link) {
+                var text = link.textContent.trim();
+                if (text.includes('Profilim')) {
+                    link.href = 'patient-profile.html';
+                } else if (text.includes('Ayarlar')) {
+                    link.href = 'patient-settings.html';
+                } else if (text.includes('Mesaj')) {
+                    link.href = 'patient-messages.html';
+                }
+            });
+            
+            // Run again after a delay to ensure it catches any dynamically updated links
+            setTimeout(fixPatientLinks, 200);
+        })();
+    </script>
+</body>
+</html> 

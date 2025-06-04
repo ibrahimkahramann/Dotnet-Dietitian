@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-card {
+            transition: all 0.3s ease;
+        }
+        
+        .login-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .login-option-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .login-option-card.selected {
+            border-color: #198754;
+            background-color: rgba(25, 135, 84, 0.05);
+        }
+        
+        .login-section {
+            min-height: calc(100vh - 76px - 80px);
+        }
+        
+        .icon-large {
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="bi bi-heart-pulse-fill text-success me-2"></i>
+                <span class="fw-bold">DijetUP</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <a class="btn btn-outline-success active" href="login.html">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-success" href="register.html">Kayıt Ol</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <section class="py-5 login-section d-flex align-items-center">
+        <div class="container my-5">
+            <!-- Login Options Section -->
+            <div id="loginOptions" class="row justify-content-center">
+                <div class="col-md-10 col-lg-8 text-center mb-4">
+                    <i class="bi bi-heart-pulse-fill text-success fs-1 mb-3"></i>
+                    <h2 class="fw-bold">DijetUP'a Hoş Geldiniz</h2>
+                    <p class="text-muted">Lütfen giriş yapmak istediğiniz hesap türünü seçin</p>
+                </div>
+                
+                <div class="col-md-10 col-lg-8">
+                    <div class="row g-4">
+                        <!-- Patient Login Option -->
+                        <div class="col-md-6">
+                            <div id="patientLoginOption" class="card border-0 shadow-sm h-100 login-card login-option-card" data-login-type="patient">
+                                <div class="card-body p-4 text-center">
+                                    <div class="icon-large text-success mb-3">
+                                        <i class="bi bi-person-circle"></i>
+                                    </div>
+                                    <h4 class="fw-bold">Hasta Girişi</h4>
+                                    <p class="text-muted mb-0">Diyet planınızı görüntülemek, randevularınızı yönetmek ve diyetisyeninizle iletişim kurmak için giriş yapın.</p>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 p-4">
+                                    <button class="btn btn-outline-success w-100 select-login-option" data-login-type="patient">
+                                        Hasta Olarak Giriş Yap <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dietitian Login Option -->
+                        <div class="col-md-6">
+                            <div id="dietitianLoginOption" class="card border-0 shadow-sm h-100 login-card login-option-card" data-login-type="dietitian">
+                                <div class="card-body p-4 text-center">
+                                    <div class="icon-large text-success mb-3">
+                                        <i class="bi bi-clipboard2-pulse"></i>
+                                    </div>
+                                    <h4 class="fw-bold">Diyetisyen Girişi</h4>
+                                    <p class="text-muted mb-0">Hastalarınızı yönetmek, diyet planları oluşturmak ve randevularınızı düzenlemek için giriş yapın.</p>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 p-4">
+                                    <button class="btn btn-outline-success w-100 select-login-option" data-login-type="dietitian">
+                                        Diyetisyen Olarak Giriş Yap <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patient Login Form -->
+            <div id="patientLoginForm" class="row justify-content-center d-none">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <button class="btn btn-sm btn-outline-secondary back-to-options">
+                                    <i class="bi bi-arrow-left me-1"></i> Geri
+                                </button>
+                                <div class="text-center flex-grow-1">
+                                    <i class="bi bi-person-circle text-success fs-1 mb-2"></i>
+                                    <h3 class="fw-bold">Hasta Girişi</h3>
+                                </div>
+                                <div style="width: 60px;"></div> <!-- Spacer for alignment -->
+                            </div>
+                            <form id="patientLoginFormElement" class="needs-validation" novalidate>
+                                <input type="hidden" name="userType" value="patient">
+                                <div class="mb-4">
+                                    <label for="patientEmail" class="form-label">E-posta Adresi</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control" id="patientEmail" name="email" placeholder="ornek@email.com" required>
+                                        <div class="invalid-feedback">
+                                            Geçerli bir e-posta adresi girin.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between">
+                                        <label for="patientPassword" class="form-label">Şifre</label>
+                                        <a href="forgot-password.html" class="text-success small text-decoration-none">Şifremi Unuttum</a>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                        <input type="password" class="form-control" id="patientPassword" name="password" placeholder="********" required>
+                                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="patientPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <div class="invalid-feedback">
+                                            Lütfen şifrenizi girin.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4 form-check">
+                                    <input type="checkbox" class="form-check-input" id="patientRememberMe" name="rememberMe">
+                                    <label class="form-check-label" for="patientRememberMe">Beni hatırla</label>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg login-btn">Giriş Yap</button>
+                                </div>
+                            </form>
+                            <div class="mt-4 text-center">
+                                <p class="text-muted">Hesabınız yok mu? <a href="register.html" class="text-success">Kayıt olun</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dietitian Login Form -->
+            <div id="dietitianLoginForm" class="row justify-content-center d-none">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <button class="btn btn-sm btn-outline-secondary back-to-options">
+                                    <i class="bi bi-arrow-left me-1"></i> Geri
+                                </button>
+                                <div class="text-center flex-grow-1">
+                                    <i class="bi bi-clipboard2-pulse text-success fs-1 mb-2"></i>
+                                    <h3 class="fw-bold">Diyetisyen Girişi</h3>
+                                </div>
+                                <div style="width: 60px;"></div> <!-- Spacer for alignment -->
+                            </div>
+                            <form id="dietitianLoginFormElement" class="needs-validation" novalidate>
+                                <input type="hidden" name="userType" value="dietitian">
+                                <div class="mb-4">
+                                    <label for="dietitianEmail" class="form-label">E-posta Adresi</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control" id="dietitianEmail" name="email" placeholder="diyetisyen@email.com" required>
+                                        <div class="invalid-feedback">
+                                            Geçerli bir e-posta adresi girin.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between">
+                                        <label for="dietitianPassword" class="form-label">Şifre</label>
+                                        <a href="forgot-password.html" class="text-success small text-decoration-none">Şifremi Unuttum</a>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                        <input type="password" class="form-control" id="dietitianPassword" name="password" placeholder="********" required>
+                                        <button class="btn btn-outline-secondary toggle-password" type="button" data-target="dietitianPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <div class="invalid-feedback">
+                                            Lütfen şifrenizi girin.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4 form-check">
+                                    <input type="checkbox" class="form-check-input" id="dietitianRememberMe" name="rememberMe">
+                                    <label class="form-check-label" for="dietitianRememberMe">Beni hatırla</label>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg login-btn">Giriş Yap</button>
+                                </div>
+                            </form>
+                            <div class="mt-4 text-center">
+                                <p class="text-muted">Hesabınız yok mu? <a href="register.html" class="text-success">Kayıt olun</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="small text-muted mb-0">&copy; 2025 DijetUP. Tüm hakları saklıdır.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <ul class="list-inline mb-0 small">
+                        <li class="list-inline-item"><a href="#" class="text-muted">Gizlilik Politikası</a></li>
+                        <li class="list-inline-item"><span class="text-muted">•</span></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted">Kullanım Şartları</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // UI Elements
+            const loginOptions = document.getElementById('loginOptions');
+            const patientLoginForm = document.getElementById('patientLoginForm');
+            const dietitianLoginForm = document.getElementById('dietitianLoginForm');
+            const backButtons = document.querySelectorAll('.back-to-options');
+            const selectLoginButtons = document.querySelectorAll('.select-login-option');
+            const loginOptionCards = document.querySelectorAll('.login-option-card');
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            
+            // Selection of login type
+            selectLoginButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const loginType = this.getAttribute('data-login-type');
+                    
+                    // Hide options, show appropriate form
+                    loginOptions.classList.add('d-none');
+                    
+                    if (loginType === 'patient') {
+                        patientLoginForm.classList.remove('d-none');
+                    } else {
+                        dietitianLoginForm.classList.remove('d-none');
+                    }
+                });
+            });
+            
+            // Highlight selected option on hover
+            loginOptionCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const loginType = this.getAttribute('data-login-type');
+                    selectLoginType(loginType);
+                });
+            });
+            
+            function selectLoginType(loginType) {
+                const button = document.querySelector(`.select-login-option[data-login-type="${loginType}"]`);
+                if (button) {
+                    button.click();
+                }
+            }
+            
+            // Back to options functionality
+            backButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    patientLoginForm.classList.add('d-none');
+                    dietitianLoginForm.classList.add('d-none');
+                    loginOptions.classList.remove('d-none');
+                });
+            });
+            
+            // Toggle password visibility
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.querySelector('i').classList.toggle('bi-eye');
+                    this.querySelector('i').classList.toggle('bi-eye-slash');
+                });
+            });
+            
+            // Form submissions
+            const patientForm = document.getElementById('patientLoginFormElement');
+            const dietitianForm = document.getElementById('dietitianLoginFormElement');
+            
+            [patientForm, dietitianForm].forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    if (!this.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        event.preventDefault();
+                        
+                        // Get form data
+                        const formData = new FormData(this);
+                        const userType = formData.get('userType');
+                        const email = formData.get('email');
+                        const password = formData.get('password');
+                        const rememberMe = formData.get('rememberMe') === 'on';
+                        
+                        // Handle login based on user type
+                        handleLogin(userType, email, password, rememberMe, this);
+                    }
+                    this.classList.add('was-validated');
+                });
+            });
+            
+            function handleLogin(userType, email, password, rememberMe, form) {
+                const submitBtn = form.querySelector('.login-btn');
+                const originalText = submitBtn.innerText;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Giriş yapılıyor...';
+                
+                // Store user type in session storage for page redirects 
+                // This is critical for maintaining user context across pages
+                sessionStorage.setItem('userType', userType);
+                
+                // For more persistent storage if rememberMe is checked
+                if (rememberMe) {
+                    localStorage.setItem('userType', userType);
+                    localStorage.setItem('userEmail', email);
+                }
+                
+                setTimeout(() => {
+                    // Determine redirection based on user type
+                    if (userType === 'patient') {
+                        window.location.href = 'patient-dashboard.html';
+                    } else { // dietitian
+                        window.location.href = 'dietitian-dashboard.html';
+                    }
+                    
+                    // In case redirection fails
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
+                }, 1500);
+            }
+            
+            // Check URL parameters for direct login form selection
+            const urlParams = new URLSearchParams(window.location.search);
+            const loginType = urlParams.get('type');
+            
+            if (loginType === 'patient') {
+                selectLoginType('patient');
+            } else if (loginType === 'dietitian') {
+                selectLoginType('dietitian');
+            }
+
+            // Check if user was redirected from another page due to auth issues
+            // and show appropriate notification
+            const authError = urlParams.get('authError');
+            if (authError === 'patient') {
+                selectLoginType('patient');
+                const alertPlaceholder = document.createElement('div');
+                alertPlaceholder.className = 'alert alert-warning alert-dismissible fade show mt-3';
+                alertPlaceholder.role = 'alert';
+                alertPlaceholder.innerHTML = `
+                    Lütfen hasta hesabınıza giriş yapın.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                patientLoginForm.querySelector('.card-body').prepend(alertPlaceholder);
+            } else if (authError === 'dietitian') {
+                selectLoginType('dietitian');
+                const alertPlaceholder = document.createElement('div');
+                alertPlaceholder.className = 'alert alert-warning alert-dismissible fade show mt-3';
+                alertPlaceholder.role = 'alert';
+                alertPlaceholder.innerHTML = `
+                    Lütfen diyetisyen hesabınıza giriş yapın.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                dietitianLoginForm.querySelector('.card-body').prepend(alertPlaceholder);
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -32,6 +32,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.ToTable("AppRoles");
@@ -45,6 +48,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
                     b.Property<Guid>("AppRoleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -90,6 +96,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.Property<Guid?>("OlusturanDiyetisyenId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal?>("ProteinGram")
                         .HasColumnType("decimal(18,2)");
 
@@ -114,6 +123,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("CalistigiKurum")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("DeneyimYili")
                         .HasColumnType("int");
 
@@ -125,8 +137,14 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.Property<string>("Hakkinda")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("LisansNumarasi")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MezuniyetOkulu")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ProfilResmiUrl")
                         .HasColumnType("nvarchar(max)");
@@ -158,6 +176,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<string>("Unvan")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Uzmanlik")
                         .HasColumnType("nvarchar(max)");
 
@@ -185,8 +206,14 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.Property<TimeSpan>("BaslangicSaati")
                         .HasColumnType("time");
 
+                    b.Property<DateTime>("BaslangicZamani")
+                        .HasColumnType("datetime2");
+
                     b.Property<TimeSpan>("BitisSaati")
                         .HasColumnType("time");
+
+                    b.Property<DateTime>("BitisZamani")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("DiyetisyenId")
                         .HasColumnType("uniqueidentifier");
@@ -194,9 +221,24 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.Property<DateTime>("Gun")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("Musait")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notlar")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("TekrarTipi")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("TekrarlanirMi")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TekrarlanmaSikligi")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -216,14 +258,26 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Adres")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Alerjiler")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float?>("Boy")
                         .HasColumnType("real");
+
+                    b.Property<string>("Cinsiyet")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("DiyetProgramiId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("DiyetisyenId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DogumTarihi")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -233,8 +287,23 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.Property<int?>("GunlukKaloriIhtiyaci")
                         .HasColumnType("int");
 
+                    b.Property<string>("KanGrubu")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<float?>("Kilo")
                         .HasColumnType("real");
+
+                    b.Property<string>("KronikHastaliklar")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("KullanilanIlaclar")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("SaglikBilgisiPaylasimiIzni")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Soyad")
                         .IsRequired()
@@ -272,6 +341,209 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.ToTable("Hastalar");
                 });
 
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.IlerlemeOlcum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float?>("BelCevresi")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("GogusCevresi")
+                        .HasColumnType("real");
+
+                    b.Property<Guid>("HastaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float?>("KalcaCevresi")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Kilo")
+                        .HasColumnType("real");
+
+                    b.Property<float?>("KolCevresi")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Notlar")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OlcumTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float?>("VucutYagOrani")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HastaId");
+
+                    b.ToTable("IlerlemeOlcumleri");
+                });
+
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.KullaniciAyarlari", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("AktiviteVerisiPaylasimiIzni")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AnonimKullanimVerisiPaylasimiIzni")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan?>("CalismaBaslangicSaati")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("CalismaBitisSaati")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Dil")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EmailDiyetGuncellemeBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailMesajBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailPazarlamaBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailRandevuBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("EmailYeniHastaBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HaftaSonuCalisma")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IlerlemeGrafigiGoster")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("KaloriTakibiGoster")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("KullaniciId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("KullaniciTipi")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("OlcuBirimi")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("OturumZamanAsimi")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PanelDuzeni")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("ProfilGorunurlugu")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RenkSemasi")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SaglikVerisiPaylasimiIzni")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("SonGuncellemeTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("SuTakibiGoster")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TarihFormati")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tema")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("UygulamaDiyetGuncellemeBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("UygulamaGunlukHatirlatmalar")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("UygulamaMesajBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("UygulamaRandevuBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("UygulamaYeniHastaBildirimleri")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("YeniGirisUyarilari")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ZamanDilimi")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KullaniciId", "KullaniciTipi")
+                        .IsUnique();
+
+                    b.ToTable("KullaniciAyarlari");
+                });
+
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Mesaj", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AliciId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AliciTipi")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("GonderenId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("GonderenTipi")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("GonderimZamani")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Icerik")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Okundu")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("OkunmaZamani")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Mesajlar");
+                });
+
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.OdemeBilgisi", b =>
                 {
                     b.Property<Guid>("Id")
@@ -291,6 +563,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("Tarih")
                         .HasColumnType("datetime2");
 
@@ -303,6 +578,63 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.HasIndex("HastaId");
 
                     b.ToTable("OdemeBilgileri");
+                });
+
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.PaymentRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Aciklama")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("DiyetProgramiId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DiyetisyenId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Durum")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("HastaId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("OdemeBilgisiId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("OdemeTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RedNotu")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("Tutar")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime?>("VadeTarihi")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiyetProgramiId");
+
+                    b.HasIndex("DiyetisyenId");
+
+                    b.HasIndex("HastaId");
+
+                    b.HasIndex("OdemeBilgisiId")
+                        .IsUnique()
+                        .HasFilter("[OdemeBilgisiId] IS NOT NULL");
+
+                    b.ToTable("PaymentRequests");
                 });
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Randevu", b =>
@@ -336,6 +668,9 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
                     b.Property<string>("Notlar")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OlusturulmaTarihi")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("RandevuBaslangicTarihi")
                         .HasColumnType("datetime2");
@@ -408,6 +743,17 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                     b.Navigation("Diyetisyen");
                 });
 
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.IlerlemeOlcum", b =>
+                {
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "Hasta")
+                        .WithMany("IlerlemeOlcumleri")
+                        .HasForeignKey("HastaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hasta");
+                });
+
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.OdemeBilgisi", b =>
                 {
                     b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "Hasta")
@@ -417,6 +763,40 @@ namespace Dotnet_Dietitian.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Hasta");
+                });
+
+            modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.PaymentRequest", b =>
+                {
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.DiyetProgrami", "DiyetProgrami")
+                        .WithMany()
+                        .HasForeignKey("DiyetProgramiId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Diyetisyen", "Diyetisyen")
+                        .WithMany()
+                        .HasForeignKey("DiyetisyenId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.Hasta", "Hasta")
+                        .WithMany()
+                        .HasForeignKey("HastaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Dotnet_Dietitian.Domain.Entities.OdemeBilgisi", "OdemeBilgisi")
+                        .WithOne()
+                        .HasForeignKey("Dotnet_Dietitian.Domain.Entities.PaymentRequest", "OdemeBilgisiId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("DiyetProgrami");
+
+                    b.Navigation("Diyetisyen");
+
+                    b.Navigation("Hasta");
+
+                    b.Navigation("OdemeBilgisi");
                 });
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Randevu", b =>
@@ -461,6 +841,8 @@ namespace Dotnet_Dietitian.Persistence.Migrations
 
             modelBuilder.Entity("Dotnet_Dietitian.Domain.Entities.Hasta", b =>
                 {
+                    b.Navigation("IlerlemeOlcumleri");
+
                     b.Navigation("Odemeler");
 
                     b.Navigation("Randevular");

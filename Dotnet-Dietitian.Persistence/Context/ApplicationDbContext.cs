@@ -16,8 +16,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<DiyetProgrami> DiyetProgramlari { get; set; }
     public DbSet<OdemeBilgisi> OdemeBilgileri { get; set; }
     public DbSet<Randevu> Randevular { get; set; }
-    public DbSet<DiyetisyenUygunluk> DiyetisyenUygunluklar { get; set; }
-    public DbSet<Mesaj> Mesajlar { get; set; } // Mevcut DbSet'lere ekleyin
+    public DbSet<DiyetisyenUygunluk> DiyetisyenUygunluklar { get; set; }    public DbSet<Mesaj> Mesajlar { get; set; } // Mevcut DbSet'lere ekleyin
+    public DbSet<KullaniciAyarlari> KullaniciAyarlari { get; set; }
+    public DbSet<IlerlemeOlcum> IlerlemeOlcumleri { get; set; }
+    public DbSet<PaymentRequest> PaymentRequests { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -125,8 +127,7 @@ public class ApplicationDbContext : DbContext
                     .HasForeignKey(du => du.DiyetisyenId)
                     .OnDelete(DeleteBehavior.Cascade);
         });
-        
-        // Mesaj yapılandırması
+          // Mesaj yapılandırması
         modelBuilder.Entity<Mesaj>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -135,8 +136,50 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.AliciId).IsRequired();
             entity.Property(e => e.AliciTipi).HasMaxLength(20).IsRequired();
             entity.Property(e => e.Icerik).IsRequired();
-            entity.Property(e => e.GonderimZamani).IsRequired();
-            entity.Property(e => e.Okundu).HasDefaultValue(false);
+            entity.Property(e => e.GonderimZamani).IsRequired();            entity.Property(e => e.Okundu).HasDefaultValue(false);
+        });
+          // KullaniciAyarlari yapılandırması
+        modelBuilder.Entity<KullaniciAyarlari>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.KullaniciId).IsRequired();
+            entity.Property(e => e.KullaniciTipi).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.SonGuncellemeTarihi).IsRequired();
+            
+            // Unique index to ensure one settings record per user
+            entity.HasIndex(e => new { e.KullaniciId, e.KullaniciTipi }).IsUnique();
+        });
+        
+        // PaymentRequest yapılandırması
+        modelBuilder.Entity<PaymentRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.HastaId).IsRequired();
+            entity.Property(e => e.DiyetisyenId).IsRequired();
+            entity.Property(e => e.DiyetProgramiId).IsRequired();
+            entity.Property(e => e.Tutar).HasPrecision(10, 2).IsRequired();
+            entity.Property(e => e.Durum).IsRequired();
+            entity.Property(e => e.Aciklama).HasMaxLength(500);
+            entity.Property(e => e.RedNotu).HasMaxLength(500);
+            
+            entity.HasOne(pr => pr.Hasta)
+                    .WithMany()
+                    .HasForeignKey(pr => pr.HastaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                    
+            entity.HasOne(pr => pr.Diyetisyen)
+                    .WithMany()
+                    .HasForeignKey(pr => pr.DiyetisyenId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                    
+            entity.HasOne(pr => pr.DiyetProgrami)
+                    .WithMany()
+                    .HasForeignKey(pr => pr.DiyetProgramiId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                      entity.HasOne(pr => pr.OdemeBilgisi)
+                    .WithOne()
+                    .HasForeignKey<PaymentRequest>(pr => pr.OdemeBilgisiId)
+                    .OnDelete(DeleteBehavior.NoAction);
         });
         
         base.OnModelCreating(modelBuilder);

@@ -1,0 +1,511 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.HastaResults
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.IlerlemeOlcumResults
+@model GetHastaByIdQueryResult
+@{
+    ViewData["Title"] = "İlerleme Takibi - DijetUP";
+    Layout = "_PatientLayout";
+    
+    var ilerlemeOlcumler = ViewBag.IlerlemeOlcumler as List<IlerlemeOlcumDto> ?? new List<IlerlemeOlcumDto>();
+    var sonOlcum = ViewBag.SonOlcum as IlerlemeOlcumDto;
+    var ilkOlcum = ViewBag.IlkOlcum as IlerlemeOlcumDto;
+    
+    var kiloDegisimi = ViewBag.KiloDegisimi as float?;
+    var otuzGunlukKiloDegisimi = ViewBag.OtuzGunlukKiloDegisimi as float?;
+    
+    var belCevresiDegisimi = ViewBag.BelCevresiDegisimi as float?;
+    var kalcaCevresiDegisimi = ViewBag.KalcaCevresiDegisimi as float?;
+    var gogusCevresiDegisimi = ViewBag.GogusCevresiDegisimi as float?;
+    var kolCevresiDegisimi = ViewBag.KolCevresiDegisimi as float?;
+    var vucutYagOraniDegisimi = ViewBag.VucutYagOraniDegisimi as float?;
+    
+    // VKİ hesaplama
+    float? guncelVKI = null;
+    float? ilkVKI = null;
+    float? vkiDegisimi = null;
+    string vkiDurum = "";
+    
+    if (sonOlcum != null && Model.Boy.HasValue && Model.Boy > 0)
+    {
+        // Boy metreye çevrilir (cm -> m)
+        var boyMetre = Model.Boy.Value / 100;
+        guncelVKI = sonOlcum.Kilo / (boyMetre * boyMetre);
+        
+        // VKİ durumu belirleme
+        if (guncelVKI < 18.5f)
+            vkiDurum = "Zayıf";
+        else if (guncelVKI < 25f)
+            vkiDurum = "Normal";
+        else if (guncelVKI < 30f)
+            vkiDurum = "Fazla Kilolu";
+        else if (guncelVKI < 35f)
+            vkiDurum = "Obez (Sınıf I)";
+        else if (guncelVKI < 40f)
+            vkiDurum = "Obez (Sınıf II)";
+        else
+            vkiDurum = "Morbid Obez (Sınıf III)";
+        
+        // İlk ölçüm için VKİ hesaplama
+        if (ilkOlcum != null)
+        {
+            ilkVKI = ilkOlcum.Kilo / (boyMetre * boyMetre);
+            vkiDegisimi = guncelVKI - ilkVKI;
+        }
+    }
+}
+
+<div class="content-section">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger mb-4">@ViewBag.ErrorMessage</div>
+    }
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success mb-4">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">İlerleme Takibi</h2>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProgressModal">
+            <i class="bi bi-plus-circle me-2"></i>Yeni Ölçüm Ekle
+        </button>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Mevcut Kilo</h6>
+                            <h3 class="mb-0 fw-bold">@(sonOlcum?.Kilo.ToString("0.0") ?? "-") kg</h3>
+                        </div>
+                        <div class="bg-light p-3 rounded-3">
+                            <i class="bi bi-person-fill text-success fs-3"></i>
+                        </div>
+                    </div>
+                    @if (otuzGunlukKiloDegisimi.HasValue)
+                    {
+                        <div class="mt-3 d-flex align-items-center">
+                            <span class="badge @(otuzGunlukKiloDegisimi < 0 ? "bg-success" : "bg-danger") me-2">
+                                @(otuzGunlukKiloDegisimi.Value.ToString("+0.0;-0.0")) kg
+                            </span>
+                            <small class="text-muted">Son 30 günde</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Toplam Değişim</h6>
+                            <h3 class="mb-0 fw-bold">@(kiloDegisimi?.ToString("+0.0;-0.0") ?? "-") kg</h3>
+                        </div>
+                        <div class="bg-light p-3 rounded-3">
+                            <i class="bi bi-graph-up text-primary fs-3"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            @(ilkOlcum?.OlcumTarihi.ToString("dd MMMM yyyy") ?? "-")'den beri
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">VKİ (BMI)</h6>
+                            <h3 class="mb-0 fw-bold">@(guncelVKI?.ToString("0.0") ?? "-")</h3>
+                        </div>
+                        <div class="bg-light p-3 rounded-3">
+                            <i class="bi bi-calculator text-danger fs-3"></i>
+                        </div>
+                    </div>
+                    @if (guncelVKI.HasValue)
+                    {
+                        <div class="mt-3 d-flex align-items-center">
+                            @if (vkiDegisimi.HasValue)
+                            {
+                                <span class="badge @(vkiDegisimi < 0 ? "bg-success" : "bg-danger") me-2">
+                                    @(vkiDegisimi.Value.ToString("+0.0;-0.0"))
+                                </span>
+                            }
+                            <small class="text-muted">@vkiDurum</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mt-3">
+                            <small class="text-muted">Boy bilgisi gerekli</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Vücut Yağ Oranı</h6>
+                            <h3 class="mb-0 fw-bold">@(sonOlcum?.VucutYagOrani?.ToString("0.0") ?? "-")%</h3>
+                        </div>
+                        <div class="bg-light p-3 rounded-3">
+                            <i class="bi bi-pie-chart-fill text-warning fs-3"></i>
+                        </div>
+                    </div>
+                    @if (vucutYagOraniDegisimi.HasValue)
+                    {
+                        <div class="mt-3 d-flex align-items-center">
+                            <span class="badge @(vucutYagOraniDegisimi < 0 ? "bg-success" : "bg-danger") me-2">
+                                @(vucutYagOraniDegisimi.Value.ToString("+0.0;-0.0"))%
+                            </span>
+                            <small class="text-muted">Toplam değişim</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Weight Chart -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Kilo Takibi</h5>
+                </div>
+                <div class="card-body">
+                    @if (!ilerlemeOlcumler.Any())
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            Henüz hiç ölçüm kaydedilmemiş. Yeni ölçüm ekleyerek ilerlemenizi takip etmeye başlayabilirsiniz.
+                        </div>
+                    }
+                    <canvas id="weightChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Measurements Summary -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Vücut Ölçüleri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead class="text-muted">
+                                <tr>
+                                    <th>Ölçüm</th>
+                                    <th class="text-end">Son</th>
+                                    <th class="text-end">Değişim</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Boy</td>
+                                    <td class="text-end">@(Model.Boy?.ToString("0.0") ?? "-") cm</td>
+                                    <td class="text-end">-</td>
+                                </tr>
+                                <tr>
+                                    <td>Bel</td>
+                                    <td class="text-end">@(sonOlcum?.BelCevresi?.ToString("0.0") ?? "-") cm</td>
+                                    <td class="text-end">
+                                        @if (belCevresiDegisimi.HasValue)
+                                        {
+                                            <span class="@(belCevresiDegisimi < 0 ? "text-success" : "text-danger")">
+                                                @(belCevresiDegisimi.Value.ToString("+0.0;-0.0")) cm
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kalça</td>
+                                    <td class="text-end">@(sonOlcum?.KalcaCevresi?.ToString("0.0") ?? "-") cm</td>
+                                    <td class="text-end">
+                                        @if (kalcaCevresiDegisimi.HasValue)
+                                        {
+                                            <span class="@(kalcaCevresiDegisimi < 0 ? "text-success" : "text-danger")">
+                                                @(kalcaCevresiDegisimi.Value.ToString("+0.0;-0.0")) cm
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Göğüs</td>
+                                    <td class="text-end">@(sonOlcum?.GogusCevresi?.ToString("0.0") ?? "-") cm</td>
+                                    <td class="text-end">
+                                        @if (gogusCevresiDegisimi.HasValue)
+                                        {
+                                            <span class="@(gogusCevresiDegisimi < 0 ? "text-success" : "text-danger")">
+                                                @(gogusCevresiDegisimi.Value.ToString("+0.0;-0.0")) cm
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kol</td>
+                                    <td class="text-end">@(sonOlcum?.KolCevresi?.ToString("0.0") ?? "-") cm</td>
+                                    <td class="text-end">
+                                        @if (kolCevresiDegisimi.HasValue)
+                                        {
+                                            <span class="@(kolCevresiDegisimi < 0 ? "text-success" : "text-danger")">
+                                                @(kolCevresiDegisimi.Value.ToString("+0.0;-0.0")) cm
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (sonOlcum != null)
+                    {
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                Son ölçüm: @sonOlcum.OlcumTarihi.ToString("dd MMMM yyyy")
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- VKİ Bilgilendirme Kartı -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">VKİ (BMI) Bilgilendirme</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2">Vücut Kitle İndeksi (VKİ), vücut ağırlığınızın boyunuza göre normal olup olmadığını gösteren bir ölçüdür.</p>
+                            <p>VKİ = Kilo (kg) / Boy² (m²)</p>
+                            
+                            @if (guncelVKI.HasValue)
+                            {
+                                <div class="alert @(guncelVKI < 25 && guncelVKI >= 18.5 ? "alert-success" : "alert-warning")">
+                                    <strong>Mevcut VKİ Değeriniz:</strong> @guncelVKI?.ToString("0.0") - @vkiDurum
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    VKİ hesaplaması için boy ve kilo bilgilerinizin girilmiş olması gerekir.
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>VKİ Değeri</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="@(guncelVKI.HasValue && guncelVKI < 18.5 ? "table-warning" : "")">
+                                        <td>18.5'in altı</td>
+                                        <td>Zayıf</td>
+                                    </tr>
+                                    <tr class="@(guncelVKI.HasValue && guncelVKI >= 18.5 && guncelVKI < 25 ? "table-success" : "")">
+                                        <td>18.5 - 24.9</td>
+                                        <td>Normal</td>
+                                    </tr>
+                                    <tr class="@(guncelVKI.HasValue && guncelVKI >= 25 && guncelVKI < 30 ? "table-warning" : "")">
+                                        <td>25 - 29.9</td>
+                                        <td>Fazla Kilolu</td>
+                                    </tr>
+                                    <tr class="@(guncelVKI.HasValue && guncelVKI >= 30 && guncelVKI < 35 ? "table-danger" : "")">
+                                        <td>30 - 34.9</td>
+                                        <td>Obez (Sınıf I)</td>
+                                    </tr>
+                                    <tr class="@(guncelVKI.HasValue && guncelVKI >= 35 && guncelVKI < 40 ? "table-danger" : "")">
+                                        <td>35 - 39.9</td>
+                                        <td>Obez (Sınıf II)</td>
+                                    </tr>
+                                    <tr class="@(guncelVKI.HasValue && guncelVKI >= 40 ? "table-danger" : "")">
+                                        <td>40 ve üzeri</td>
+                                        <td>Morbid Obez (Sınıf III)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Progress Modal -->
+<div class="modal fade" id="addProgressModal" tabindex="-1" aria-labelledby="addProgressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProgressModalLabel">Yeni Ölçüm Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-controller="Patient" asp-action="AddProgressMeasurement" method="post" id="addProgressForm" class="needs-validation" novalidate>
+                    <input type="hidden" name="HastaId" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="OlcumTarihi" class="form-label">Ölçüm Tarihi</label>
+                        <input type="date" class="form-control" id="OlcumTarihi" name="OlcumTarihi" required>
+                        <div class="invalid-feedback">
+                            Lütfen ölçüm tarihini seçin.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="Kilo" class="form-label">Kilo (kg)</label>
+                        <input type="number" step="0.1" class="form-control" id="Kilo" name="Kilo" placeholder="Örn: 78.5" required>
+                        <div class="invalid-feedback">
+                            Lütfen kilonuzu girin.
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    <h6 class="mb-3">Vücut Ölçüleri (cm)</h6>
+                    
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="BelCevresi" class="form-label">Bel Çevresi</label>
+                            <input type="number" step="0.1" class="form-control" id="BelCevresi" name="BelCevresi" placeholder="Örn: 85.0">
+                        </div>
+                        <div class="col-6">
+                            <label for="KalcaCevresi" class="form-label">Kalça Çevresi</label>
+                            <input type="number" step="0.1" class="form-control" id="KalcaCevresi" name="KalcaCevresi" placeholder="Örn: 95.0">
+                        </div>
+                        <div class="col-6">
+                            <label for="GogusCevresi" class="form-label">Göğüs Çevresi</label>
+                            <input type="number" step="0.1" class="form-control" id="GogusCevresi" name="GogusCevresi" placeholder="Örn: 90.0">
+                        </div>
+                        <div class="col-6">
+                            <label for="KolCevresi" class="form-label">Kol Çevresi</label>
+                            <input type="number" step="0.1" class="form-control" id="KolCevresi" name="KolCevresi" placeholder="Örn: 30.0">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 mt-3">
+                        <label for="VucutYagOrani" class="form-label">Vücut Yağ Oranı (%)</label>
+                        <input type="number" step="0.1" class="form-control" id="VucutYagOrani" name="VucutYagOrani" placeholder="Örn: 25.0">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="Notlar" class="form-label">Notlar</label>
+                        <textarea class="form-control" id="Notlar" name="Notlar" rows="3" placeholder="Ölçümle ilgili notlarınızı buraya yazabilirsiniz..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="submit" form="addProgressForm" class="btn btn-success">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+            
+            // Set today as max date for measurement date input
+            document.getElementById('OlcumTarihi').max = new Date().toISOString().split('T')[0];
+            
+            // Initialize weight chart
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            const ilerlemeOlcumler = @Html.Raw(Json.Serialize(ilerlemeOlcumler));
+            
+            if (ilerlemeOlcumler && ilerlemeOlcumler.length > 0) {
+                const chartData = {
+                    labels: ilerlemeOlcumler.map(o => new Date(o.olcumTarihi).toLocaleDateString('tr-TR')),
+                    datasets: [{
+                        label: 'Kilo (kg)',
+                        data: ilerlemeOlcumler.map(o => o.kilo),
+                        backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                };
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // VKİ değişim grafiği eklenebilir
+            @if (ilerlemeOlcumler.Any() && Model.Boy.HasValue && Model.Boy > 0)
+            {
+                <text>
+                // VKİ değişim grafiği için veri hazırlama
+                const boyMetre = @Model.Boy / 100;
+                const vkiData = ilerlemeOlcumler.map(o => ({
+                    date: new Date(o.olcumTarihi).toLocaleDateString('tr-TR'),
+                    vki: (o.kilo / (boyMetre * boyMetre)).toFixed(1)
+                }));
+                
+                // VKİ grafiği eklenebilir
+                </text>
+            }
+        });
+    </script>
+} 

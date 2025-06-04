@@ -1,0 +1,230 @@
+.sidebar {
+  min-height: 100vh;
+  background-color: var(--primary-color);
+  color: white;
+  position: fixed;
+  transition: all 0.3s;
+  z-index: 1000;
+}
+
+.sidebar .sidebar-brand {
+  padding: 1.5rem 1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-heading {
+  padding: 0.875rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar .nav-item {
+  position: relative;
+}
+
+.sidebar .nav-item .nav-link {
+  padding: 0.75rem 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  border-radius: 0;
+}
+
+.sidebar .nav-item .nav-link:hover,
+.sidebar .nav-item .nav-link.active {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-item .nav-link i {
+  margin-right: 0.5rem;
+}
+
+.sidebar .nav-item .collapse-inner,
+.sidebar .nav-item .collapsing {
+  padding: 0.5rem 0;
+  margin: 0 1rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 0.35rem;
+}
+
+.sidebar .nav-item .collapse-inner .collapse-item,
+.sidebar .nav-item .collapsing .collapse-item {
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  border-radius: 0.35rem;
+}
+
+.sidebar .nav-item .collapse-inner .collapse-item:hover,
+.sidebar .nav-item .collapsing .collapse-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sidebar-toggled .sidebar {
+  width: 6.5rem !important;
+}
+
+.sidebar-toggled .sidebar .nav-item .nav-link {
+  text-align: center;
+  padding: 0.75rem 1rem;
+}
+
+.sidebar-toggled .sidebar .nav-item .nav-link span {
+  display: none;
+}
+
+.sidebar-toggled .sidebar .nav-item .nav-link i {
+  font-size: 1.25rem;
+  margin-right: 0;
+}
+
+.sidebar-toggled .sidebar .sidebar-heading {
+  text-align: center;
+}
+
+.sidebar-toggled .sidebar .sidebar-brand {
+  text-align: center;
+}
+
+.dashboard-content {
+  margin-left: 225px;
+  padding: 1.5rem;
+}
+
+.sidebar-toggled .dashboard-content {
+  margin-left: 6.5rem;
+}
+
+.dashboard-card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-card .card-header {
+  background-color: #f8f9fc;
+  border-bottom: 1px solid #e3e6f0;
+  font-weight: 700;
+}
+
+.dashboard-card .card-header .dropdown {
+  line-height: 1;
+}
+
+.dashboard-card .card-header .dropdown .dropdown-menu {
+  min-width: 10rem;
+  font-size: 0.85rem;
+}
+
+.topbar {
+  height: 4.375rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  background-color: white;
+  padding: 0 1.5rem;
+}
+
+.topbar #sidebarToggleTop {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 100%;
+  background-color: #f8f9fc;
+}
+
+.topbar .dropdown-list {
+  padding: 0;
+  border: none;
+  overflow: hidden;
+  width: 20rem;
+}
+
+.topbar .dropdown-list .dropdown-header {
+  background-color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  color: white;
+}
+
+.topbar .dropdown-list .dropdown-item {
+  white-space: normal;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-left: 1px solid #e3e6f0;
+  border-right: 1px solid #e3e6f0;
+  border-bottom: 1px solid #e3e6f0;
+}
+
+.topbar .dropdown-list .dropdown-item .icon-circle {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-sm {
+  height: 0.5rem;
+}
+
+.chart-area {
+  position: relative;
+  height: 300px;
+  overflow-x: auto;
+}
+
+.patient-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 6.5rem !important;
+  }
+  
+  .sidebar .nav-item .nav-link {
+    text-align: center;
+    padding: 0.75rem 1rem;
+  }
+  
+  .sidebar .nav-item .nav-link span {
+    display: none;
+  }
+  
+  .sidebar .nav-item .nav-link i {
+    font-size: 1.25rem;
+    margin-right: 0;
+  }
+  
+  .sidebar .sidebar-heading {
+    text-align: center;
+  }
+  
+  .sidebar .sidebar-brand {
+    text-align: center;
+  }
+  
+  .dashboard-content {
+    margin-left: 6.5rem;
+  }
+} 

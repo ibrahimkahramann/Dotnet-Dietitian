@@ -1,0 +1,330 @@
+@using Dotnet_Dietitian.Application.Features.CQRS.Results.DiyetisyenResults
+@model GetDiyetisyenByIdQueryResult
+@{
+    ViewData["Title"] = "Profilim - DijetUP";
+    Layout = "_DietitianLayout";
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-0">Profilim</h2>
+    <p class="text-muted">Kişisel ve profesyonel bilgilerinizi görüntüleyin ve düzenleyin</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="profileAlert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Profil Kartı -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="mb-4 position-relative mx-auto" style="width: 150px; height: 150px;">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilResmiUrl) ? "/img/default-avatar.png" : Model.ProfilResmiUrl)" 
+                         class="rounded-circle img-thumbnail" alt="Profil Resmi" style="width: 150px; height: 150px; object-fit: cover;">
+                    <button class="btn btn-sm btn-success position-absolute bottom-0 end-0 rounded-circle p-2" data-bs-toggle="modal" data-bs-target="#changeProfilePicModal">
+                        <i class="bi bi-camera-fill"></i>
+                    </button>
+                </div>
+                <h4 class="mb-1">@(string.IsNullOrEmpty(Model.Unvan) ? "" : Model.Unvan) @Model.Ad @Model.Soyad</h4>
+                <p class="text-muted mb-3">@(string.IsNullOrEmpty(Model.Uzmanlik) ? "Diyetisyen" : Model.Uzmanlik)</p>
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="bi bi-pencil-square me-2"></i> Profili Düzenle
+                    </button>
+                </div>
+                <hr>
+                <div class="text-start">
+                    <div class="mb-2">
+                        <i class="bi bi-envelope text-muted me-2"></i>
+                        <span>@Model.Email</span>
+                    </div>
+                    <div class="mb-2">
+                        <i class="bi bi-telephone text-muted me-2"></i>
+                        <span>@(string.IsNullOrEmpty(Model.Telefon) ? "Belirtilmemiş" : Model.Telefon)</span>
+                    </div>
+                    <div class="mb-2">
+                        <i class="bi bi-geo-alt text-muted me-2"></i>
+                        <span>@(string.IsNullOrEmpty(Model.Sehir) ? "Belirtilmemiş" : Model.Sehir), Türkiye</span>
+                    </div>
+                    <div class="mb-2">
+                        <i class="bi bi-building text-muted me-2"></i>
+                        <span>@(string.IsNullOrEmpty(Model.CalistigiKurum) ? "Belirtilmemiş" : Model.CalistigiKurum)</span>
+                    </div>
+                    <div>
+                        <i class="bi bi-calendar3 text-muted me-2"></i>
+                        <span>Üyelik: @Model.KayitTarihi.ToString("MMMM yyyy")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Değerlendirme ve İstatistikler -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold mb-0">Değerlendirme</h6>
+                    <div class="d-flex align-items-center">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Round(Model.Puan))
+                            {
+                                <i class="bi bi-star-fill text-warning me-1"></i>
+                            }
+                            else
+                            {
+                                <i class="bi bi-star text-warning me-1"></i>
+                            }
+                        }
+                        <span class="ms-2 fw-bold">@Model.Puan</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted">Toplam Değerlendirme</span>
+                    <span class="fw-bold">@Model.ToplamYorumSayisi</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-muted">Toplam Hasta</span>
+                    <span class="fw-bold">@(Model.Hastalar?.Count ?? 0)</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted">Deneyim</span>
+                    <span class="fw-bold">@(Model.DeneyimYili.HasValue ? $"{Model.DeneyimYili} Yıl" : "Belirtilmemiş")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profil Bilgileri -->
+    <div class="col-md-8">
+        <!-- Kişisel Bilgiler -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Kişisel Bilgiler</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">T.C. Kimlik Numarası</label>
+                        <p class="mb-0">@Model.TcKimlikNumarasi</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">E-posta</label>
+                        <p class="mb-0">@Model.Email</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Ad</label>
+                        <p class="mb-0">@Model.Ad</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Soyad</label>
+                        <p class="mb-0">@Model.Soyad</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Telefon</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Telefon) ? "Belirtilmemiş" : Model.Telefon)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Şehir</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Sehir) ? "Belirtilmemiş" : Model.Sehir)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mesleki Bilgiler -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Mesleki Bilgiler</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Unvan</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Unvan) ? "Belirtilmemiş" : Model.Unvan)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Uzmanlık Alanı</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.Uzmanlik) ? "Belirtilmemiş" : Model.Uzmanlik)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Mezuniyet Okulu</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.MezuniyetOkulu) ? "Belirtilmemiş" : Model.MezuniyetOkulu)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Deneyim</label>
+                        <p class="mb-0">@(Model.DeneyimYili.HasValue ? $"{Model.DeneyimYili} Yıl" : "Belirtilmemiş")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Çalıştığı Kurum</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.CalistigiKurum) ? "Belirtilmemiş" : Model.CalistigiKurum)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-muted small">Lisans Numarası</label>
+                        <p class="mb-0">@(string.IsNullOrEmpty(Model.LisansNumarasi) ? "Belirtilmemiş" : Model.LisansNumarasi)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hakkımda -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Hakkımda</h5>
+            </div>
+            <div class="card-body p-4">
+                @if (string.IsNullOrEmpty(Model.Hakkinda))
+                {
+                    <p class="text-muted fst-italic">Henüz bir açıklama eklenmemiş.</p>
+                }
+                else
+                {
+                    <p>@Model.Hakkinda</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profil Düzenleme Modalı -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Profil Bilgilerini Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/Dietitian/UpdateProfile" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    <input type="hidden" name="TcKimlikNumarasi" value="@Model.TcKimlikNumarasi" />
+                    <input type="hidden" name="Email" value="@Model.Email" />
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="Ad" class="form-label">Ad</label>
+                            <input type="text" class="form-control" id="Ad" name="Ad" value="@Model.Ad" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Soyad" class="form-label">Soyad</label>
+                            <input type="text" class="form-control" id="Soyad" name="Soyad" value="@Model.Soyad" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="Telefon" class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" id="Telefon" name="Telefon" value="@Model.Telefon">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Sehir" class="form-label">Şehir</label>
+                            <input type="text" class="form-control" id="Sehir" name="Sehir" value="@Model.Sehir">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="Unvan" class="form-label">Unvan</label>
+                            <input type="text" class="form-control" id="Unvan" name="Unvan" value="@Model.Unvan">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="Uzmanlik" class="form-label">Uzmanlık Alanı</label>
+                            <input type="text" class="form-control" id="Uzmanlik" name="Uzmanlik" value="@Model.Uzmanlik">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="MezuniyetOkulu" class="form-label">Mezuniyet Okulu</label>
+                            <input type="text" class="form-control" id="MezuniyetOkulu" name="MezuniyetOkulu" value="@Model.MezuniyetOkulu">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="DeneyimYili" class="form-label">Deneyim Yılı</label>
+                            <input type="number" class="form-control" id="DeneyimYili" name="DeneyimYili" value="@Model.DeneyimYili">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="CalistigiKurum" class="form-label">Çalıştığı Kurum</label>
+                            <input type="text" class="form-control" id="CalistigiKurum" name="CalistigiKurum" value="@Model.CalistigiKurum">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="LisansNumarasi" class="form-label">Lisans Numarası</label>
+                            <input type="text" class="form-control" id="LisansNumarasi" name="LisansNumarasi" value="@Model.LisansNumarasi">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ProfilResmiUrl" class="form-label">Profil Resmi URL</label>
+                        <input type="text" class="form-control" id="ProfilResmiUrl" name="ProfilResmiUrl" value="@Model.ProfilResmiUrl">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="Hakkinda" class="form-label">Hakkımda</label>
+                        <textarea class="form-control" id="Hakkinda" name="Hakkinda" rows="4">@Model.Hakkinda</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Profil Resmi Değiştirme Modalı -->
+<div class="modal fade" id="changeProfilePicModal" tabindex="-1" aria-labelledby="changeProfilePicModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeProfilePicModalLabel">Profil Resmi Değiştir</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/Dietitian/UpdateProfilePicture" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="profileImage" class="form-label">Yeni profil resmi seçin</label>
+                        <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">veya URL girin</label>
+                        <input type="text" class="form-control" id="imageUrl" name="ProfilResmiUrl" value="@Model.ProfilResmiUrl">
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">İptal</button>
+                        <button type="submit" class="btn btn-success">Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Profil güncelleme başarılı olduğunda 3 saniye sonra uyarıyı kapat
+        $(document).ready(function() {
+            setTimeout(function() {
+                $("#profileAlert").fadeOut('slow');
+            }, 3000);
+        });
+    </script>
+} 

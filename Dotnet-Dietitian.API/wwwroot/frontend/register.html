@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt Ol - Diyetisyen Takip Uygulaması</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="bi bi-heart-pulse-fill text-success me-2"></i>
+                <span class="fw-bold">DijetUP</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <a class="btn btn-outline-success" href="login.html">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-success active" href="register.html">Kayıt Ol</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Register Section -->
+    <section class="py-5 register-section d-flex align-items-center">
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <i class="bi bi-heart-pulse-fill text-success fs-1 mb-3"></i>
+                                <h2 class="fw-bold">Hesap Oluştur</h2>
+                                <p class="text-muted">Diyetisyen veya hasta olarak hesabınızı oluşturun</p>
+                            </div>
+                            
+                            <!-- Account Type Selector -->
+                            <div class="mb-4">
+                                <div class="btn-group w-100" role="group" aria-label="Account type">
+                                    <input type="radio" class="btn-check" name="accountType" id="patientType" autocomplete="off" checked>
+                                    <label class="btn btn-outline-success" for="patientType">
+                                        <i class="bi bi-person me-2"></i> Hasta
+                                    </label>
+                                    <input type="radio" class="btn-check" name="accountType" id="dietitianType" autocomplete="off">
+                                    <label class="btn btn-outline-success" for="dietitianType">
+                                        <i class="bi bi-clipboard2-pulse me-2"></i> Diyetisyen
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <form id="registerForm" class="needs-validation" novalidate>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="firstName" class="form-label">Ad</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                        <div class="invalid-feedback">
+                                            Lütfen adınızı girin.
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="lastName" class="form-label">Soyad</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                        <div class="invalid-feedback">
+                                            Lütfen soyadınızı girin.
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="email" class="form-label">E-posta Adresi</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                                            <input type="email" class="form-control" id="email" placeholder="ornek@email.com" required>
+                                            <div class="invalid-feedback">
+                                                Geçerli bir e-posta adresi girin.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="phone" class="form-label">Telefon Numarası</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
+                                            <input type="tel" class="form-control" id="phone" placeholder="05XX XXX XX XX" required>
+                                            <div class="invalid-feedback">
+                                                Geçerli bir telefon numarası girin.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Dietitian-specific fields (hidden by default) -->
+                                    <div class="col-12 dietitian-field d-none">
+                                        <label for="license" class="form-label">Lisans Numarası</label>
+                                        <input type="text" class="form-control" id="license">
+                                        <div class="invalid-feedback">
+                                            Lisans numaranızı girin.
+                                        </div>
+                                    </div>
+                                    <div class="col-12 dietitian-field d-none">
+                                        <label for="specialty" class="form-label">Uzmanlık Alanı</label>
+                                        <select class="form-select" id="specialty">
+                                            <option value="" selected disabled>Seçiniz</option>
+                                            <option value="genel">Genel Beslenme</option>
+                                            <option value="sporcu">Sporcu Beslenmesi</option>
+                                            <option value="kilo">Kilo Kontrolü</option>
+                                            <option value="klinik">Klinik Beslenme</option>
+                                            <option value="cocuk">Çocuk Beslenmesi</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Uzmanlık alanınızı seçin.
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Patient-specific fields -->
+                                    <div class="col-md-6 patient-field">
+                                        <label for="birthdate" class="form-label">Doğum Tarihi</label>
+                                        <input type="date" class="form-control" id="birthdate">
+                                        <div class="invalid-feedback">
+                                            Doğum tarihinizi girin.
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 patient-field">
+                                        <label for="gender" class="form-label">Cinsiyet</label>
+                                        <select class="form-select" id="gender">
+                                            <option value="" selected disabled>Seçiniz</option>
+                                            <option value="male">Erkek</option>
+                                            <option value="female">Kadın</option>
+                                            <option value="other">Diğer</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Cinsiyetinizi seçin.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="password" class="form-label">Şifre</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                            <input type="password" class="form-control" id="password" required>
+                                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <div class="invalid-feedback">
+                                                Şifrenizi girin.
+                                            </div>
+                                        </div>
+                                        <div class="password-strength mt-2 d-none">
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                            <small class="text-muted">Şifre gücü: <span id="strengthText">Zayıf</span></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="confirmPassword" class="form-label">Şifre Tekrar</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                            <input type="password" class="form-control" id="confirmPassword" required>
+                                            <div class="invalid-feedback">
+                                                Şifrelerin eşleştiğinden emin olun.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="terms" required>
+                                            <label class="form-check-label" for="terms">
+                                                <a href="#" class="text-success">Kullanım Şartları</a> ve <a href="#" class="text-success">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum.
+                                            </label>
+                                            <div class="invalid-feedback">
+                                                Devam etmek için kullanım şartlarını kabul etmelisiniz.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12 mt-4">
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-success btn-lg">Kayıt Ol</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <div class="mt-4 text-center">
+                                <p class="text-muted">Zaten bir hesabınız var mı? <a href="login.html" class="text-success">Giriş yapın</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="small text-muted mb-0">&copy; 2025 DijetUP. Tüm hakları saklıdır.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <ul class="list-inline mb-0 small">
+                        <li class="list-inline-item"><a href="#" class="text-muted">Gizlilik Politikası</a></li>
+                        <li class="list-inline-item"><span class="text-muted">•</span></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted">Kullanım Şartları</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle account type fields
+            const patientType = document.getElementById('patientType');
+            const dietitianType = document.getElementById('dietitianType');
+            const patientFields = document.querySelectorAll('.patient-field');
+            const dietitianFields = document.querySelectorAll('.dietitian-field');
+            
+            function toggleAccountTypeFields() {
+                if (patientType.checked) {
+                    patientFields.forEach(field => field.classList.remove('d-none'));
+                    dietitianFields.forEach(field => {
+                        field.classList.add('d-none');
+                        const inputs = field.querySelectorAll('input, select');
+                        inputs.forEach(input => input.required = false);
+                    });
+                } else {
+                    patientFields.forEach(field => field.classList.add('d-none'));
+                    dietitianFields.forEach(field => {
+                        field.classList.remove('d-none');
+                        const inputs = field.querySelectorAll('input, select');
+                        inputs.forEach(input => input.required = true);
+                    });
+                }
+            }
+            
+            patientType.addEventListener('change', toggleAccountTypeFields);
+            dietitianType.addEventListener('change', toggleAccountTypeFields);
+            
+            // Initial toggle
+            toggleAccountTypeFields();
+            
+            // Toggle password visibility
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('bi-eye');
+                this.querySelector('i').classList.toggle('bi-eye-slash');
+            });
+            
+            // Password strength meter
+            const strengthBar = document.querySelector('.progress-bar');
+            const strengthText = document.getElementById('strengthText');
+            const strengthContainer = document.querySelector('.password-strength');
+            
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                
+                if (password.length > 0) {
+                    strengthContainer.classList.remove('d-none');
+                    
+                    // Calculate strength (simple version)
+                    let strength = 0;
+                    
+                    // Length check
+                    if (password.length >= 8) strength += 25;
+                    
+                    // Uppercase check
+                    if (/[A-Z]/.test(password)) strength += 25;
+                    
+                    // Number check
+                    if (/[0-9]/.test(password)) strength += 25;
+                    
+                    // Special char check
+                    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+                    
+                    // Update UI
+                    strengthBar.style.width = strength + '%';
+                    
+                    // Change color based on strength
+                    if (strength <= 25) {
+                        strengthBar.className = 'progress-bar bg-danger';
+                        strengthText.textContent = 'Zayıf';
+                    } else if (strength <= 50) {
+                        strengthBar.className = 'progress-bar bg-warning';
+                        strengthText.textContent = 'Orta';
+                    } else if (strength <= 75) {
+                        strengthBar.className = 'progress-bar bg-info';
+                        strengthText.textContent = 'İyi';
+                    } else {
+                        strengthBar.className = 'progress-bar bg-success';
+                        strengthText.textContent = 'Güçlü';
+                    }
+                } else {
+                    strengthContainer.classList.add('d-none');
+                }
+            });
+            
+            // Confirm password validation
+            const confirmPassword = document.getElementById('confirmPassword');
+            
+            confirmPassword.addEventListener('input', function() {
+                if (this.value !== passwordInput.value) {
+                    this.setCustomValidity('Şifreler eşleşmiyor');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+            
+            // Form submission
+            const registerForm = document.getElementById('registerForm');
+            
+            registerForm.addEventListener('submit', function(event) {
+                if (!this.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                } else {
+                    event.preventDefault();
+                    submitRegistration();
+                }
+                
+                this.classList.add('was-validated');
+            });
+            
+            function submitRegistration() {
+                const submitBtn = registerForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerText;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Kaydınız yapılıyor...';
+                
+                // Simulate API call
+                setTimeout(() => {
+                    // For demo, show success and redirect
+                    showRegistrationSuccess();
+                    
+                    // In case redirect fails
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
+                }, 1500);
+            }
+            
+            function showRegistrationSuccess() {
+                // Create modal element
+                const modalEl = document.createElement('div');
+                modalEl.className = 'modal fade';
+                modalEl.id = 'registrationSuccessModal';
+                modalEl.tabIndex = '-1';
+                modalEl.setAttribute('aria-labelledby', 'registrationSuccessModalLabel');
+                modalEl.setAttribute('aria-hidden', 'true');
+                
+                modalEl.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header border-0">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-center px-4">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                                <h3 class="mt-3 mb-2">Kayıt Başarılı!</h3>
+                                <p class="text-muted mb-4">Hesabınız başarıyla oluşturuldu. Şimdi giriş yapabilirsiniz.</p>
+                                <a href="login.html" class="btn btn-success btn-lg w-100">Giriş Yap</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modalEl);
+                
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+                
+                // Auto redirect after modal is closed
+                modalEl.addEventListener('hidden.bs.modal', function() {
+                    window.location.href = 'login.html';
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oturum Test - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Oturum Durumu Test Aracı</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h5>Mevcut Oturum Bilgileri:</h5>
+                            <div id="session-info" class="bg-light p-3 rounded">
+                                <p><strong>Session Storage User Type:</strong> <span id="session-type">Kontrol ediliyor...</span></p>
+                                <p><strong>Local Storage User Type:</strong> <span id="local-type">Kontrol ediliyor...</span></p>
+                                <p><strong>Local Storage Email:</strong> <span id="local-email">Kontrol ediliyor...</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Oturum İşlemleri:</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-success" id="create-patient">Hasta Oturumu Oluştur</button>
+                                <button class="btn btn-info" id="create-dietitian">Diyetisyen Oturumu Oluştur</button>
+                                <button class="btn btn-danger" id="clear-session">Oturumu Temizle</button>
+                                <button class="btn btn-warning" id="refresh-info">Bilgileri Yenile</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5>Hızlı Erişim:</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="login.html" class="btn btn-outline-primary">Giriş Sayfası</a>
+                                <a href="patient-dashboard.html" class="btn btn-outline-success">Hasta Paneli</a>
+                                <a href="patient-progress-tracking.html" class="btn btn-outline-success">İlerleme Takibi</a>
+                                <a href="ilerleme-takibi-test.html" class="btn btn-warning">İlerleme Takibi (Test)</a>
+                                <a href="dietitian-dashboard.html" class="btn btn-outline-info">Diyetisyen Paneli</a>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Uyarılar:</h5>
+                            <div class="alert alert-warning">
+                                <p class="mb-0">Bu sayfa sadece test amaçlıdır. Gerçek uygulamada kullanılmamalıdır.</p>
+                            </div>
+                            <div class="alert alert-info mt-2">
+                                <p class="mb-1"><strong>İlerleme Takibi Sayfaları Hakkında:</strong></p>
+                                <p class="mb-0">İlerleme takibi sayfaları artık oturum kontrolü olmadan çalışmaktadır. Bu sayfalara erişmek için giriş yapmanıza gerek yoktur.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const sessionTypeEl = document.getElementById('session-type');
+            const localTypeEl = document.getElementById('local-type');
+            const localEmailEl = document.getElementById('local-email');
+            
+            // Buttons
+            const createPatientBtn = document.getElementById('create-patient');
+            const createDietitianBtn = document.getElementById('create-dietitian');
+            const clearSessionBtn = document.getElementById('clear-session');
+            const refreshInfoBtn = document.getElementById('refresh-info');
+            
+            // Update session info
+            function updateSessionInfo() {
+                const sessionType = sessionStorage.getItem('userType');
+                const localType = localStorage.getItem('userType');
+                const localEmail = localStorage.getItem('userEmail');
+                
+                sessionTypeEl.textContent = sessionType || 'Bulunamadı';
+                sessionTypeEl.style.color = sessionType ? 'green' : 'red';
+                
+                localTypeEl.textContent = localType || 'Bulunamadı';
+                localTypeEl.style.color = localType ? 'green' : 'red';
+                
+                localEmailEl.textContent = localEmail || 'Bulunamadı';
+                localEmailEl.style.color = localEmail ? 'green' : 'red';
+            }
+            
+            // Create patient session
+            createPatientBtn.addEventListener('click', function() {
+                sessionStorage.setItem('userType', 'patient');
+                localStorage.setItem('userType', 'patient');
+                localStorage.setItem('userEmail', 'hasta@example.com');
+                updateSessionInfo();
+                alert('Hasta oturumu oluşturuldu!');
+            });
+            
+            // Create dietitian session
+            createDietitianBtn.addEventListener('click', function() {
+                sessionStorage.setItem('userType', 'dietitian');
+                localStorage.setItem('userType', 'dietitian');
+                localStorage.setItem('userEmail', 'diyetisyen@example.com');
+                updateSessionInfo();
+                alert('Diyetisyen oturumu oluşturuldu!');
+            });
+            
+            // Clear session
+            clearSessionBtn.addEventListener('click', function() {
+                sessionStorage.removeItem('userType');
+                localStorage.removeItem('userType');
+                localStorage.removeItem('userEmail');
+                updateSessionInfo();
+                alert('Oturum temizlendi!');
+            });
+            
+            // Refresh info
+            refreshInfoBtn.addEventListener('click', function() {
+                updateSessionInfo();
+                alert('Bilgiler yenilendi!');
+            });
+            
+            // Initial update
+            updateSessionInfo();
+        });
+    </script>
+</body>
+</html> 

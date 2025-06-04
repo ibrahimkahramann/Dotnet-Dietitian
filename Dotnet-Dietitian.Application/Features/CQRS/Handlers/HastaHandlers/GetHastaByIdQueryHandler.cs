@@ -48,11 +48,19 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.HastaHandlers
                 DiyetisyenId = hasta.DiyetisyenId,
                 DiyetProgramiId = hasta.DiyetProgramiId,
                 GunlukKaloriIhtiyaci = hasta.GunlukKaloriIhtiyaci,
-                Odemeler = new List<OdemeDto>(),
-                Randevular = new List<RandevuDto>()
+                
+                // Map additional profile fields
+                DogumTarihi = hasta.DogumTarihi,
+                Cinsiyet = hasta.Cinsiyet,
+                Adres = hasta.Adres,
+                KanGrubu = hasta.KanGrubu,
+                Alerjiler = hasta.Alerjiler,
+                KronikHastaliklar = hasta.KronikHastaliklar,
+                KullanilanIlaclar = hasta.KullanilanIlaclar,
+                SaglikBilgisiPaylasimiIzni = hasta.SaglikBilgisiPaylasimiIzni
             };
 
-            // Diyetisyen adını getir
+            // Diyetisyen adını çekme
             if (hasta.DiyetisyenId.HasValue)
             {
                 var diyetisyen = await _diyetisyenRepository.GetByIdAsync(hasta.DiyetisyenId.Value);
@@ -62,7 +70,7 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.HastaHandlers
                 }
             }
 
-            // Diyet programı adını getir
+            // Diyet programı adını çekme
             if (hasta.DiyetProgramiId.HasValue)
             {
                 var diyetProgrami = await _diyetProgramiRepository.GetByIdAsync(hasta.DiyetProgramiId.Value);
@@ -72,7 +80,7 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.HastaHandlers
                 }
             }
 
-            // Ödemeleri getir
+            // Ödeme bilgilerini çekme
             var odemeler = await _odemeRepository.GetAsync(o => o.HastaId == hasta.Id);
             if (odemeler.Any())
             {
@@ -81,20 +89,30 @@ namespace Dotnet_Dietitian.Application.Features.CQRS.Handlers.HastaHandlers
                     Id = o.Id,
                     Tutar = o.Tutar,
                     Tarih = o.Tarih,
-                    OdemeTuru = o.OdemeTuru
+                    OdemeTuru = o.OdemeTuru ?? "Belirtilmemiş"
                 }).ToList();
             }
 
-            // Randevuları getir
+            // Randevu bilgilerini çekme
             var randevular = await _randevuRepository.GetAsync(r => r.HastaId == hasta.Id);
             if (randevular.Any())
             {
+                // Diyetisyen bilgilerini önce yükle
+                var diyetisyenIds = randevular.Select(r => r.DiyetisyenId).Distinct().ToList();
+                var diyetisyenler = await _diyetisyenRepository.GetAsync(d => diyetisyenIds.Contains(d.Id));
+                var diyetisyenDict = diyetisyenler.ToDictionary(d => d.Id);
+
                 result.Randevular = randevular.Select(r => new RandevuDto
                 {
                     Id = r.Id,
                     RandevuBaslangicTarihi = r.RandevuBaslangicTarihi,
                     RandevuBitisTarihi = r.RandevuBitisTarihi,
-                    Durum = r.Durum
+                    RandevuTuru = r.RandevuTuru,
+                    Durum = r.Durum,
+                    DiyetisyenId = r.DiyetisyenId,
+                    DiyetisyenAd = diyetisyenDict.TryGetValue(r.DiyetisyenId, out var diyetisyen) ? diyetisyen.Ad : null,
+                    DiyetisyenSoyad = diyetisyenDict.TryGetValue(r.DiyetisyenId, out var d) ? d.Soyad : null,
+                    DiyetisyenUnvan = diyetisyenDict.TryGetValue(r.DiyetisyenId, out var dy) ? dy.Unvan : null
                 }).ToList();
             }
 

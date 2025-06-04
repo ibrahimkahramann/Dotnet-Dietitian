@@ -1,0 +1,128 @@
+:root {
+  --primary-color: #4e73df;
+  --secondary-color: #1cc88a;
+  --danger-color: #e74a3b;
+  --warning-color: #f6c23e;
+  --dark-color: #5a5c69;
+  --light-color: #f8f9fc;
+}
+
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f8f9fc;
+}
+
+.navbar {
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary-color) !important;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: #2e59d9;
+  border-color: #2653d4;
+}
+
+.btn-success {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.hero-section {
+  background: linear-gradient(to right, rgba(78, 115, 223, 0.9), rgba(28, 200, 138, 0.9)), url('images/hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 6rem 0;
+}
+
+.feature-card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+}
+
+.auth-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.auth-card .card-header {
+  background-color: white;
+  border-bottom: none;
+  padding: 2rem 1.5rem 0.5rem;
+  text-align: center;
+}
+
+.auth-card .card-body {
+  padding: 2rem;
+}
+
+footer {
+  background-color: var(--dark-color);
+  color: white;
+  padding: 2rem 0;
+}
+
+.page-section {
+  padding: 5rem 0;
+}
+
+.section-heading {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.testimonial-card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  margin-bottom: 2rem;
+}
+
+.testimonial-card .card-body {
+  padding: 2rem;
+}
+
+.testimonial-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.social-icon {
+  font-size: 1.5rem;
+  margin: 0 0.5rem;
+  color: white;
+}
+
+.social-icon:hover {
+  color: var(--secondary-color);
+}
+
+.contact-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+} 

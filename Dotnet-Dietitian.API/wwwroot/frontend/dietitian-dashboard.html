@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diyetisyen Paneli - DijetUP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="border-end bg-white" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom bg-success text-white">
+                <div class="d-flex align-items-center py-3 px-4">
+                    <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">DijetUP</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="dietitian-dashboard.html" class="list-group-item list-group-item-action active py-3 px-4" id="dashboard-link">
+                    <i class="bi bi-speedometer2 me-2"></i> Ana Panel
+                </a>
+                <a href="patients-view.html" class="list-group-item list-group-item-action py-3 px-4" id="patients-link">
+                    <i class="bi bi-people me-2"></i> Hastalarım
+                </a>
+                <a href="appointments.html" class="list-group-item list-group-item-action py-3 px-4" id="appointments-link">
+                    <i class="bi bi-calendar-check me-2"></i> Randevular
+                </a>
+                <a href="diet-plans.html" class="list-group-item list-group-item-action py-3 px-4" id="diet-plans-link">
+                    <i class="bi bi-clipboard2-pulse me-2"></i> Diyet Planları
+                </a>
+                <a href="messages.html" class="list-group-item list-group-item-action py-3 px-4" id="messages-link">
+                    <i class="bi bi-chat-dots me-2"></i> Mesajlar
+                    <span class="badge bg-danger rounded-pill ms-2">3</span>
+                </a>
+                <a href="profile.html" class="list-group-item list-group-item-action py-3 px-4" id="profile-link">
+                    <i class="bi bi-person-circle me-2"></i> Profilim
+                </a>
+                <a href="settings.html" class="list-group-item list-group-item-action py-3 px-4" id="settings-link">
+                    <i class="bi bi-gear me-2"></i> Ayarlar
+                </a>
+            </div>
+            <div class="sidebar-footer border-top p-3 mt-auto">
+                <a href="index.html" class="btn btn-outline-danger w-100">
+                    <i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Page content wrapper -->
+        <div id="page-content-wrapper">
+            <!-- Top navigation -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-sm btn-outline-secondary" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="d-flex ms-auto">
+                        <div class="dropdown me-3">
+                            <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    5
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                <li><h6 class="dropdown-header">Bildirimler</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-success me-3">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">Bugün saat 14:00'de randevunuz var</p>
+                                            <small class="text-muted">10 dakika önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <div class="text-primary me-3">
+                                            <i class="bi bi-person-plus"></i>
+                                        </div>
+                                        <div>
+                                            <p class="mb-0">2 yeni hasta kaydı oldu</p>
+                                            <small class="text-muted">1 saat önce</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="#">
+                                        Tüm bildirimleri gör
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle d-flex align-items-center text-decoration-none" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format" alt="Profile" class="rounded-circle me-2" width="32" height="32">
+                                <span class="d-none d-lg-block text-dark">Dr. Ayşe Yılmaz</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle me-2"></i> Profilim</a></li>
+                                <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear me-2"></i> Ayarlar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="index.html"><i class="bi bi-box-arrow-left me-2"></i> Çıkış Yap</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Page content -->
+            <div class="container-fluid p-4">
+                <!-- Dashboard Content (shown by default) -->
+                <div id="dashboard-content" class="content-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">Ana Panel</h2>
+                        <div>
+                            <span class="text-muted me-2">Bugün:</span>
+                            <span class="fw-bold" id="current-date">15 Haziran 2025</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Statistics Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-primary bg-opacity-10 p-3 rounded text-primary me-3">
+                                            <i class="bi bi-people fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="card-title mb-0 text-muted">Toplam Hasta</h6>
+                                        </div>
+                                    </div>
+                                    <h3 class="fw-bold mb-0">48</h3>
+                                    <div class="d-flex align-items-center mt-3">
+                                        <span class="badge bg-success me-2">
+                                            <i class="bi bi-arrow-up me-1"></i>5.7%
+                                        </span>
+                                        <small class="text-muted">Bu ay</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-success bg-opacity-10 p-3 rounded text-success me-3">
+                                            <i class="bi bi-calendar-check fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="card-title mb-0 text-muted">Bugünkü Randevular</h6>
+                                        </div>
+                                    </div>
+                                    <h3 class="fw-bold mb-0">5</h3>
+                                    <div class="d-flex align-items-center mt-3">
+                                        <span class="badge bg-success me-2">
+                                            <i class="bi bi-arrow-up me-1"></i>2
+                                        </span>
+                                        <small class="text-muted">Dünden</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-info bg-opacity-10 p-3 rounded text-info me-3">
+                                            <i class="bi bi-clipboard2-pulse fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="card-title mb-0 text-muted">Aktif Diyet Planları</h6>
+                                        </div>
+                                    </div>
+                                    <h3 class="fw-bold mb-0">32</h3>
+                                    <div class="d-flex align-items-center mt-3">
+                                        <span class="badge bg-success me-2">
+                                            <i class="bi bi-arrow-up me-1"></i>3
+                                        </span>
+                                        <small class="text-muted">Bu hafta</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-warning bg-opacity-10 p-3 rounded text-warning me-3">
+                                            <i class="bi bi-chat-dots fs-4"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="card-title mb-0 text-muted">Okunmamış Mesajlar</h6>
+                                        </div>
+                                    </div>
+                                    <h3 class="fw-bold mb-0">3</h3>
+                                    <div class="d-flex align-items-center mt-3">
+                                        <span class="badge bg-danger me-2">
+                                            <i class="bi bi-arrow-up me-1"></i>2
+                                        </span>
+                                        <small class="text-muted">Bugün</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Appointments & Notifications Sections -->
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-white py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0 fw-bold">Yaklaşan Randevular</h5>
+                                        <a href="#" class="btn btn-sm btn-outline-success">Tümünü Gör</a>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th class="ps-4">Hasta</th>
+                                                    <th>Tarih & Saat</th>
+                                                    <th>Durum</th>
+                                                    <th class="text-end pe-4">İşlem</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="ps-4">
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                                            <div>
+                                                                <h6 class="mb-0">Zeynep Kaya</h6>
+                                                                <small class="text-muted">ID: #12345</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div>15 Haziran 2025</div>
+                                                        <small class="text-muted">14:00 - 14:30</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">Onaylandı</span>
+                                                    </td>
+                                                    <td class="text-end pe-4">
+                                                        <button class="btn btn-sm btn-outline-primary me-1">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-secondary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="ps-4">
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                                            <div>
+                                                                <h6 class="mb-0">Ahmet Yıldız</h6>
+                                                                <small class="text-muted">ID: #12346</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div>15 Haziran 2025</div>
+                                                        <small class="text-muted">15:30 - 16:00</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">Onaylandı</span>
+                                                    </td>
+                                                    <td class="text-end pe-4">
+                                                        <button class="btn btn-sm btn-outline-primary me-1">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-secondary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="ps-4">
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150&h=150&fit=crop&auto=format" class="rounded-circle me-3" width="40" height="40">
+                                                            <div>
+                                                                <h6 class="mb-0">Selin Demir</h6>
+                                                                <small class="text-muted">ID: #12347</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div>16 Haziran 2025</div>
+                                                        <small class="text-muted">10:00 - 10:30</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-warning text-dark">Beklemede</span>
+                                                    </td>
+                                                    <td class="text-end pe-4">
+                                                        <button class="btn btn-sm btn-outline-primary me-1">
+                                                            <i class="bi bi-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-secondary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-white py-3">
+                                    <h5 class="mb-0 fw-bold">Son Bildirimler</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                                            <div class="d-flex w-100 justify-content-between mb-1">
+                                                <h6 class="mb-0">Yeni randevu talebi</h6>
+                                                <small class="text-muted">3 saat önce</small>
+                                            </div>
+                                            <p class="mb-0 text-muted small">Mehmet Aydın 18 Haziran için randevu talep etti.</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                                            <div class="d-flex w-100 justify-content-between mb-1">
+                                                <h6 class="mb-0">Yeni mesaj</h6>
+                                                <small class="text-muted">5 saat önce</small>
+                                            </div>
+                                            <p class="mb-0 text-muted small">Zeynep Kaya: "Diyet planım hakkında bir sorum vardı..."</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                                            <div class="d-flex w-100 justify-content-between mb-1">
+                                                <h6 class="mb-0">İptal edilen randevu</h6>
+                                                <small class="text-muted">Dün</small>
+                                            </div>
+                                            <p class="mb-0 text-muted small">Ahmet Yılmaz bugünkü randevusunu iptal etti.</p>
+                                        </a>
+                                        <a href="#" class="list-group-item list-group-item-action px-4 py-3">
+                                            <div class="d-flex w-100 justify-content-between mb-1">
+                                                <h6 class="mb-0">Yeni hasta kaydı</h6>
+                                                <small class="text-muted">2 gün önce</small>
+                                            </div>
+                                            <p class="mb-0 text-muted small">Selin Demir uygulamaya kaydoldu ve sizinle çalışmak istiyor.</p>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-top-0 text-center">
+                                    <a href="#" class="btn btn-sm btn-outline-secondary w-100">Tüm Bildirimleri Gör</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Patients Content (hidden by default) -->
+                <div id="patients-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Hastalarım</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <!-- Other Content Sections (hidden by default) -->
+                <div id="appointments-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Randevular</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="diet-plans-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Diyet Planları</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="messages-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Mesajlar</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="profile-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Profilim</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+                
+                <div id="settings-content" class="content-section d-none">
+                    <h2 class="fw-bold mb-4">Ayarlar</h2>
+                    <!-- Content will be added in a separate file -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth-helper.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html> 

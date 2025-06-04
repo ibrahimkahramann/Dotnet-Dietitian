@@ -1,6 +1,8 @@
 using Dotnet_Dietitian.Infrastructure.Hubs;
 using Dotnet_Dietitian.Application.Features.CQRS.Commands.MesajCommands;
 using Dotnet_Dietitian.Application.Features.CQRS.Queries.MesajQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.DiyetisyenQueries;
+using Dotnet_Dietitian.Application.Features.CQRS.Queries.HastaQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +83,101 @@ namespace Dotnet_Dietitian.API.Controllers
             var command = new MarkAsReadCommand(mesajId, okuyanId, okuyanTipi);
             await _mediator.Send(command);
             return Ok();
+        }
+
+        [HttpGet("contacts/diyetisyen/{diyetisyenId}")]
+        public async Task<IActionResult> GetDiyetisyenContacts(Guid diyetisyenId)
+        {
+            try
+            {
+                // Diyetisyenin hastalarını getir (mesajlaşabileceği kişiler)
+                var hastalar = await _mediator.Send(new GetHastasByDiyetisyenIdQuery(diyetisyenId));
+                return Ok(hastalar);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { hata = ex.Message });
+            }
+        }
+
+        [HttpGet("contacts/hasta/{hastaId}")]
+        public async Task<IActionResult> GetHastaContacts(Guid hastaId)
+        {
+            try
+            {
+                // Hastanın diyetisyenini getir
+                var hasta = await _mediator.Send(new GetHastaByIdQuery(hastaId));
+                
+                if (hasta == null || hasta.DiyetisyenId == null)
+                {
+                    return Ok(new { message = "Henüz bir diyetisyeniniz bulunmuyor." });
+                }
+                
+                var diyetisyen = await _mediator.Send(new GetDiyetisyenByIdQuery(hasta.DiyetisyenId.Value));
+                
+                // Diyetisyen bilgilerini düzenle
+                var diyetisyenContact = new
+                {
+                    id = diyetisyen.Id,
+                    adSoyad = $"{diyetisyen.Ad} {diyetisyen.Soyad}",
+                    unvan = diyetisyen.Unvan
+                };
+                
+                return Ok(diyetisyenContact);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { hata = ex.Message });
+            }
+        }
+
+        [HttpGet("contacts/dietitian/{dietitianId}")]
+        public async Task<IActionResult> GetDietitianContacts(Guid dietitianId)
+        {
+            try
+            {
+                // Get dietitian's patients (people they can message)
+                var query = new GetHastasByDiyetisyenIdQuery(dietitianId);
+                var patients = await _mediator.Send(query);
+                return Ok(patients);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("contacts/patient/{patientId}")]
+        public async Task<IActionResult> GetPatientContacts(Guid patientId)
+        {
+            try
+            {
+                // Get patient's dietitian
+                var query = new GetHastaByIdQuery(patientId);
+                var patient = await _mediator.Send(query);
+                
+                if (patient == null || patient.DiyetisyenId == null)
+                {
+                    return Ok(new { message = "You don't have a dietitian assigned yet." });
+                }
+                
+                var dietitianQuery = new GetDiyetisyenByIdQuery(patient.DiyetisyenId.Value);
+                var dietitian = await _mediator.Send(dietitianQuery);
+                
+                // Format dietitian info
+                var dietitianContact = new
+                {
+                    id = dietitian.Id,
+                    fullName = $"{dietitian.Ad} {dietitian.Soyad}",
+                    title = dietitian.Unvan
+                };
+                
+                return Ok(dietitianContact);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }
