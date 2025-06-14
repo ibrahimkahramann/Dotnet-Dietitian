@@ -67,7 +67,7 @@ class ContactsService {
                 fallbackUrl = `/api/Dietitians/${this.currentUserId}/hastalar`;
             } else if (userType === 'hasta' || userType === 'patient') {
                 url = `/api/Mesaj/contacts/hasta/${this.currentUserId}`;
-                fallbackUrl = `/api/Hasta/${this.currentUserId}/diyetisyen`;
+                fallbackUrl = `/api/Patients/${this.currentUserId}/diyetisyen`;
             } else {
                 console.error('Unsupported user type:', this.currentUserType);
                 return;

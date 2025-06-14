@@ -373,7 +373,7 @@
                     });
                     
                     // AJAX ile hasta ekleme
-                    fetch('/api/Hasta', {
+                    fetch('/api/Patients', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -438,7 +438,7 @@
                     }
                     
                     // Hasta güncelleme isteği
-                    fetch(`/api/Hasta`, {
+                    fetch(`/api/Patients`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -476,7 +476,7 @@
                     if (confirm('Bu hastayı silmek istediğinizden emin misiniz?')) {
                         const patientId = this.dataset.id;
                         
-                        fetch(`/api/Hasta/${patientId}`, {
+                        fetch(`/api/Patients/${patientId}`, {
                             method: 'DELETE'
                         })
                         .then(response => {

@@ -757,7 +757,7 @@
                 const originalText = button.innerHTML;
                 button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Siliniyor...';
                 
-                fetch(`/api/Hasta/${patientId}`, {
+                fetch(`/api/Patients/${patientId}`, {
                     method: 'DELETE'
                 })
                 .then(response => {

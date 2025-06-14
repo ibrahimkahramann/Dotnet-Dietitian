@@ -7,11 +7,11 @@ namespace Dotnet_Dietitian.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class HastaController : ControllerBase
+    public class PatientsController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public HastaController(IMediator mediator)
+        public PatientsController(IMediator mediator)
         {
             _mediator = mediator;
         }
