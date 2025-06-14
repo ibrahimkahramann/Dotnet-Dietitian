@@ -45,7 +45,7 @@ export class MessageService {
     // API üzerinden mesaj gönderme
     async sendMessage(gonderenId, gonderenTipi, aliciId, aliciTipi, icerik) {
         try {
-            const response = await fetch("/api/Mesaj", {
+            const response = await fetch("/api/Messages", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -69,7 +69,7 @@ export class MessageService {
     async getConversation(user1Id, user1Type, user2Id, user2Type, count = 50) {
         try {
             const response = await fetch(
-                `/api/Mesaj/conversation?user1Id=${user1Id}&user1Type=${user1Type}&user2Id=${user2Id}&user2Type=${user2Type}&count=${count}`
+                `/api/Messages/conversation?user1Id=${user1Id}&user1Type=${user1Type}&user2Id=${user2Id}&user2Type=${user2Type}&count=${count}`
             );
             return await response.json();
         } catch (error) {
@@ -82,7 +82,7 @@ export class MessageService {
     async markAsRead(mesajId, okuyanId, okuyanTipi) {
         try {
             await fetch(
-                `/api/Mesaj/${mesajId}/read?okuyanId=${okuyanId}&okuyanTipi=${okuyanTipi}`,
+                `/api/Messages/${mesajId}/read?okuyanId=${okuyanId}&okuyanTipi=${okuyanTipi}`,
                 { method: "POST" }
             );
             return true;

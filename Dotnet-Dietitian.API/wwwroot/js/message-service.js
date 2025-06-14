@@ -217,7 +217,7 @@ class MessageService {
             
             console.log("Request body:", JSON.stringify(requestBody));
             
-            const response = await fetch("/api/Mesaj", {
+            const response = await fetch("/api/Messages", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -252,7 +252,7 @@ class MessageService {
      */
     async getConversation(user1Id, user1Type, user2Id, user2Type, count = 50) {
         try {
-            const url = `/api/Mesaj/conversation?user1Id=${user1Id}&user1Type=${encodeURIComponent(user1Type)}&user2Id=${user2Id}&user2Type=${encodeURIComponent(user2Type)}&count=${count}`;
+            const url = `/api/Messages/conversation?user1Id=${user1Id}&user1Type=${encodeURIComponent(user1Type)}&user2Id=${user2Id}&user2Type=${encodeURIComponent(user2Type)}&count=${count}`;
             
             const response = await fetch(url, {
                 method: "GET",
@@ -279,7 +279,7 @@ class MessageService {
      */
     async markAsRead(mesajId, okuyanId, okuyanTipi) {
         try {
-            const response = await fetch(`/api/Mesaj/${mesajId}/read?okuyanId=${okuyanId}&okuyanTipi=${encodeURIComponent(okuyanTipi)}`, {
+            const response = await fetch(`/api/Messages/${mesajId}/read?okuyanId=${okuyanId}&okuyanTipi=${encodeURIComponent(okuyanTipi)}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -303,7 +303,7 @@ class MessageService {
      */
     async getUnreadMessages(userId, userType) {
         try {
-            const response = await fetch(`/api/Mesaj/unread?userId=${userId}&userType=${encodeURIComponent(userType)}`, {
+            const response = await fetch(`/api/Messages/unread?userId=${userId}&userType=${encodeURIComponent(userType)}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"

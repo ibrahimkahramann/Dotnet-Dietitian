@@ -15,12 +15,12 @@ namespace Dotnet_Dietitian.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class MesajController : ControllerBase
+    public class MessagesController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly IHubContext<MesajlasmaChatHub> _hubContext;
 
-        public MesajController(IMediator mediator, IHubContext<MesajlasmaChatHub> hubContext)
+        public MessagesController(IMediator mediator, IHubContext<MesajlasmaChatHub> hubContext)
         {
             _mediator = mediator;
             _hubContext = hubContext;
