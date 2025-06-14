@@ -373,7 +373,7 @@
                             headers['Authorization'] = `Bearer ${jwtToken}`;
                         }
                         
-                        const response = await fetch(`/api/DiyetProgrami/${planId}`, {
+                        const response = await fetch(`/api/DietProgram/${planId}`, {
                             method: 'DELETE',
                             headers: headers,
                             credentials: 'include'
@@ -456,7 +456,7 @@
                         }
 
                         // API çağrısı yap
-                        const response = await fetch('/api/DiyetProgrami', {
+                        const response = await fetch('/api/DietProgram', {
                             method: 'POST',
                             headers: headers,
                             body: JSON.stringify(planData),

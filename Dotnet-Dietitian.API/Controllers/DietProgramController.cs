@@ -15,20 +15,20 @@ namespace Dotnet_Dietitian.API.Controllers
     [Route("api/[controller]")]
     [Authorize(Roles = "Diyetisyen, Admin")]
     [AutoValidateAntiforgeryToken] // Controller seviyesinde Antiforgery token doğrulama
-    public class DiyetProgramiController : ControllerBase
+    public class DietProgramController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly DiyetProgramOlusturucuFactory _programFactory;
         private readonly IRepository<Hasta> _hastaRepository;
         private readonly IAntiforgery _antiforgery;
-        private readonly ILogger<DiyetProgramiController> _logger;
+        private readonly ILogger<DietProgramController> _logger;
 
-        public DiyetProgramiController(
+        public DietProgramController(
             IMediator mediator,
             DiyetProgramOlusturucuFactory programFactory,
             IRepository<Hasta> hastaRepository,
             IAntiforgery antiforgery,
-            ILogger<DiyetProgramiController> logger)
+            ILogger<DietProgramController> logger)
         {
             _mediator = mediator;
             _programFactory = programFactory;

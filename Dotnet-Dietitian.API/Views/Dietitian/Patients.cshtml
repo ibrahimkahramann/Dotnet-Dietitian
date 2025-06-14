@@ -407,7 +407,7 @@
                     document.getElementById('patientId').value = patientId;
                     
                     // Diyet planlarını getir
-                    fetch('/api/DiyetProgrami')
+                    fetch('/api/DietProgram')
                         .then(response => response.json())
                         .then(data => {
                             const select = document.getElementById('dietPlanSelect');
