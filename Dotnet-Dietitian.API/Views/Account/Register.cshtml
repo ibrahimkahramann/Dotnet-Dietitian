@@ -104,7 +104,7 @@
                                     <label asp-for="Phone" class="form-label">Telefon Numarası</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
-                                        <input asp-for="Phone" class="form-control" placeholder="05XX XXX XX XX" required>
+                                        <input asp-for="Phone" class="form-control" maxlength="11" placeholder="05XX XXX XX XX" required>
                                         <span asp-validation-for="Phone" class="invalid-feedback"></span>
                                     </div>
                                 </div>
