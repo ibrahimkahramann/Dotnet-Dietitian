@@ -64,7 +64,7 @@ class ContactsService {
             // First try the dedicated message contacts endpoints
             if (userType === 'diyetisyen' || userType === 'dietitian') {
                 url = `/api/Mesaj/contacts/diyetisyen/${this.currentUserId}`;
-                fallbackUrl = `/api/Diyetisyen/${this.currentUserId}/hastalar`;
+                fallbackUrl = `/api/Dietitians/${this.currentUserId}/hastalar`;
             } else if (userType === 'hasta' || userType === 'patient') {
                 url = `/api/Mesaj/contacts/hasta/${this.currentUserId}`;
                 fallbackUrl = `/api/Hasta/${this.currentUserId}/diyetisyen`;
